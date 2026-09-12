@@ -5,7 +5,8 @@
     {
       "source": "dashboard/.gitignore",
       "destination": ".gitignore",
-      "sha256": "af01f416f1ab806cf3e4e1ede29a16702e1718c45c7539604a760b2eb8d27858"
+      "sha256": "af01f416f1ab806cf3e4e1ede29a16702e1718c45c7539604a760b2eb8d27858",
+      "extracted_sha256": "599c7d393af2a0e5976fdad8dacbe65b8ff69867746087154b9903b3b6978e9e"
     },
     {
       "source": "dashboard/ACCOUNTS.md",
@@ -15,7 +16,8 @@
     {
       "source": "dashboard/README.md",
       "destination": "README.md",
-      "sha256": "ff64e3d40c4f1e80ce6c2b8329a306094e4e91b09c96277b6dbe414ede7ab173"
+      "sha256": "ff64e3d40c4f1e80ce6c2b8329a306094e4e91b09c96277b6dbe414ede7ab173",
+      "extracted_sha256": "998ae00875364bf5d537271188922d96cd026f12769be731bad3cc1d5347c734"
     },
     {
       "source": "dashboard/components.json",
@@ -302,5 +304,9 @@
       "destination": "vite.config.ts",
       "sha256": "04bf7d4b796efe3e7b6ff49c4fa5379cd69fdec1387367ce73bf10b06de0cdb3"
     }
+  ],
+  "packaging_changes": [
+    ".gitignore",
+    "README.md"
   ]
 }
