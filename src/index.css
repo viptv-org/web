@@ -1,0 +1,24 @@
+@import "tailwindcss";
+:root { --background: #fff; --foreground: #171717; --card: #fff; --card-foreground: #19212e; --popover: #fff; --popover-foreground: #19212e; --primary: #171717; --primary-foreground: #fff; --secondary: #edf1ef; --secondary-foreground: #171717; --muted: #f1f3f5; --muted-foreground: #727a87; --accent: #edf1ef; --accent-foreground: #171717; --destructive: #b63c3c; --destructive-foreground: #fff; --border: #e4e7eb; --input: #e4e7eb; --ring: #737373; --radius: .65rem; }
+@theme inline { --color-background: var(--background); --color-foreground: var(--foreground); --color-card: var(--card); --color-card-foreground: var(--card-foreground); --color-popover: var(--popover); --color-popover-foreground: var(--popover-foreground); --color-primary: var(--primary); --color-primary-foreground: var(--primary-foreground); --color-secondary: var(--secondary); --color-secondary-foreground: var(--secondary-foreground); --color-muted: var(--muted); --color-muted-foreground: var(--muted-foreground); --color-accent: var(--accent); --color-accent-foreground: var(--accent-foreground); --color-destructive: var(--destructive); --color-border: var(--border); --color-input: var(--input); --color-ring: var(--ring); --radius-md: var(--radius); --radius-lg: calc(var(--radius) + 2px); }
+@layer base {
+  * { @apply border-border outline-ring/50; }
+  body { @apply bg-background text-foreground; }
+  h1 { @apply text-2xl font-semibold; }
+  h2 { @apply text-lg font-semibold; }
+}
+
+/* Phone controls remain readable with the keyboard open and long channel names. */
+@layer base {
+  main, section, form, fieldset, label { min-width: 0; }
+  p, legend, strong, [role="alert"] { overflow-wrap: anywhere; }
+  select, textarea { width: 100%; min-width: 0; max-width: 100%; font-size: 16px; }
+  select { min-height: 44px; border: 1px solid var(--border); border-radius: var(--radius); padding: 8px; background: var(--background); }
+  input[type="checkbox"], input[type="radio"] { width: 20px; height: 20px; flex-shrink: 0; }
+  label:has(> input[type="checkbox"]), label:has(> input[type="radio"]) { min-height: 44px; align-items: center; }
+}
+@media (max-width: 639px) {
+  [data-slot="button"] { min-height: 44px; height: auto; min-width: 44px; max-width: 100%; white-space: normal; padding-top: 10px; padding-bottom: 10px; }
+  [data-slot="input"] { min-height: 44px; font-size: 16px; }
+  [data-slot="dialog-content"] { width: calc(100% - 16px); max-width: calc(100% - 16px); overflow-wrap: anywhere; }
+}

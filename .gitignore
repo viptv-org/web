@@ -1,0 +1,10 @@
+node_modules/
+dist/
+*.tsbuildinfo
+DEV.local.md
+.env
+.env.*
+!.env.example
+*.sqlite*
+*.db
+__pycache__/
