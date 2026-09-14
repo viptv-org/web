@@ -1,11 +1,10 @@
 import {Button} from '@/components/ui/button';
-import {Feedback,Modal,Resource} from './shared';
+import {Feedback,Modal,Resource,words} from './shared';
 import {useAction,useLiveResource} from './hooks';
 import type {Client} from './lib/api';
 export type FamilyAction='accounts'|'matching'|'health'|'guides'|'catalog';
 type Summary={paused:boolean;attention:{id:string;title:string;reason:string;count?:number;retry_at?:number;action:FamilyAction;channel_id?:string}[];sharing:{viewers:number;workers:number;groups:{viewers:number;state:string}[]};pools:{id:number;name:string;local_reservations:number;estimated_free:number;confidence:string;usage_age_seconds:number|null}[];changes:{id:number;at:number;kind:string;target:string;undone:boolean}[];recovery_events:{at:number;channel_id:string;reason:string;generation:number}[];selections:{channel_id:string;details:{at:number;attempts:{candidate_id:string;reason:string;estimated_free_before?:number;confidence?:string}[]}}[];catalog:{next_run:number|null;last_run:null|{state:string}};guide:{state:string;last_finish:number|null;reason:string|null}};
 const date=(v:number|null)=>v?new Date(v*1000).toLocaleString():'—';
-const words=(s:string)=>s.replaceAll('_',' ');
 export function FamilyActivity({api,close,open}:{api:Client;close:()=>void;open:(action:FamilyAction,channel?:string)=>void}){
  const resource=useLiveResource<Summary>(api,'/activity',3000);const action=useAction();
  return <Modal open onOpenChange={value=>{if(!value)close()}} title="Activity and attention" description="Resolve exceptions here while automatic maintenance handles routine work."><div className="space-y-4"><Feedback error={action.error}/><Resource {...resource}>{resource.data&&<>

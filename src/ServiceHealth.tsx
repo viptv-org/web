@@ -1,7 +1,7 @@
 import {useEffect, useState} from 'react';
 import {Button} from '@/components/ui/button';
 import {Card} from '@/components/ui/card';
-import {Feedback, Resource} from './shared';
+import {Feedback, Resource, words} from './shared';
 import {useAction, useLiveResource} from './hooks';
 import {CatalogAutomation} from './CatalogAutomation';
 import {FamilyGuides} from './FamilyGuides';
@@ -11,7 +11,6 @@ type Run = {accounts?:{status:string}[];state:string;reason:string|null;finished
 type ProviderHealth = {id:number;name:string;enabled:boolean;last_catalog_at:number|null;catalog_state:string;retry_at:number|null;pool:null|{id:number;estimated_free:number;effective_limit:number;local_reservations:number;confidence:string}};
 type Summary = {at:number;active_sessions:number;paused:boolean;providers:{total:number;next_offset:number|null;items:ProviderHealth[]};catalog:{settings:{provider_ids:number[]};next_run:number|null;last_run:Run|null};guides:{enabled_channels:number;current_channels:number;enabled_sources:number;failed_sources:number;last_updated_at:number|null;last_run:Run}};
 const date = (at:number|null|undefined) => at ? new Date(at*1000).toLocaleString() : 'Not observed';
-const words = (text:string) => text.replaceAll('_',' ');
 const active = (run:Run|null|undefined) => ['queued','running','cancel_requested'].includes(run?.state??'');
 
 export function ServiceHealth({api,navigate}:{api:Client;navigate:(page:string)=>void}) {

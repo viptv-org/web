@@ -26,3 +26,25 @@ describe('TV activation',()=>{
 it('revokes account-owned devices through an explicit confirmation',async()=>{const api=vi.fn().mockResolvedValue([{id:'tv/1',device_name:'Bedroom Roku'}]);render(<DeviceManagement api={api}/>);fireEvent.click(await screen.findByRole('button',{name:'Sign out TV'}));expect(screen.getByRole('alertdialog')).toBeInTheDocument();fireEvent.click(screen.getAllByRole('button',{name:'Sign out TV'})[1]);await waitFor(()=>expect(api).toHaveBeenCalledWith('/devices/tv%2F1','DELETE'))});
 it('shows owner account inventory without account creation or role escalation',async()=>{const api=vi.fn().mockResolvedValue([{id:'a1',username:'viewer',name:'Viewer',role:'member'}]);render(<AccountManagement api={api}/>);expect(await screen.findByText('@viewer')).toBeInTheDocument();expect(screen.queryByRole('button',{name:/create account/i})).not.toBeInTheDocument();expect(screen.queryByRole('option',{name:/owner|administrator/i})).not.toBeInTheDocument()});
 it('keeps owner service defaults available',async()=>{const api=vi.fn().mockResolvedValue({household_name:'Home',timezone:'UTC',language:'en'});render(<Onboarding api={api} onDone={vi.fn()}/>);expect(await screen.findByLabelText('Household name')).toHaveValue('Home');fireEvent.click(screen.getByRole('button',{name:'Save defaults'}));await waitFor(()=>expect(api).toHaveBeenCalledWith('/onboarding','PATCH',{household_name:'Home',timezone:'UTC',language:'en',completed:true}))});
+const profiles=[{id:'1',name:'Primary',is_primary:true},{id:'2',name:'Guest',is_primary:false}];
+describe('household profile management',()=>{
+ it('edits an existing profile without selecting it',async()=>{
+ const update=vi.fn();const select=vi.fn();
+ render(<ProfileScreen profiles={profiles} canCreate onSelect={select} onCreate={vi.fn()} onUpdate={update} onDelete={vi.fn()} onLogout={vi.fn()} busy={false}/>);
+ fireEvent.click(screen.getByRole('button',{name:'Edit Guest'}));
+ fireEvent.change(screen.getByLabelText('Profile name'),{target:{value:'Family'}});
+ fireEvent.click(screen.getByRole('button',{name:'Save profile'}));
+ await screen.findByRole('button',{name:'Edit Guest'});
+ expect(update).toHaveBeenCalledWith(profiles[1],'Family','critters');expect(select).not.toHaveBeenCalled();
+ });
+ it('protects primary and confirms deletion with an explicit cancel path',async()=>{
+ const remove=vi.fn();
+ render(<ProfileScreen profiles={profiles} canCreate onSelect={vi.fn()} onCreate={vi.fn()} onUpdate={vi.fn()} onDelete={remove} onLogout={vi.fn()} busy={false}/>);
+ expect(screen.queryByRole('button',{name:'Delete Primary'})).not.toBeInTheDocument();
+ fireEvent.click(screen.getByRole('button',{name:'Delete Guest'}));
+ expect(remove).not.toHaveBeenCalled();fireEvent.click(screen.getByRole('button',{name:'Keep profile'}));
+ expect(remove).not.toHaveBeenCalled();fireEvent.click(screen.getByRole('button',{name:'Delete Guest'}));
+ fireEvent.click(screen.getByRole('button',{name:'Delete profile permanently'}));
+ await screen.findByRole('button',{name:'Edit Guest'});expect(remove).toHaveBeenCalledWith(profiles[1]);
+ });
+});

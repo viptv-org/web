@@ -1,13 +1,12 @@
 import {useState} from 'react';
 import {Button} from '@/components/ui/button';
-import {Field,Feedback,Modal,Resource} from './shared';
+import {Field,Feedback,Modal,Resource,words} from './shared';
 import {useAction,useLiveResource} from './hooks';
 import {encode,type Client} from './lib/api';
 type Policy={enabled:boolean;interval_minutes:number;sample_seconds:number;concurrency:number;startup_seconds:number;budget_seconds:number;max_sample_mib:number;retry_minutes:number[];reserve_multiplier:number};
 type Candidate={id:string;channel_ids?:string[];name:string;provider:string;disabled:boolean;excluded_until:number;state:string;reason:string|null;at:number|null;next_check:number;sample:null|{startup_ms?:number;sample_seconds?:number;sample_bytes?:number;video_codec?:string;audio_codec?:string;width?:number;height?:number}};
 type Summary={settings:Policy;candidates:Candidate[];checking:string[]};
 const date=(n:number|null)=>n?new Date(n*1000).toLocaleString():'Not checked';
-const words=(s:string)=>s.replaceAll('_',' ');
 export function FamilyHealth({api,close,initialChannel}:{api:Client;close:()=>void;initialChannel?:string}){
  const resource=useLiveResource<Summary>(api,'/stream-health');const[search,setSearch]=useState('');const[channel,setChannel]=useState(initialChannel);const[page,setPage]=useState(0);
  const candidates=resource.data?.candidates.filter(c=>(!channel||c.channel_ids?.includes(channel))&&`${c.name} ${c.provider}`.toLowerCase().includes(search.toLowerCase()))??[];
