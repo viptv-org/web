@@ -22,3 +22,15 @@
   [data-slot="input"] { min-height: 44px; font-size: 16px; }
   [data-slot="dialog-content"] { width: calc(100% - 16px); max-width: calc(100% - 16px); overflow-wrap: anywhere; }
 }
+
+/* RUI-027: account access remains centered and scrollable on short screens. */
+body:has(.account-auth-gateway) { background: #101112; }
+.account-gateway { min-height: 100dvh; display: grid; place-items: center; padding: 24px 20px; }
+.account-gateway-content { width: min(100%, 576px); min-width: 0; }
+.account-auth-gateway { --background: #101112; --foreground: #f5f5f5; --card: #202224; --card-foreground: #f5f5f5; --primary: #f5f5f5; --primary-foreground: #101112; --muted: #303234; --muted-foreground: #c5c6c7; --border: #45474a; --input: #65676a; color: #f5f5f5; }
+.account-auth-gateway .account-gateway-content { max-width: 440px; }
+.account-auth-gateway [data-slot="card"] { padding: 32px; border-radius: 20px; }
+.account-auth-gateway input { min-height: 48px; font-size: 17px; background: #101112; }
+.account-auth-gateway button { min-height: 48px; }
+.account-auth-mark { width: 48px; height: 48px; object-fit: contain; }
+@media (max-width: 480px) { .account-auth-gateway [data-slot="card"] { padding: 24px; } }

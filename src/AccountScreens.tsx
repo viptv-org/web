@@ -1,3 +1,4 @@
+import viptvMark from "./assets/viptv-mark.png";
 import {useEffect, useState} from 'react';
 import {Card} from '@/components/ui/card';
 import {Button} from '@/components/ui/button';
@@ -28,9 +29,9 @@ export function AuthScreen({mode,onSubmit,onMode,busy,error,deviceCode}: {mode:A
   const action=useAction(); busy=busy||action.busy; error=error||action.error;
   const title={login:'Sign in',register:'Create your account',recover:'Recover your account'}[mode];
   return <Card className="p-6 space-y-5" aria-label={title}>
-    <div className="flex items-center gap-2 text-xl font-semibold"><span className="hidden">V</span><strong>VIPTV</strong></div>
+    <img className="account-auth-mark" src={viptvMark} alt="viptv"/>
     <p className="text-sm text-muted-foreground">Account access</p><h1>{title}</h1>
-    <p className="text-sm text-muted-foreground">{deviceCode?<>Continue to securely connect the TV showing <strong>{deviceCode}</strong>.</>:mode==='register'?'Create an account to connect your TV.':mode==='recover'?'Use a recovery code to choose a new password.':'Sign in to manage your account.'}</p>
+    <p className="text-sm text-muted-foreground">{deviceCode?<>Continue to securely connect the device showing <strong>{deviceCode}</strong>.</>:mode==='register'?'Create an account to start watching.':mode==='recover'?'Use a recovery code to choose a new password.':'Sign in to manage your account.'}</p>
     <form key={mode} className="grid gap-4" onSubmit={async event=>{event.preventDefault();if(busy)return;const form=new FormData(event.currentTarget);const body:AuthBody={username:String(form.get('username')).trim(),password:String(form.get('password'))};if(mode==='register'){body.name=String(form.get('name')).trim();if(body.password!==String(form.get('confirm_password'))) {action.clear(); return await action.run(async()=>{throw new Error('Passwords do not match.');},'');}}if(mode==='recover')body.recovery_code=String(form.get('recovery_code')).trim();await action.run(async()=>onSubmit(body),'');}}>
       <fieldset disabled={busy} className="space-y-4"><legend className="sr-only">{title}</legend>
         {mode==='register'&&<Field label="Display name" name="name" required maxLength={80} autoComplete="name"/>}
