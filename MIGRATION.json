@@ -17,7 +17,8 @@
       "source": "dashboard/README.md",
       "destination": "README.md",
       "sha256": "ff64e3d40c4f1e80ce6c2b8329a306094e4e91b09c96277b6dbe414ede7ab173",
-      "extracted_sha256": "998ae00875364bf5d537271188922d96cd026f12769be731bad3cc1d5347c734"
+      "extracted_sha256": "f100e99fec4e5a1a89026b5e49c02cb29d16f8f2e732d8ebe8de8c2ab8ead1c1",
+      "reason": "Re-pinned: changed by the RUI-027 centered-authentication work after this extraction, not by the cleanup commit."
     },
     {
       "source": "dashboard/components.json",
@@ -47,7 +48,9 @@
     {
       "source": "dashboard/src/AccountApp.tsx",
       "destination": "src/AccountApp.tsx",
-      "sha256": "081aad698b244cd0564b34ff45387fe84188255c58c7cb3f5a2f25901ee13979"
+      "sha256": "081aad698b244cd0564b34ff45387fe84188255c58c7cb3f5a2f25901ee13979",
+      "extracted_sha256": "0d28ba67510943d1af5f8ad7a5264cb15a857a55d5e76a3ed6b1f1787f97a26f",
+      "reason": "Re-pinned: changed by the RUI-027 centered-authentication work after this extraction, not by the cleanup commit."
     },
     {
       "source": "dashboard/src/AccountPools.test.tsx",
@@ -62,12 +65,16 @@
     {
       "source": "dashboard/src/AccountScreens.test.tsx",
       "destination": "src/AccountScreens.test.tsx",
-      "sha256": "7935ab339951c60ac10760f8f019c574556ee576f20b2e221e13778148d0d1ad"
+      "sha256": "7935ab339951c60ac10760f8f019c574556ee576f20b2e221e13778148d0d1ad",
+      "extracted_sha256": "b30c88ac1a45d3f6b012bbf3286966ab76e8a017a482da66ba7c527929799e03",
+      "reason": "Re-pinned: cleanup commit 534b3cb merged the duplicate-setup ProfileManagement profile cases into this file."
     },
     {
       "source": "dashboard/src/AccountScreens.tsx",
       "destination": "src/AccountScreens.tsx",
-      "sha256": "8ba4784b3fbcc3294bde89396542ffd710bd661e0a41a93ef0576e95a130e443"
+      "sha256": "8ba4784b3fbcc3294bde89396542ffd710bd661e0a41a93ef0576e95a130e443",
+      "extracted_sha256": "b86a9a7b6ed422ff6fed2c90d3b3ac62574df3159e4c4e7d0a082b81f5039168",
+      "reason": "Re-pinned: changed by the RUI-027 centered-authentication work after this extraction, not by the cleanup commit."
     },
     {
       "source": "dashboard/src/AddonSettings.tsx",
@@ -97,7 +104,9 @@
     {
       "source": "dashboard/src/FamilyActivity.tsx",
       "destination": "src/FamilyActivity.tsx",
-      "sha256": "2920e1ff175eaa53030513846bf8373856eb804f80fd8ff2330ac778010e3f91"
+      "sha256": "2920e1ff175eaa53030513846bf8373856eb804f80fd8ff2330ac778010e3f91",
+      "extracted_sha256": "c62db87660c33f98aa0c37b21e1010431ed5497eea23f8b4e91fabc3d775dcdb",
+      "reason": "Re-pinned: cleanup commit 534b3cb replaced the duplicated local words() with the shared helper in shared.tsx."
     },
     {
       "source": "dashboard/src/FamilyGuides.tsx",
@@ -107,7 +116,9 @@
     {
       "source": "dashboard/src/FamilyHealth.tsx",
       "destination": "src/FamilyHealth.tsx",
-      "sha256": "786041365f575ebd8e4a0903842c0de94b7f9fc9859ff2f52f294f17cd785a76"
+      "sha256": "786041365f575ebd8e4a0903842c0de94b7f9fc9859ff2f52f294f17cd785a76",
+      "extracted_sha256": "9b3b89eb6558c5b9c1d30debf43c3b21b4c8e1d6e7ed8331ed6e20c1f8d02188",
+      "reason": "Re-pinned: cleanup commit 534b3cb replaced the duplicated local words() with the shared helper in shared.tsx."
     },
     {
       "source": "dashboard/src/FamilyLineup.test.tsx",
@@ -177,7 +188,10 @@
     {
       "source": "dashboard/src/ProfileManagement.test.tsx",
       "destination": "src/ProfileManagement.test.tsx",
-      "sha256": "f14e95387059d573ebe381ec1698ae082727492da8c9d085821ea3d37ee25eb6"
+      "sha256": "f14e95387059d573ebe381ec1698ae082727492da8c9d085821ea3d37ee25eb6",
+      "extracted_sha256": null,
+      "removed": true,
+      "reason": "Removed by cleanup commit 534b3cb: duplicate setup; its two cases moved verbatim into src/AccountScreens.test.tsx."
     },
     {
       "source": "dashboard/src/ProviderAccounts.test.tsx",
@@ -207,7 +221,9 @@
     {
       "source": "dashboard/src/ServiceHealth.tsx",
       "destination": "src/ServiceHealth.tsx",
-      "sha256": "d0b9c9dc84de5ec1746746fd1720e89a6259e83ecfd711286835d0b8c53af8b3"
+      "sha256": "d0b9c9dc84de5ec1746746fd1720e89a6259e83ecfd711286835d0b8c53af8b3",
+      "extracted_sha256": "d80812e4579576d13f39d44584b75d1657779b2f2c5d317f8ee2cfdcec2f4cf1",
+      "reason": "Re-pinned: cleanup commit 534b3cb replaced the duplicated local words() with the shared helper in shared.tsx."
     },
     {
       "source": "dashboard/src/ViewingHistory.test.tsx",
@@ -232,17 +248,23 @@
     {
       "source": "dashboard/src/components/ui/button.tsx",
       "destination": "src/components/ui/button.tsx",
-      "sha256": "b4215cb8f27c40b81a89e25866655329b4263bafc6a607d288ef5dc691a858f0"
+      "sha256": "b4215cb8f27c40b81a89e25866655329b4263bafc6a607d288ef5dc691a858f0",
+      "extracted_sha256": "9e9f92aaf83e035544b5416e2fb3d6adf9b23027f04697e69b29fbf2d0823af4",
+      "reason": "Re-pinned: cleanup commit 534b3cb dropped the unimported buttonVariants export."
     },
     {
       "source": "dashboard/src/components/ui/card.tsx",
       "destination": "src/components/ui/card.tsx",
-      "sha256": "39480d5b63e46554f1cfcedaa91052c848bda5c45d7a5dda80fe91e7be604fb0"
+      "sha256": "39480d5b63e46554f1cfcedaa91052c848bda5c45d7a5dda80fe91e7be604fb0",
+      "extracted_sha256": "9599eed2a6b964a13ddf3c93666ea89f82eb3caab5dd8562fb8cb80e96f187ea",
+      "reason": "Re-pinned: cleanup commit 534b3cb deleted the unreferenced CardDescription, CardAction and CardFooter."
     },
     {
       "source": "dashboard/src/components/ui/dialog.tsx",
       "destination": "src/components/ui/dialog.tsx",
-      "sha256": "859683c2a409f383c123ff2c7928bdeabc708c842aae73028557b183df2c6790"
+      "sha256": "859683c2a409f383c123ff2c7928bdeabc708c842aae73028557b183df2c6790",
+      "extracted_sha256": "d577b9df6e61f426d14daa9aeb206cb96e57dbf25bd08b7946699bbf7bdb8297",
+      "reason": "Re-pinned: cleanup commit 534b3cb deleted the unreferenced DialogTrigger, DialogClose and DialogFooter."
     },
     {
       "source": "dashboard/src/components/ui/input.tsx",
@@ -252,7 +274,10 @@
     {
       "source": "dashboard/src/components/ui/label.tsx",
       "destination": "src/components/ui/label.tsx",
-      "sha256": "db5dfcd98a78c5b7c3c01e0bb7726a3adbf0470f4d552e777ccf4751b51e6a56"
+      "sha256": "db5dfcd98a78c5b7c3c01e0bb7726a3adbf0470f4d552e777ccf4751b51e6a56",
+      "extracted_sha256": null,
+      "removed": true,
+      "reason": "Removed by cleanup commit 534b3cb: Label had no importer in this repository."
     },
     {
       "source": "dashboard/src/hooks.ts",
@@ -262,7 +287,9 @@
     {
       "source": "dashboard/src/index.css",
       "destination": "src/index.css",
-      "sha256": "c6bee3e42b6496a10d0f5eb7f91e5f721f457f545ae031e6133d4192f994fbca"
+      "sha256": "c6bee3e42b6496a10d0f5eb7f91e5f721f457f545ae031e6133d4192f994fbca",
+      "extracted_sha256": "2ec4a6f7ec27872f2f69a704100ce8e50543c2fb2ea1f414268a6c7caccc43db",
+      "reason": "Re-pinned: changed by the RUI-027 centered-authentication work after this extraction, not by the cleanup commit."
     },
     {
       "source": "dashboard/src/lib/accountApi.test.ts",
@@ -277,7 +304,9 @@
     {
       "source": "dashboard/src/lib/api.ts",
       "destination": "src/lib/api.ts",
-      "sha256": "438b3880fef796f0dd18c9d8deb78e22c4624cf0d96c74748bd92892f8dcdca8"
+      "sha256": "438b3880fef796f0dd18c9d8deb78e22c4624cf0d96c74748bd92892f8dcdca8",
+      "extracted_sha256": "3fcfa309ac8a1db0d9e4c3741b21142581b464b9be2f65b6552071cbfe601c62",
+      "reason": "Re-pinned: cleanup commit 534b3cb deleted the unimported Media, Catalog, Channel and Status types."
     },
     {
       "source": "dashboard/src/lib/utils.ts",
@@ -292,7 +321,9 @@
     {
       "source": "dashboard/src/shared.tsx",
       "destination": "src/shared.tsx",
-      "sha256": "a0f49f9017b001ef6bf74f6f5aafc9a01a78bddf66b5002fa398d1bfeb5705ee"
+      "sha256": "a0f49f9017b001ef6bf74f6f5aafc9a01a78bddf66b5002fa398d1bfeb5705ee",
+      "extracted_sha256": "e6c3116fa88e9b6d780b737868d864a68846f9ad333f0069bbabef8fabf08fe7",
+      "reason": "Re-pinned: cleanup commit 534b3cb added the single shared words() helper."
     },
     {
       "source": "dashboard/tsconfig.json",
