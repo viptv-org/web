@@ -1,0 +1,8 @@
+{
+  "repository": "viptv-org/design",
+  "revision": "59c9664bafd08b4190b92cb41f1ec20f9a30d6cc",
+  "files": {
+    "design-contract/tokens/responsive.json": "2f193519790c76c0e46a7da9a3564fc62b62d0fae8aca5739877a8ddf41950a8",
+    "design-contract/tokens/tokens.css": "13fd2be84abafadaa173db7ae8cca46cac1b61355b84a7047095ae1b23deb45c"
+  }
+}

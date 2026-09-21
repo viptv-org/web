@@ -28,17 +28,23 @@
     {
       "source": "dashboard/index.html",
       "destination": "index.html",
-      "sha256": "3640538c975869ca1991ea1e51302d272503372aafce8ac676b0de5e70f01877"
+      "sha256": "3640538c975869ca1991ea1e51302d272503372aafce8ac676b0de5e70f01877",
+      "extracted_sha256": "7c1e69555bf10aa8151a2d88956e18ff973e55d982171487db088fac3db7b8a6",
+      "reason": "Graphite dark-theme port to the pinned design tokens (design 59c9664)"
     },
     {
       "source": "dashboard/package-lock.json",
       "destination": "package-lock.json",
-      "sha256": "a38071fbc387a0668f0bb8d14b0bc01fe66e30b4be42ce70fa3055a90dc9e141"
+      "sha256": "a38071fbc387a0668f0bb8d14b0bc01fe66e30b4be42ce70fa3055a90dc9e141",
+      "extracted_sha256": "741c9df1c3a0c168f68fcfeb9665c786fd6f06e58857885322f6ef33e04e9745",
+      "reason": "Graphite dark-theme port to the pinned design tokens (design 59c9664)"
     },
     {
       "source": "dashboard/package.json",
       "destination": "package.json",
-      "sha256": "aff15f9d306a9d5c3c30f7315fbf6367c9a61c0e5d7af1e66fedf6aa2eaf30a0"
+      "sha256": "aff15f9d306a9d5c3c30f7315fbf6367c9a61c0e5d7af1e66fedf6aa2eaf30a0",
+      "extracted_sha256": "13ab90522cc02836b6b8ce81223545ac8e66bd4b191b6d08023507d4afffd41d",
+      "reason": "Graphite dark-theme port to the pinned design tokens (design 59c9664)"
     },
     {
       "source": "dashboard/src/AccountApp.test.tsx",
@@ -249,27 +255,29 @@
       "source": "dashboard/src/components/ui/button.tsx",
       "destination": "src/components/ui/button.tsx",
       "sha256": "b4215cb8f27c40b81a89e25866655329b4263bafc6a607d288ef5dc691a858f0",
-      "extracted_sha256": "9e9f92aaf83e035544b5416e2fb3d6adf9b23027f04697e69b29fbf2d0823af4",
-      "reason": "Re-pinned: cleanup commit 534b3cb dropped the unimported buttonVariants export."
+      "extracted_sha256": "ae6418cb54731e1d2a6fbdacf334f63bc8551f9888c23656fdfc9c1c62370238",
+      "reason": "Graphite dark-theme port to the pinned design tokens (design 59c9664)"
     },
     {
       "source": "dashboard/src/components/ui/card.tsx",
       "destination": "src/components/ui/card.tsx",
       "sha256": "39480d5b63e46554f1cfcedaa91052c848bda5c45d7a5dda80fe91e7be604fb0",
-      "extracted_sha256": "9599eed2a6b964a13ddf3c93666ea89f82eb3caab5dd8562fb8cb80e96f187ea",
-      "reason": "Re-pinned: cleanup commit 534b3cb deleted the unreferenced CardDescription, CardAction and CardFooter."
+      "extracted_sha256": "c386276540b101cbf5a722a6770e0bfb6dccd3e42aaa80dbc7ce46e85da20725",
+      "reason": "Graphite dark-theme port to the pinned design tokens (design 59c9664)"
     },
     {
       "source": "dashboard/src/components/ui/dialog.tsx",
       "destination": "src/components/ui/dialog.tsx",
       "sha256": "859683c2a409f383c123ff2c7928bdeabc708c842aae73028557b183df2c6790",
-      "extracted_sha256": "d577b9df6e61f426d14daa9aeb206cb96e57dbf25bd08b7946699bbf7bdb8297",
-      "reason": "Re-pinned: cleanup commit 534b3cb deleted the unreferenced DialogTrigger, DialogClose and DialogFooter."
+      "extracted_sha256": "2c04763d570c9d7f07e9cb9c51681873ffab51f3efbf63bde8a903d2ed65a858",
+      "reason": "Graphite dark-theme port to the pinned design tokens (design 59c9664)"
     },
     {
       "source": "dashboard/src/components/ui/input.tsx",
       "destination": "src/components/ui/input.tsx",
-      "sha256": "7bfd0eff6c53a38c99184394a09f55e7a86c725de12d6a300fa46b3765114091"
+      "sha256": "7bfd0eff6c53a38c99184394a09f55e7a86c725de12d6a300fa46b3765114091",
+      "extracted_sha256": "90a87b03d4a07f7efbed274aadf23b90f16a6be7b33b78171e6a134465be57cd",
+      "reason": "Graphite dark-theme port to the pinned design tokens (design 59c9664)"
     },
     {
       "source": "dashboard/src/components/ui/label.tsx",
@@ -288,8 +296,8 @@
       "source": "dashboard/src/index.css",
       "destination": "src/index.css",
       "sha256": "c6bee3e42b6496a10d0f5eb7f91e5f721f457f545ae031e6133d4192f994fbca",
-      "extracted_sha256": "2ec4a6f7ec27872f2f69a704100ce8e50543c2fb2ea1f414268a6c7caccc43db",
-      "reason": "Re-pinned: changed by the RUI-027 centered-authentication work after this extraction, not by the cleanup commit."
+      "extracted_sha256": "6bbc68f4c7a1dbddf9fa0fa63a5a20fb2df586fccec20d8ad83bcf722793bb6e",
+      "reason": "Graphite dark-theme port to the pinned design tokens (design 59c9664)"
     },
     {
       "source": "dashboard/src/lib/accountApi.test.ts",

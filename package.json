@@ -1,1 +1,38 @@
-{"name":"viptv-dashboard","private":true,"version":"1.0.0","type":"module","scripts":{"dev":"vite --host 0.0.0.0","build":"tsc -b && vite build","test":"vitest run","preview":"vite preview --host 0.0.0.0"},"dependencies":{"@radix-ui/react-dialog":"^1.1.6","@radix-ui/react-slot":"^1.1.2","class-variance-authority":"^0.7.1","clsx":"^2.1.1","hls.js":"^1.7.2","lucide-react":"^0.468.0","radix-ui":"^1.6.7","react":"^19.0.0","react-dom":"^19.0.0","tailwind-merge":"^3.0.0"},"devDependencies":{"@tailwindcss/vite":"^4.0.0","@testing-library/jest-dom":"^6.6.3","@testing-library/react":"^16.2.0","@types/node":"^22.0.0","@types/react":"^19.0.0","@types/react-dom":"^19.0.0","@vitejs/plugin-react":"^4.3.4","jsdom":"^26.0.0","tailwindcss":"^4.0.0","typescript":"~5.7.3","vite":"^6.1.0","vitest":"^3.0.0"}}
+{
+  "name": "viptv-dashboard",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite --host 0.0.0.0",
+    "build": "npm run design:check && tsc -b && vite build",
+    "test": "vitest run",
+    "preview": "vite preview --host 0.0.0.0",
+    "design:check": "node scripts/design-sync.mjs check"
+  },
+  "dependencies": {
+    "@radix-ui/react-dialog": "^1.1.6",
+    "@radix-ui/react-slot": "^1.1.2",
+    "class-variance-authority": "^0.7.1",
+    "clsx": "^2.1.1",
+    "lucide-react": "^0.468.0",
+    "radix-ui": "^1.6.7",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "tailwind-merge": "^3.0.0"
+  },
+  "devDependencies": {
+    "@tailwindcss/vite": "^4.0.0",
+    "@testing-library/jest-dom": "^6.6.3",
+    "@testing-library/react": "^16.2.0",
+    "@types/node": "^22.0.0",
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0",
+    "@vitejs/plugin-react": "^4.3.4",
+    "jsdom": "^26.0.0",
+    "tailwindcss": "^4.0.0",
+    "typescript": "~5.7.3",
+    "vite": "^6.1.0",
+    "vitest": "^3.0.0"
+  }
+}

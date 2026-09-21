@@ -1,0 +1,42 @@
+/* Generated from tokens/responsive.json by scripts/gen-tokens.mjs — do not edit.
+   Authority: RESPONSIVE_VIPTV_ALIGNMENT.md. */
+
+:root, .viptv-theme-dark {
+  color-scheme: dark;
+  --viptv-canvas: #101112;
+  --viptv-surface: #202224;
+  --viptv-muted-surface: #191b1d;
+  --viptv-selected: #303234;
+  --viptv-text: #f5f5f5;
+  --viptv-secondary: #c5c6c7;
+  --viptv-muted: #a6a8aa;
+  --viptv-border: #414447;
+  --viptv-focus: #f5f5f5;
+  --viptv-on-light: #101112;
+}
+
+.viptv-theme-oled {
+  color-scheme: dark;
+  --viptv-canvas: #000000;
+  --viptv-surface: #202224;
+  --viptv-muted-surface: #191b1d;
+  --viptv-selected: #303234;
+  --viptv-text: #f5f5f5;
+  --viptv-secondary: #c5c6c7;
+  --viptv-muted: #a6a8aa;
+  --viptv-border: #414447;
+  --viptv-focus: #f5f5f5;
+}
+
+:root {
+  --viptv-radius-action: 12px;
+  --viptv-radius-art: 8px;
+  --viptv-focus-width: 2px;
+  --viptv-phone-gutter: 20px;
+  --viptv-tablet-gutter: 28px;
+  --viptv-desktop-gutter: 40px;
+  --viptv-phone-shelf-gap: 16px;
+  --viptv-shelf-gap: 24px;
+  --viptv-action-height: 56px;
+  --viptv-action-height-phone: 52px;
+}
