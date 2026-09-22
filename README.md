@@ -8,3 +8,9 @@ The [design repository](https://github.com/viptv-org/design) is the product sour
 ## Viewing UI ownership
 
 The responsive viewing client (phone browser and desktop webview) is implemented in `viptv-org/tv-web`, sharing the real Rust-backed TV application controller, profile/session restoration, catalog and playback implementation. Its default browser layout follows the approved responsive VIPTV design; `?platform=tizen`, `?platform=vizio` or `?layout=tv` retain the TV presentation. This repository continues to own account/admin screens. Deploy the viewing bundle alongside this application at its configured base path; do not copy viewing business logic into the dashboard. See tv-web issue #3 and design/RESPONSIVE_PRODUCTION.md.
+
+## License
+
+Copyright (C) 2026 viptv contributors.
+
+This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation; version 2 of the License. See [LICENSE](LICENSE). The playback adapters (`viptv-org/video`, `viptv-org/tauri-video-plugin`) and the Android repository remain under their existing MIT OR Apache-2.0 terms.

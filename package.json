@@ -1,6 +1,7 @@
 {
   "name": "viptv-dashboard",
   "private": true,
+  "license": "GPL-2.0-only",
   "version": "1.0.0",
   "type": "module",
   "scripts": {
