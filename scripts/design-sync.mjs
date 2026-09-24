@@ -36,7 +36,7 @@ if (mode === 'sync') {
     const file = resolve(root, path);
     if (!file.startsWith(destination + '/') || !existsSync(file) || hash(readFileSync(file)) !== expected) throw new Error(`Design artifact mismatch: ${path}`);
   }
-  const inspect = (dir) => { for (const entry of readdirSync(dir, { withFileTypes: true })) { const file = join(dir, entry.name); if (entry.isDirectory()) inspect(file); else if (entry.name !== 'lock.json' && !lock.files[relative(root, file)]) throw new Error(`Unpinned design artifact: ${relative(root, file)}`); } };
+  const inspect = (dir) => { for (const entry of readdirSync(dir, { withFileTypes: true })) { const file = join(dir, entry.name); if (entry.isDirectory()) { if (relative(root, file) !== 'design-contract/link-tv') inspect(file); } else if (entry.name !== 'lock.json' && !lock.files[relative(root, file)]) throw new Error(`Unpinned design artifact: ${relative(root, file)}`); } };
   if (existsSync(destination)) inspect(destination);
   console.log(`Design token integrity passed: ${lock.revision}`);
 } else throw new Error('Use sync <design-checkout> [revision] or check');

@@ -9,9 +9,11 @@
     "build": "npm run design:check && tsc -b && vite build",
     "test": "vitest run",
     "preview": "vite preview --host 0.0.0.0",
-    "design:check": "node scripts/design-sync.mjs check"
+    "design:check": "node scripts/design-sync.mjs check && node scripts/link-tv-design-sync.mjs check"
   },
   "dependencies": {
+    "@fontsource-variable/bricolage-grotesque": "^5.3.0",
+    "@fontsource/onest": "^5.3.1",
     "@radix-ui/react-dialog": "^1.1.6",
     "@radix-ui/react-slot": "^1.1.2",
     "class-variance-authority": "^0.7.1",

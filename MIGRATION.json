@@ -17,8 +17,8 @@
       "source": "dashboard/README.md",
       "destination": "README.md",
       "sha256": "ff64e3d40c4f1e80ce6c2b8329a306094e4e91b09c96277b6dbe414ede7ab173",
-      "extracted_sha256": "f100e99fec4e5a1a89026b5e49c02cb29d16f8f2e732d8ebe8de8c2ab8ead1c1",
-      "reason": "Re-pinned: changed by the RUI-027 centered-authentication work after this extraction, not by the cleanup commit."
+      "extracted_sha256": "e8ffd0da4fad02aafda1b57286eabf03a50c011d3840e45f8017021486c09afe",
+      "reason": "Document the Link your TV page and its separate design snapshot."
     },
     {
       "source": "dashboard/components.json",
@@ -36,27 +36,29 @@
       "source": "dashboard/package-lock.json",
       "destination": "package-lock.json",
       "sha256": "a38071fbc387a0668f0bb8d14b0bc01fe66e30b4be42ce70fa3055a90dc9e141",
-      "extracted_sha256": "741c9df1c3a0c168f68fcfeb9665c786fd6f06e58857885322f6ef33e04e9745",
-      "reason": "Graphite dark-theme port to the pinned design tokens (design 59c9664)"
+      "extracted_sha256": "c9ed20bf743239856e7cb0148efb137d15e7756a3538883bcd2b669913463912",
+      "reason": "Lock the fonts used by the Link your TV reference screen."
     },
     {
       "source": "dashboard/package.json",
       "destination": "package.json",
       "sha256": "aff15f9d306a9d5c3c30f7315fbf6367c9a61c0e5d7af1e66fedf6aa2eaf30a0",
-      "extracted_sha256": "13ab90522cc02836b6b8ce81223545ac8e66bd4b191b6d08023507d4afffd41d",
-      "reason": "Graphite dark-theme port to the pinned design tokens (design 59c9664)"
+      "extracted_sha256": "1e3528b26d9f8f6e4ba4b1f590544c4ab4d807157fd22bd7df0f4cf10869aba0",
+      "reason": "Add pinned fonts and the Link your TV design integrity check."
     },
     {
       "source": "dashboard/src/AccountApp.test.tsx",
       "destination": "src/AccountApp.test.tsx",
-      "sha256": "d823ea805b37d020916231da4c64bebe4d822d5648c7955efa6c4b0dc3ea7596"
+      "sha256": "d823ea805b37d020916231da4c64bebe4d822d5648c7955efa6c4b0dc3ea7596",
+      "extracted_sha256": "7da1277f08164da13b0f8a2c5a37f2b25b507f765636a1afb09d63d4725affc2",
+      "reason": "Cover code entry and the existing sign-in handoff."
     },
     {
       "source": "dashboard/src/AccountApp.tsx",
       "destination": "src/AccountApp.tsx",
       "sha256": "081aad698b244cd0564b34ff45387fe84188255c58c7cb3f5a2f25901ee13979",
-      "extracted_sha256": "0d28ba67510943d1af5f8ad7a5264cb15a857a55d5e76a3ed6b1f1787f97a26f",
-      "reason": "Re-pinned: changed by the RUI-027 centered-authentication work after this extraction, not by the cleanup commit."
+      "extracted_sha256": "55f9b70c15786fb930aa7b2b1f06eec349b4322ab629d7dd699bfcf7ee12a6ed",
+      "reason": "Route code-free device links through the designed code-entry page."
     },
     {
       "source": "dashboard/src/AccountPools.test.tsx",

@@ -1,6 +1,22 @@
 # Extraction validation
 
-Baseline: the application source was extracted verbatim from vynxc/viptv@7d6b413, and MIGRATION.json records every original file, its SHA-256 and its current content hash. 15 of its 60 entries are re-pinned against that baseline in three categories: 4 changed by the RUI-027 centered-authentication work, 9 changed by the dead-code cleanup (534b3cb), and 2 recorded removals (src/ProfileManagement.test.tsx, src/components/ui/label.tsx). Every re-pinned entry keeps its original sha256 and adds the current extracted_sha256 with a reason. Verification: `python3 scripts/verify-migration.py`; `NODE_OPTIONS=--max-old-space-size=256 npx vitest run` (18 files, 95 tests); `NODE_OPTIONS=--max-old-space-size=384 npx tsc -b && NODE_OPTIONS=--max-old-space-size=384 npx vite build`. Initial GitHub CI run: https://github.com/viptv-org/web/actions/runs/34704298024 (success).
+## Link your TV — 2026-09-23
+
+The `/device` and `/activate` routes without a code now show the design system's
+WebLinkTv code-entry screen. A valid 6–12 character code continues through the
+existing account sign-in and device confirmation flow. The new screen imports
+only the generated design variables from revision
+`5740c91d6e9cb7616626bdbb0f635cb62f6ec0c2`; the older account/admin
+tokens retain their separate pin in `DESIGN_REF`. Both integrity checks run in
+`npm run build`.
+
+Evidence: 96 unit tests pass; TypeScript and production Vite build pass. The
+local HTTPS `/device` page rendered at 1280×800 with a 440 px card at x=420,
+y=220 and loaded bundled fonts, matching the reference layout. The code-entry
+to sign-in transition passed in the account test. No production deploy or
+physical TV pairing was performed.
+
+Baseline: the application source was extracted verbatim from vynxc/viptv@7d6b413, and MIGRATION.json records every original file, its SHA-256 and its current content hash. Changed entries keep their original sha256 and add the current extracted_sha256 with a reason, including the RUI-027 authentication work, cleanup and Link your TV additions. Verification: `python3 scripts/verify-migration.py`; `npm test`; `npm run build`. Initial GitHub CI run: https://github.com/viptv-org/web/actions/runs/34704298024 (success).
 
 The existing app remains account/admin UI. React content browsing and playback parity are future work, not functionality added by this split. Backend promotion uses a pinned source commit and checksummed dist bundle; no production deployment occurred.
 

@@ -9,6 +9,11 @@ The [design repository](https://github.com/viptv-org/design) is the product sour
 
 The responsive viewing client (phone browser and desktop webview) is implemented in `viptv-org/tv-web`, sharing the real Rust-backed TV application controller, profile/session restoration, catalog and playback implementation. Its default browser layout follows the approved responsive VIPTV design; `?platform=tizen`, `?platform=vizio` or `?layout=tv` retain the TV presentation. This repository continues to own account/admin screens. Deploy the viewing bundle alongside this application at its configured base path; do not copy viewing business logic into the dashboard. See tv-web issue #3 and design/RESPONSIVE_PRODUCTION.md.
 
+The public `/device` page accepts the code shown on a TV, then carries it through
+the existing sign-in and device approval flow. Its design-system token snapshot
+has a separate lock under `design-contract/link-tv/`; the account/admin theme
+remains pinned to `DESIGN_REF`.
+
 ## License
 
 Copyright (C) 2026 viptv contributors.
