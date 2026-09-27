@@ -11,6 +11,7 @@ it('corrects a watched episode and its resume position with exact episode identi
  fireEvent.click(await screen.findByRole('button',{name:'Mark unwatched'}));
  await screen.findByText('Viewing progress updated.');
  expect(writes[0]).toMatchObject({id:'episode:3',series_id:'series-1',action:'unwatched'});
+ await waitFor(()=>expect(screen.getByRole('button',{name:'Save position'})).not.toBeDisabled());
  fireEvent.change(screen.getByLabelText('Resume at (seconds)'),{target:{value:'24'}});
  fireEvent.click(screen.getByRole('button',{name:'Save position'}));
  await waitFor(()=>expect(writes[1]).toMatchObject({id:'episode:3',series_id:'series-1',action:'position',position:24}));
