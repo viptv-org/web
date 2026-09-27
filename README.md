@@ -1,5 +1,10 @@
 # viptv web
 
+Actions delivery: main pushes and manual builds produce sideloading artifacts
+(Android universal APK; desktop Windows/Linux installers; Roku ZIP; TV WGT/IPK).
+Other repositories have no Actions workflows. Local checks remain; previous
+CI/release-publication descriptions below are historical. No automatic deploys.
+
 Extracted from `vynxc/viptv@7d6b413`. `MIGRATION.json` records every original file and SHA-256; the original repository retains history. This repository owns the existing React account and administration web app.
 
 The [design repository](https://github.com/viptv-org/design) is the product source of truth. Read [SPEC.md](SPEC.md), [AGENTS.md](AGENTS.md), and the pinned `DESIGN_REF` before implementation. Future platform work must inherit its interaction contracts.
