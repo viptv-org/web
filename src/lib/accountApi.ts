@@ -1,4 +1,5 @@
 import { ApiError, type Client } from './api';
+import { displayError } from './displayError';
 
 /** Credentials stay in HttpOnly cookies; only the CSRF value lives in memory. */
 export function createAccountClient(onExpired: () => void) {
@@ -34,7 +35,7 @@ export function createAccountClient(onExpired: () => void) {
         if (owner !== epoch || signal?.aborted) throw new DOMException('Cancelled', 'AbortError');
         const record = data && typeof data === 'object' ? data as Record<string, unknown> : undefined;
         if (!response.ok) throw new ApiError(
-          ['/auth/login', '/auth/recover'].includes(path) ? 'Sign-in or recovery failed. Check your details and try again.' : path === '/auth/register' ? 'Account creation failed. Check your details and try again.' : typeof record?.error === 'string' ? record.error : `Request failed (${response.status}).`,
+          ['/auth/login', '/auth/recover'].includes(path) ? 'Sign-in or recovery failed. Check your details and try again.' : path === '/auth/register' ? 'Account creation failed. Check your details and try again.' : displayError(record?.error, response.status),
           response.status, typeof record?.error_code === 'string' ? record.error_code : undefined,
         );
         acceptCsrf(data, response);

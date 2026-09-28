@@ -26,3 +26,12 @@ The existing app remains account/admin UI. React content browsing and playback p
 Design f8ca89d2c3d039fa4b6b51bd095131aa9e870374 supplies the graphite authentication styling and unchanged viptv mark. Sign-in, registration and recovery share a viewport-centered card; viewing and playback remain owned by tv-web.
 
 All 95 unit tests and the production TypeScript/Vite build passed at that revision. Browser inspection of the built output, with unauthenticated status mocked, measured centering error zero on both axes at 390×844 (350×714 card) and 1440×900 (440×730 card), with loaded logo, no overflow and no page exceptions. Separately, tv-web's real LAN inline login/device-approval/profile-picker flow passed against the current backend, and both temporary sessions were signed out. This account website source has not been deployed to production.
+## REL-001 API reasons — 2026-09-28
+
+Account/admin errors retain safe validation and provider capacity reasons while
+filtering credential-bearing URLs, headers and raw markup. Authentication copy
+continues to avoid account enumeration. All 98 tests and the production build
+passed. On Node 26, tests used NODE_OPTIONS=--no-experimental-webstorage so jsdom
+owns browser storage; the unmodified test cleanup otherwise sees an undefined
+Node storage global. Viewing header/navigation changes belong to tv-web. This
+source update is not a production deployment.
