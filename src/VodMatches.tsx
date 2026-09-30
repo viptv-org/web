@@ -56,6 +56,7 @@ function ScopedVodMatches({ api }: { api: Client }) {
   const opener = useRef<HTMLButtonElement | undefined>(undefined);
   const retained = useRef<{ top: number; id: string } | undefined>(undefined);
   const historyEntry = useRef<string | undefined>(undefined);
+  const savedDialog = useRef(false);
   const action = useAction();
   const path = `/v2/iptv/matches?limit=50${provider ? `&provider_id=${encodeURIComponent(provider)}` : ''}${kind ? `&kind=${kind}` : ''}${query ? `&search=${encodeURIComponent(query)}` : ''}`;
   const result = useVodWindow(checkedApi, path, !!target);
@@ -82,7 +83,7 @@ function ScopedVodMatches({ api }: { api: Client }) {
     if (!fromBack && historyEntry.current && history.state?.vodMatchDialog === historyEntry.current) {
       history.back(); return;
     }
-    setTarget(undefined);setMetadataDraft(''); action.clear();
+    setTarget(undefined);setMetadataDraft(''); if (!savedDialog.current) action.clear(); savedDialog.current = false;
     requestAnimationFrame(() => {
       if (retained.current && scroll.current) scroll.current.scrollTop = retained.current.top;
       if (opener.current?.isConnected) opener.current.focus();
@@ -147,6 +148,7 @@ function ScopedVodMatches({ api }: { api: Client }) {
           await api('/v2/iptv/matches', 'PUT', { vod_id: chosen.vod_id, metadata_id: String(fields.get('metadata_id')).trim(), type: fields.get('type') }, controller.signal);
           if (controller.signal.aborted) return;
           result.setItems(items => items.map(item => item.vod_id === chosen.vod_id ? { ...item, type: fields.get('type') as 'movie'|'series', matched: true, metadataId: String(fields.get('metadata_id')).trim() } : item));
+          savedDialog.current = true;
           close();
         }, 'Metadata match saved');
       }}>

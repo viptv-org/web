@@ -117,6 +117,7 @@ describe('bounded v2 VOD matching', () => {
     fireEvent.click(screen.getByRole('button', {name:'Save match'}));
     await waitFor(() => expect(api).toHaveBeenCalledWith('/v2/iptv/matches','PUT',{vod_id:'vod:1:0',metadata_id:'tt0133093',type:'movie'},expect.any(AbortSignal)));
     await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument());
+    expect(screen.getByRole('status')).toHaveTextContent('Metadata match saved');
     expect(within(row as HTMLElement).getByText('Matched')).toBeInTheDocument();
     expect(within(row as HTMLElement).getByRole('button',{name:'Edit match'})).toBeInTheDocument();
     expect(api.mock.calls.filter(([path,method]) => path.startsWith('/v2/iptv/matches') && method === 'GET')).toHaveLength(initialGets);
