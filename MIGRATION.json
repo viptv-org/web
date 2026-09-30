@@ -17,8 +17,8 @@
       "source": "dashboard/README.md",
       "destination": "README.md",
       "sha256": "ff64e3d40c4f1e80ce6c2b8329a306094e4e91b09c96277b6dbe414ede7ab173",
-      "extracted_sha256": "03a73e5554f3b55bf0b2125d4475ade0e7a28cef0f6e03b67cfa2039dbc43619",
-      "reason": "Document the Link your TV page and its separate design snapshot. ADM-002 account-owned v2 management and approved design adoption; original extraction checksum retained. ADM-002 account-owned v2 management and approved design adoption; original extraction checksum retained."
+      "extracted_sha256": "0023aae1b6a1df64865086770361be589d575b05517117fbafa9c48e9d50232e",
+      "reason": "Document the Link your TV page and its separate design snapshot. ADM-002 account-owned v2 management and approved design adoption; original extraction checksum retained. ADM-002 account-owned v2 management and approved design adoption; original extraction checksum retained. Document in-memory parent-challenge draft preservation and authority-based discard."
     },
     {
       "source": "dashboard/components.json",
@@ -57,8 +57,8 @@
       "source": "dashboard/src/AccountApp.tsx",
       "destination": "src/AccountApp.tsx",
       "sha256": "081aad698b244cd0564b34ff45387fe84188255c58c7cb3f5a2f25901ee13979",
-      "extracted_sha256": "2bb3fd2c8f170fbb5e9db27c662eef5ff827662071ecb84b85f82acff119ac1d",
-      "reason": "Route code-free device links through the designed code-entry page. ADM-002 account-owned v2 management and approved design adoption; original extraction checksum retained."
+      "extracted_sha256": "209ceec00d4cd7781edb20c7eb7b00b0cea7a2a51f704d19e0b1232da6ec2e23",
+      "reason": "Route code-free device links through the designed code-entry page. ADM-002 account-owned v2 management and approved design adoption; original extraction checksum retained. Preserve same-profile drafts during parent authorization while masking protected presentation and requests."
     },
     {
       "source": "dashboard/src/AccountPools.test.tsx",
@@ -214,8 +214,8 @@
       "source": "dashboard/src/ParentalControls.tsx",
       "destination": "src/ParentalControls.tsx",
       "sha256": "56bab4363961f5303f3382759215f7f926506b17937ddb9c3b860ae73e4f442d",
-      "extracted_sha256": "2ea65d833856af45fdb226e1c7c540dc54c817b0531f5d3c0ace4c64262f1c8c",
-      "reason": "ADM-002 account-owned v2 management and approved design adoption; original extraction checksum retained."
+      "extracted_sha256": "0c80b391cce30976ef990f197560b8d8635d9d3cf98ff52d329f3ca77d37cead",
+      "reason": "ADM-002 account-owned v2 management and approved design adoption; original extraction checksum retained. Bound duplicate PIN submissions and restore PIN focus after rejected authorization."
     },
     {
       "source": "dashboard/src/PlaybackPreferences.test.tsx",
@@ -389,8 +389,8 @@
       "source": "dashboard/src/shared.tsx",
       "destination": "src/shared.tsx",
       "sha256": "a0f49f9017b001ef6bf74f6f5aafc9a01a78bddf66b5002fa398d1bfeb5705ee",
-      "extracted_sha256": "5a6c80fcfaf9701e528fdd1e42849def7e641b152a90874aa07e68c66b7623e5",
-      "reason": "Re-pinned: cleanup commit 534b3cb added the single shared words() helper. ADM-002 account-owned v2 management and approved design adoption; original extraction checksum retained. ADM-002 account-owned v2 management and approved design adoption; original extraction checksum retained. ADM-002 account-owned v2 management and approved design adoption; original extraction checksum retained."
+      "extracted_sha256": "f548dff833359b6f169d88217f63c6e908e68b9cf58ac2135be771b9fe110158",
+      "reason": "Re-pinned: cleanup commit 534b3cb added the single shared words() helper. ADM-002 account-owned v2 management and approved design adoption; original extraction checksum retained. ADM-002 account-owned v2 management and approved design adoption; original extraction checksum retained. ADM-002 account-owned v2 management and approved design adoption; original extraction checksum retained. Suppress protected portals during parent challenges without discarding owning-component draft state."
     },
     {
       "source": "dashboard/tsconfig.json",

@@ -37,6 +37,8 @@ export function VodMatches({ api }: { api: Client }) {
   const [search, setSearch] = useState('');
   const [query, setQuery] = useState('');
   const [target, setTarget] = useState<VodMatch>();
+  const [metadataDraft, setMetadataDraft] = useState('');
+  const [typeDraft, setTypeDraft] = useState<'movie'|'series'>('movie');
   const [first, setFirst] = useState(0);
   const [rowHeight, setRowHeight] = useState(() => typeof matchMedia === 'function' && matchMedia('(max-width: 767px)').matches ? 184 : 112);
   const scroll = useRef<HTMLDivElement>(null);
@@ -57,7 +59,7 @@ export function VodMatches({ api }: { api: Client }) {
   const end = Math.min(result.items.length, first + 16);
   const names = new Map((providers.data?.items ?? []).map(item => [String(item.id), item.name]));
   const close = () => {
-    setTarget(undefined); action.clear();
+    setTarget(undefined);setMetadataDraft(''); action.clear();
     requestAnimationFrame(() => {
       if (retained.current && scroll.current) scroll.current.scrollTop = retained.current.top;
       if (opener.current?.isConnected) opener.current.focus();
@@ -83,7 +85,7 @@ export function VodMatches({ api }: { api: Client }) {
       {result.items.slice(start, end).map(item => <div className="admin-match-row" data-match-id={item.vod_id} key={item.vod_id}>
         <div><h3>{item.name}</h3><p>{names.get(String(item.provider_id)) ?? `IPTV connection ${item.provider_id}`} · {item.type === 'series' ? 'Series' : 'Movie'} · {item.year ?? 'Year unavailable'}</p></div>
         <div className="admin-match-status"><span className="admin-status">{item.matched ? 'Matched' : 'Unmatched'}</span></div>
-        <Button variant="outline" onClick={event => { action.clear(); opener.current = event.currentTarget; retained.current = { top: scroll.current?.scrollTop ?? 0, id: item.vod_id }; setTarget(item); }}>{item.matched ? 'Edit match' : 'Match title'}</Button>
+        <Button variant="outline" onClick={event => { action.clear(); opener.current = event.currentTarget; retained.current = { top: scroll.current?.scrollTop ?? 0, id: item.vod_id }; setMetadataDraft(item.metadataId??'');setTypeDraft(item.type);setTarget(item); }}>{item.matched ? 'Edit match' : 'Match title'}</Button>
       </div>)}
       <div aria-hidden="true" style={{ height: Math.max(0, result.items.length - end) * rowHeight }} />
       <CursorEnd onLoad={result.more} disabled={result.loading || !!result.error || !result.next} generation={result.items.length} />
@@ -102,8 +104,8 @@ export function VodMatches({ api }: { api: Client }) {
           close();
         }, 'Metadata match saved');
       }}>
-        <Field label="Metadata ID" name="metadata_id" defaultValue={target.metadataId} placeholder="tt0133093" required maxLength={256} autoFocus />
-        <label className="grid gap-2 text-sm font-medium">Type<select name="type" defaultValue={target.type}><option value="movie">Movie</option><option value="series">Series</option></select></label>
+        <Field label="Metadata ID" name="metadata_id" value={metadataDraft} onChange={event=>setMetadataDraft(event.target.value)} placeholder="tt0133093" required maxLength={256} autoFocus />
+        <label className="grid gap-2 text-sm font-medium">Type<select name="type" value={typeDraft} onChange={event=>setTypeDraft(event.target.value as 'movie'|'series')}><option value="movie">Movie</option><option value="series">Series</option></select></label>
         <Feedback error={action.error} />
         <div className="flex flex-wrap gap-3"><Button type="submit" disabled={action.busy}>{action.busy ? 'Saving…' : 'Save match'}</Button><Button type="button" variant="outline" disabled={action.busy} onClick={close}>Cancel</Button></div>
       </form>}

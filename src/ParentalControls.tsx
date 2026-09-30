@@ -1,4 +1,4 @@
-import {useState} from 'react';
+import {useRef,useState} from 'react';
 import {Button} from '@/components/ui/button';
 import {Card} from '@/components/ui/card';
 import {Feedback,Resource} from './shared';
@@ -7,7 +7,8 @@ import type {Client,Profile} from './lib/api';
 const fieldClass='min-h-11 w-full rounded-md border bg-background px-3';
 export function ParentUnlock({api,onUnlocked,onCancel}:{api:Client;onUnlocked:()=>void|Promise<void>;onCancel:()=>void}){
  const[pin,setPin]=useState('');const[busy,setBusy]=useState(false);const[error,setError]=useState('');
- return <form className="space-y-4" onSubmit={async e=>{e.preventDefault();if(busy)return;setBusy(true);setError('');const value=pin;setPin('');try{await api('/parent/unlock','POST',{pin:value});await onUnlocked()}catch(e){setError(e instanceof Error?e.message:'Could not unlock.')}finally{setBusy(false)}}}><p>Enter the household PIN to leave kids mode or manage this account.</p><label className="grid gap-2">Parent PIN<input className={fieldClass} autoFocus type="password" inputMode="numeric" autoComplete="off" maxLength={8} pattern="[0-9]{4,8}" required value={pin} onChange={e=>setPin(e.target.value.replace(/\D/g,''))}/></label><Feedback error={error}/><div className="flex gap-3"><Button disabled={busy} type="button" variant="outline" onClick={()=>{setPin('');onCancel()}}>Cancel</Button><Button disabled={busy} type="submit">{busy?'Unlocking…':'Unlock'}</Button></div></form>
+ const pending=useRef(false);const input=useRef<HTMLInputElement>(null);
+ return <form className="space-y-4" onSubmit={async e=>{e.preventDefault();if(pending.current)return;pending.current=true;setBusy(true);setError('');const value=pin;setPin('');try{await api('/parent/unlock','POST',{pin:value});await onUnlocked()}catch(e){setError(e instanceof Error?e.message:'Could not unlock.');input.current?.focus()}finally{pending.current=false;setBusy(false)}}}><p>Enter the household PIN to leave kids mode or manage this account.</p><label className="grid gap-2">Parent PIN<input ref={input} className={fieldClass} autoFocus type="password" inputMode="numeric" autoComplete="off" maxLength={8} pattern="[0-9]{4,8}" required value={pin} onChange={e=>setPin(e.target.value.replace(/\D/g,''))}/></label><Feedback error={error}/><div className="flex gap-3"><Button disabled={busy} type="button" variant="outline" onClick={()=>{setPin('');onCancel()}}>Cancel</Button><Button disabled={busy} type="submit">{busy?'Unlocking…':'Unlock'}</Button></div></form>
 }
 type ParentStatus={pin_configured:boolean;unlocked:boolean;restricted:boolean};
 type KidsSettings={enabled:boolean;max_age:number};

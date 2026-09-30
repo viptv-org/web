@@ -33,6 +33,12 @@ capacity hints, including zero or unavailable capacity. VOD results are fetched
 in pages of 50, debounced and cancelled when filters change, with at most 20
 rendered rows; saving a match preserves the current viewport.
 
+If parent authorization expires during a save, same-profile drafts stay only in
+memory while protected forms and portals are hidden. PIN entry rechecks account,
+profile and role before restoring the form; retrying the save is explicit.
+Failed PIN entry retains the masked draft. Leaving the profile, revocation or
+changed authority discards it, and secrets are never saved in browser storage.
+
 Run `npm test`, `npm run build`, and `python3 scripts/verify-migration.py`.
 The optional local-HTTPS acceptance harness is
 `node tests/admin-v2.e2e.mjs`; it requires the workspace's TV-web Playwright

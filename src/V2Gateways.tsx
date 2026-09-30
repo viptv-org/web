@@ -12,6 +12,7 @@ type Gateway = { id: string; name: string; endpoint: string; namespace: string; 
 type Capacity = { inputs: number; outputs: number; viewers: number };
 type Check = { ready: boolean; version: number; available: Capacity | null };
 type Grant = { account_id: number; enabled: boolean };
+type GrantDraft = { account: string; confirm?: Grant };
 const badResponse = () => new Error('The server returned invalid gateway settings. Try again or update the server.');
 function gateway(value: unknown): Gateway {
   const row = value as Gateway;
@@ -25,9 +26,10 @@ function capacity(value: unknown): Check {
       result.available != null && ['inputs', 'outputs', 'viewers'].some(key => !Number.isInteger(result.available![key as keyof Capacity]) || result.available![key as keyof Capacity] < 0)) throw badResponse();
   return { ready: result.ready, version: result.version, available: result.available ?? null };
 }
-function Grants({ api, row, busy, mutate }: { api: Client; row: Gateway; busy: boolean; mutate: (work: () => Promise<void>, message: string) => void }) {
+function Grants({ api, row, busy, mutate, draft, changeDraft }: { api: Client; row: Gateway; busy: boolean; mutate: (work: () => Promise<void>, message: string) => void; draft: GrantDraft; changeDraft: (draft: GrantDraft) => void }) {
   const grants = useCursorResource<Grant>(api, `/v2/gateways/${encode(row.id)}/grants?limit=50`);
-  const [account, setAccount] = useState(''); const [confirm, setConfirm] = useState<{ account_id: number; enabled: boolean }>();
+  const {account,confirm}=draft;
+  const setAccount=(account:string)=>changeDraft({...draft,account});const setConfirm=(confirm?:Grant)=>changeDraft({...draft,confirm});
   const recipients = grants.items.map(item => ({...item, account_id: Number(item?.account_id)}));
   const valid = grants.items.every(item => item && /^[1-9][0-9]*$/.test(String(item.account_id)) && Number.isSafeInteger(Number(item.account_id)) && item.enabled === true);
   return <div className="space-y-4"><p>Grants allow playback and capacity checks. Connection settings remain private.</p>
@@ -39,7 +41,7 @@ function Grants({ api, row, busy, mutate }: { api: Client; row: Gateway; busy: b
       await api(`/v2/gateways/${encode(row.id)}/grants`, 'PUT', confirm);
       if (!confirm.enabled) grants.setItems(items => items.filter(item => Number(item.account_id) !== confirm.account_id));
       else grants.reload();
-      setConfirm(undefined); setAccount('');
+      changeDraft({account:''});
     }, confirm.enabled ? 'Gateway access granted.' : 'Gateway access revoked.')}>{confirm.enabled ? 'Confirm grant' : 'Confirm revoke'}</Button><Button variant="outline" disabled={busy} onClick={() => setConfirm(undefined)}>Cancel access change</Button></div></section>}
   </div>;
 }
@@ -51,6 +53,7 @@ export function V2Gateways({ api, operator = false, grantsOnly = false }: { api:
   const [mode, setMode] = useState<'create' | 'replace' | 'delete' | 'grants'>(); const [selected, setSelected] = useState<Gateway>();
   const blank = { name: '', endpoint: '', namespace: '', priority: '100', integration_key: '' };
   const [draft, setDraft] = useState(blank);
+  const [grantDraft,setGrantDraft]=useState<GrantDraft>({account:''});
   useEffect(() => {
     if (grantsOnly && !operator) return;
     const abort = new AbortController(); setLoading(true); setError('');
@@ -67,9 +70,10 @@ export function V2Gateways({ api, operator = false, grantsOnly = false }: { api:
   }
   function open(next: typeof mode, row?: Gateway) {
     action.clear(); setSelected(row); setMode(next);
+    setGrantDraft({account:''});
     setDraft(next === 'replace' && row ? { ...blank, name: row.name, endpoint: row.endpoint, namespace: row.namespace, priority: String(row.priority) } : blank);
   }
-  function close() { setMode(undefined); setDraft(blank); }
+  function close() { setMode(undefined); setDraft(blank);setGrantDraft({account:''}); }
   function check(row: Gateway) {
     run(async () => { const result = capacity(await api(`/v2/gateways/${encode(row.id)}/check`, 'POST')); setChecks(previous => ({ ...previous, [row.id]: result })); }, 'Gateway checked.');
   }
@@ -84,7 +88,7 @@ export function V2Gateways({ api, operator = false, grantsOnly = false }: { api:
       }, 'Gateway updated.')}>{row.enabled ? 'Disable' : 'Enable'}</Button><Button variant="outline" disabled={action.busy} aria-label={`Delete ${row.name}`} onClick={() => open('delete', row)}>Delete</Button></>}{operator && row.can_manage && <Button variant="outline" disabled={action.busy} aria-label={`Manage grants for ${row.name}`} onClick={() => open('grants', row)}>Manage grants</Button>}</div></Card>)}
     {!loading && !error && !visible.length && <Empty title={grantsOnly ? 'No owned gateways' : 'No gateways'}>{grantsOnly ? 'Register a gateway in your account before granting access.' : 'Add a private gateway or ask its owner to grant your account access.'}</Empty>}
     <Modal open={!!mode} onOpenChange={value => { if (!value) close(); }} title={mode === 'create' ? 'Add gateway' : mode === 'replace' ? 'Replace gateway connection' : mode === 'grants' ? 'Gateway grants' : 'Delete gateway'} description={mode === 'delete' ? `Remove ${selected?.name}? Its grants and active gateway playback become unavailable. History is retained.` : mode === 'grants' ? selected?.name ?? '' : 'Supply the gateway address and a new scoped integration key. Stored keys are never displayed.'}>
-      {mode === 'grants' && selected ? <><Grants key={selected.id} api={api} row={selected} busy={action.busy} mutate={run}/><Feedback error={action.error} success={action.success}/><Button variant="outline" onClick={close}>Close</Button></> : <form className="grid gap-4" onSubmit={event => { event.preventDefault(); run(async () => {
+      {mode === 'grants' && selected ? <><Grants key={selected.id} api={api} row={selected} busy={action.busy} mutate={run} draft={grantDraft} changeDraft={setGrantDraft}/><Feedback error={action.error} success={action.success}/><Button variant="outline" onClick={close}>Close</Button></> : <form className="grid gap-4" onSubmit={event => { event.preventDefault(); run(async () => {
         if (mode === 'delete') { await api(`/v2/gateways/${encode(selected!.id)}`, 'DELETE'); setRows(items => items.filter(item => item.id !== selected!.id)); }
         else {
           const updated = gateway(await api(mode === 'replace' ? `/v2/gateways/${encode(selected!.id)}` : '/v2/gateways', mode === 'replace' ? 'PUT' : 'POST', { ...draft, priority: Number(draft.priority) }));

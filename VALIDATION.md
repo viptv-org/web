@@ -2,6 +2,29 @@
 
 ## ADM-002 / BE-002 management — 2026-09-30
 
+Parent-required draft preservation now keeps already-authorized, same-account
+and same-profile forms in memory while protected presentation is hidden/inert.
+Protected portals are removed, new protected requests are blocked, and pending
+protected requests are aborted. Successful PIN entry revalidates account,
+profile and role before revealing drafts; saves are not automatically replayed.
+Cancelling an ordinary challenge leaves the ready scope for profile selection
+and discards drafts, retaining the existing cancel/logout behavior. Revocation
+or changed authority also discards drafts. No draft or PIN is stored in browser
+storage. Gateway-grant confirmation and match metadata/type drafts survive
+temporary portal removal as well as connection/add-on/key form drafts.
+
+Evidence for this narrow follow-up: all 88 unit tests pass, including twelve
+new late-challenge, failed-PIN, cancellation, authority-change, duplicate-submit
+and focus fixtures. TypeScript, production build, design locks and extraction
+integrity pass. Fully mocked local HTTPS acceptance passed both 1440×900 and
+390×844 against `index-DmjEsEGF.js`, exercising all twelve owner routes plus
+late parent-required failures and explicit post-PIN retries for Xtream, add-on,
+gateway and metadata-match forms. It found no page exceptions, horizontal
+overflow, draft-storage writes or protected requests while locked. PIN fields
+were focused and masked; protected portals were absent during the challenge.
+Returned phone and desktop sheets were visually inspected with retained drafts
+and the existing geometry. The full authentication/browser matrix remains open.
+
 Follow-up integrity guards reject duplicate rows across fetched pages and
 multi-page cursor cycles before publication. Empty terminal pages remain valid;
 empty pages that claim continuation fail visibly. Failed continuation requests
@@ -34,8 +57,9 @@ artifacts, not production data.
 Remaining qualification: real backend/gateway integration, the full browser
 authentication/recovery and parent-unlock transition matrix, and accounts with
 more than 200 connections (the VOD provider filter currently loads one bounded
-connection page). Parent-required transitions currently replace the ready page;
-unsaved form drafts across that transition are not yet guaranteed. Loaded VOD
+connection page). The prior uncertainty about same-scope unsaved drafts through
+a parent challenge is superseded by the focused evidence above; this does not
+complete the full authentication/recovery/parent-transition matrix. Loaded VOD
 metadata accumulates as pages are traversed even though rendered DOM is bounded.
 No production migration, deployment, real-device pairing or gateway playback
 was performed by this admin acceptance run.

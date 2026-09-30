@@ -19,7 +19,8 @@ const settledText={'Account':'Fixture account','Devices':'Fixture television','C
 function fixture(state, request) {
   const url = new URL(request.url()); const path = url.pathname; const method = request.method();
   if (path === '/api/auth/status') return { authenticated: true, csrf_token: 'fixture_csrf' };
-  if (path === '/api/auth/me') return { account: { id: 1, username: 'fixture', name: 'Fixture account', role: state.role }, profile_id: 1 };
+  if (path === '/api/auth/me') return { account: { id: 1, username: 'fixture', name: 'Fixture account', role: state.role }, profile_id: state.profile??1 };
+  if (path === '/api/auth/profile') {state.profile=Number(request.postDataJSON().profile_id);return {}}
   if (path === '/api/profiles') return [profile];
   if (path === '/api/accounts') return [{id:1,username:'fixture',name:'Fixture account',role:state.role,enabled:true}];
   if (path === '/api/health') return { ok: true };
@@ -31,9 +32,9 @@ function fixture(state, request) {
   if (path.endsWith('/continue/settings')) return { autoplay: false };
   if (/\/(favorites|progress|continue)\/page$/.test(path)) return {items:[movie],total:1,next_offset:null,offset:0};
   if (path === '/api/v2/iptv/live-default') return {catalog_id:1};
-  if (path === '/api/v2/iptv/connections') return {items:state.mode==='empty'?[]:[connection],next_cursor:null};
-  if (path === '/api/v2/addons') return {items:state.mode==='empty'?[]:[{id:7,name:'Fixture add-on',enabled:true,credentials_encrypted:true,logo:'https://external.fixture.invalid/icon.png',manifest_url:null}],next_cursor:null};
-  if (path === '/api/v2/gateways') return {items:state.mode==='empty'?[]:[gateway],secret_storage_configured:true};
+  if (path === '/api/v2/iptv/connections') return method==='POST'?{...connection,id:2,name:request.postDataJSON().name}:{items:state.mode==='empty'?[]:[connection],next_cursor:null};
+  if (path === '/api/v2/addons') return method==='POST'?{id:8,name:'Added fixture add-on',enabled:true,credentials_encrypted:true}:{items:state.mode==='empty'?[]:[{id:7,name:'Fixture add-on',enabled:true,credentials_encrypted:true,logo:'https://external.fixture.invalid/icon.png',manifest_url:null}],next_cursor:null};
+  if (path === '/api/v2/gateways') return method==='POST'?{...gateway,id:'new_fixture',name:request.postDataJSON().name}:{items:state.mode==='empty'?[]:[gateway],secret_storage_configured:true};
   if (path.endsWith('/grants')) return method==='GET'?{items:[{account_id:2,enabled:true}],next_cursor:null}:{ok:true};
   if (path.endsWith('/check')) return {ready:true,version:1,available:{inputs:0,outputs:2,viewers:3}};
   if (path === '/api/v2/iptv/matches') {
@@ -50,6 +51,15 @@ async function install(context, state) {
     if (url.origin !== origin) { state.externalBlocked.push(url.hostname); return route.abort('blockedbyclient'); }
     if (!url.pathname.startsWith('/api')) return route.continue();
     state.apiCalls.push({path:url.pathname+url.search,method:route.request().method()});
+    if(url.pathname==='/api/parent/unlock'){
+      if(route.request().postDataJSON().pin!=='1234')return route.fulfill({status:403,json:{error:'Incorrect parent PIN',error_code:'invalid_parent_pin'}});
+      state.locked=false;return route.fulfill({json:{unlocked:true}});
+    }
+    if(state.challengePath===url.pathname&&route.request().method()!=='GET'){
+      state.draftSaves.push(route.request().postDataJSON());
+      if(!state.challenged){state.challenged=true;state.locked=true;return route.fulfill({status:403,json:{error:'Parent PIN required',error_code:'parent_required'}})}
+    }
+    if(state.locked&&url.pathname.startsWith('/api/v2/')){state.protectedWhileLocked++;return route.fulfill({status:403,json:{error:'Parent PIN required',error_code:'parent_required'}})}
     if (url.pathname==='/api/v2/iptv/connections' && state.mode==='error') return route.fulfill({status:503,json:{error:'Fixture connection temporarily unavailable. Try again.',error_code:'provider_unavailable'}});
     if (url.pathname==='/api/v2/iptv/connections' && state.mode==='slow') await new Promise(resolve=>{state.releaseSlow=resolve;});
     try { await route.fulfill({json:fixture(state,route.request())}); }
@@ -66,6 +76,35 @@ async function overflow(page, label) {
   const size=await page.evaluate(()=>({width:innerWidth,document:document.documentElement.scrollWidth,body:document.body.scrollWidth}));
   expect(size.document,`${label}: document overflow ${JSON.stringify(size)}`).toBeLessThanOrEqual(size.width+1);
   expect(size.body,`${label}: body overflow ${JSON.stringify(size)}`).toBeLessThanOrEqual(size.width+1);
+}
+async function parentDraftAcceptance(page,state,mobile,viewport) {
+  const cases=[
+    {name:'xtream',page:'Xtream connections',opener:'Add Xtream connection',save:'Save connection',path:'/api/v2/iptv/connections',field:'Password',value:'fixture-draft-password',fields:[['Connection name','Draft fixture TV'],['Server URL','http://provider.fixture.invalid'],['Username','fixture-user'],['Password','fixture-draft-password']]},
+    {name:'addon',page:'Add-ons',opener:'Add add-on',save:'Add add-on',path:'/api/v2/addons',field:'Manifest URL',value:'https://addon.fixture.invalid/private-fixture/manifest.json',fields:[['Manifest URL','https://addon.fixture.invalid/private-fixture/manifest.json']]},
+    {name:'gateway',page:'Gateways',opener:'Add gateway',save:'Save gateway',path:'/api/v2/gateways',field:'New integration key',value:'pgk_'+'a'.repeat(64),fields:[['Gateway name','Draft fixture gateway'],['HTTPS endpoint','https://gateway.fixture.invalid/'],['Namespace','fixture'],['New integration key','pgk_'+'a'.repeat(64)]]},
+    {name:'match',page:'VOD matches',opener:'Match title',save:'Save match',path:'/api/v2/iptv/matches',field:'Metadata ID',value:'tt0133093',fields:[['Metadata ID','tt0133093']]},
+  ];
+  for(const item of cases){
+    state.challengePath=item.path;state.challenged=false;state.draftSaves=[];state.protectedWhileLocked=0;
+    await navigate(page,item.page,mobile);await expect(page.getByText(settledText[item.page],{exact:true})).toBeVisible();await expect(page.getByText(/Loading (connections|gateways|titles)…/)).toHaveCount(0);await page.getByRole('button',{name:item.opener,exact:true}).first().click();
+    for(const[label,value]of item.fields)await page.getByLabel(label,{exact:true}).fill(value);
+    const storage=await page.evaluate(()=>({local:{...localStorage},session:{...sessionStorage}}));
+    await page.getByRole('dialog').getByRole('button',{name:item.save,exact:true}).click();
+    await expect(page.getByRole('heading',{name:'Parent access',exact:true})).toBeVisible();await expect(page.getByLabel('Parent PIN')).toBeFocused();
+    await expect(page.getByRole('navigation')).toHaveCount(0);expect(await page.locator('[role=dialog]').count()).toBe(0);expect(await page.locator('input[type=password]').count()).toBe(1);
+    await overflow(page,`${viewport.width} ${item.name} parent challenge`);
+    await page.screenshot({path:join(captures,`${viewport.width}-${item.name}-parent-challenge.png`)});
+    await page.getByLabel('Parent PIN').fill('0000');await page.getByRole('button',{name:'Unlock',exact:true}).click();
+    await expect(page.getByRole('alert').filter({hasText:'Incorrect parent PIN'})).toBeVisible();await expect(page.getByLabel('Parent PIN')).toBeFocused();expect(state.draftSaves).toHaveLength(1);
+    await page.getByLabel('Parent PIN').fill('1234');await page.getByRole('button',{name:'Unlock',exact:true}).click();
+    await expect(page.getByLabel(item.field,{exact:true})).toHaveValue(item.value);expect(state.draftSaves).toHaveLength(1);
+    expect(await page.getByRole('dialog').evaluate(dialog=>dialog.contains(document.activeElement))).toBe(true);
+    expect(await page.evaluate(()=>({local:{...localStorage},session:{...sessionStorage}}))).toEqual(storage);expect(state.protectedWhileLocked).toBe(0);
+    await page.screenshot({path:join(captures,`${viewport.width}-${item.name}-draft-restored.png`)});
+    await page.getByRole('dialog').getByRole('button',{name:item.save,exact:true}).click();
+    await expect(page.getByRole('dialog')).toHaveCount(0);expect(state.draftSaves).toHaveLength(2);expect(state.draftSaves[1]).toEqual(state.draftSaves[0]);
+    state.challengePath=undefined;
+  }
 }
 const browser=await chromium.launch({headless:true}); const evidence=[];let lastState;
 try {
@@ -134,9 +173,10 @@ try {
     await page.getByRole('button',{name:'Add Xtream connection'}).click();await overflow(page,`${viewport.width} connection dialog`);
     await page.screenshot({path:join(captures,`${viewport.width}-connection-dialog.png`)});await page.keyboard.press('Escape');
     await expect(page.getByRole('button',{name:'Add Xtream connection'})).toBeFocused();
+    await parentDraftAcceptance(page,state,mobile,viewport);
     expect(state.unmocked).toEqual([]);expect(errors).toEqual([]);
     expect(state.apiCalls.filter(call=>call.path.startsWith('/api/v2/iptv/matches?')).every(call=>new URL(origin+call.path).searchParams.get('limit')==='50')).toBe(true);
-    evidence.push({viewport,asset,pages:[...accountPages,...operatorPages],vodFixtureSize:100000,loadedPages:state.apiCalls.filter(call=>call.path.includes('cursor=cursor_')).length,apiCalls:state.apiCalls.length,externalBlocked:state.externalBlocked,pageErrors:errors});
+    evidence.push({viewport,asset,pages:[...accountPages,...operatorPages],parentDraftsVerified:4,vodFixtureSize:100000,loadedPages:state.apiCalls.filter(call=>call.path.includes('cursor=cursor_')).length,apiCalls:state.apiCalls.length,externalBlocked:state.externalBlocked,pageErrors:errors});
     await context.close();
   }
   const member=await browser.newContext({viewport:{width:1440,height:900},serviceWorkers:'block'});
