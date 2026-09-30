@@ -6,6 +6,7 @@ import { useCursorResource } from './useCursorResource';
 import { CursorEnd } from './CursorEnd';
 import type { Client } from './lib/api';
 import { cursorPage, type CursorPage, type IptvConnection, type VodMatch } from './lib/v2';
+const matchKey = (item: VodMatch) => item.vod_id;
 
 export function VodMatches({ api }: { api: Client }) {
   const checkedApi = useMemo<Client>(() => async <T,>(path: string, method?: string, body?: unknown, signal?: AbortSignal) => {
@@ -43,7 +44,7 @@ export function VodMatches({ api }: { api: Client }) {
   const retained = useRef<{ top: number; id: string } | undefined>(undefined);
   const action = useAction();
   const path = `/v2/iptv/matches?limit=50${provider ? `&provider_id=${encodeURIComponent(provider)}` : ''}${kind ? `&kind=${kind}` : ''}${query ? `&search=${encodeURIComponent(query)}` : ''}`;
-  const result = useCursorResource<VodMatch>(checkedApi, path);
+  const result = useCursorResource<VodMatch>(checkedApi, path, matchKey);
   useEffect(() => { const timer = setTimeout(() => setQuery(search.trim().slice(0, 128)), 250); return () => clearTimeout(timer); }, [search]);
   useEffect(() => { if (scroll.current) scroll.current.scrollTop = 0; setFirst(0); }, [path]);
   useEffect(() => {

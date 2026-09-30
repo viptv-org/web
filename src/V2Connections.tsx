@@ -11,6 +11,7 @@ import { displayError } from './lib/displayError';
 import { CursorEnd } from './CursorEnd';
 
 const invalid = () => new Error('The server returned invalid connection settings. Try again or update the server.');
+const connectionKey = (item: IptvConnection) => item.id;
 function connection(value: unknown): IptvConnection {
   const row = value as IptvConnection;
   if (!row || !['string', 'number'].includes(typeof row.id) || !Number.isSafeInteger(Number(row.id)) || Number(row.id) <= 0 || typeof row.name !== 'string' ||
@@ -48,7 +49,7 @@ export function V2Connections({ api }: { api: Client }) {
     }
     return value as T;
   }, [api]);
-  const resource = useCursorResource<IptvConnection>(checkedApi, '/v2/iptv/connections?limit=50');
+  const resource = useCursorResource<IptvConnection>(checkedApi, '/v2/iptv/connections?limit=50', connectionKey);
   const action = useGuardedAction();
   const [defaultLive, setDefaultLive] = useState<string | null>(null); const [defaultError, setDefaultError] = useState('');
   const [defaultVersion, setDefaultVersion] = useState(0);
@@ -102,6 +103,7 @@ export function V2Connections({ api }: { api: Client }) {
 }
 
 type Addon = { id: string; name: string; enabled: boolean; logo?: string | null; credentials_encrypted: boolean; configuration_error?: string | null };
+const addonKey = (item: Addon) => item.id;
 function addon(value: unknown): Addon {
   const row = value as Addon;
   if (!row || !['number', 'string'].includes(typeof row.id) || !Number.isSafeInteger(Number(row.id)) || Number(row.id) <= 0 || typeof row.name !== 'string' || typeof row.enabled !== 'boolean' || typeof row.credentials_encrypted !== 'boolean') throw invalid();
@@ -116,7 +118,7 @@ export function V2Addons({ api }: { api: Client }) {
   const checkedApi = useMemo<Client>(() => async <T,>(path: string, method?: string, body?: unknown, signal?: AbortSignal) => {
     const page = cursorPage<unknown>(await api(path, method, body, signal)); return { ...page, items: page.items.map(addon) } as T;
   }, [api]);
-  const resource = useCursorResource<Addon>(checkedApi, '/v2/addons?limit=50'); const action = useGuardedAction();
+  const resource = useCursorResource<Addon>(checkedApi, '/v2/addons?limit=50', addonKey); const action = useGuardedAction();
   const [open, setOpen] = useState(false); const [remove, setRemove] = useState<Addon>(); const [url, setUrl] = useState('');
   function close() { setOpen(false); setRemove(undefined); setUrl(''); }
   return <div className="space-y-4"><div className="admin-toolbar"><p>Your account’s catalog add-ons.</p><Button disabled={action.busy} onClick={() => { action.clear(); setOpen(true); }}>Add add-on</Button><Button variant="outline" disabled={resource.loading} onClick={resource.reload}>Refresh list</Button></div><Feedback error={action.error} success={action.success}/>

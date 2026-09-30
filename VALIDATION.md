@@ -2,6 +2,15 @@
 
 ## ADM-002 / BE-002 management — 2026-09-30
 
+Follow-up integrity guards reject duplicate rows across fetched pages and
+multi-page cursor cycles before publication. Empty terminal pages remain valid;
+empty pages that claim continuation fail visibly. Failed continuation requests
+can retry, and failed same-scope refreshes preserve the committed identity
+guards. Five new hook fixtures pass; the current suite is 76 passing tests,
+with build/design/extraction checks passing. The full local HTTPS acceptance
+rerun passed both viewports against `index-CanwlKM-.js`, retaining the same
+twenty-row DOM bound and route/error/focus scenarios described below.
+
 Account/admin design adopts approved design revision
 `4e153a7daca300389049e5fcfd5c3bc0af5edbee`. The independent Link TV snapshot
 is unchanged. Local fonts, responsive labelled navigation, safe error states,
