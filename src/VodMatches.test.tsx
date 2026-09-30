@@ -53,6 +53,23 @@ describe('bounded v2 VOD matching', () => {
     await waitFor(()=>expect(opener).toHaveFocus());
     expect(api.mock.calls.some(([,method])=>method==='PUT')).toBe(false);
   });
+  it('waits for Cancel history traversal before reopening, and keeps Back disabled during a save',async()=>{
+    const api=fixture();let reject!: (error:Error)=>void;const ordinary=api.getMockImplementation()!;
+    api.mockImplementation((...args)=>args[1]==='PUT'?new Promise((_,fail)=>{reject=fail}):ordinary(...args));
+    render(<VodMatches api={api}/>);
+    const opener=(await screen.findAllByRole('button',{name:'Match title'}))[0];fireEvent.click(opener);
+    fireEvent.click(screen.getByRole('button',{name:'Cancel'}));
+    // Closing remains modal until its owned history entry has been consumed.
+    expect(screen.getByRole('dialog')).toBeInTheDocument();
+    await waitFor(()=>expect(screen.queryByRole('dialog')).not.toBeInTheDocument());
+    fireEvent.click(opener);fireEvent.change(screen.getByLabelText('Metadata ID'),{target:{value:'tt42'}});
+    fireEvent.click(screen.getByRole('button',{name:'Save match'}));act(()=>history.back());
+    await act(async()=>{await new Promise(done=>setTimeout(done,15));});
+    expect(screen.getByRole('dialog')).toBeInTheDocument();
+    expect(screen.getByRole('button',{name:'Saving…'})).toBeDisabled();
+    await act(async()=>reject(new Error('Try again.')));act(()=>history.back());
+    await waitFor(()=>expect(screen.queryByRole('dialog')).not.toBeInTheDocument());
+  });
   it('rejects malformed or duplicate rows with a recoverable error instead of publishing them', async () => {
     for (const items of [[{vod_id:'broken',provider_id:'1',name:'Malformed',type:'movie'}], [titles(0,1)[0],titles(0,1)[0]]]) {
       const api = vi.fn().mockImplementation(path => Promise.resolve(path.startsWith('/v2/iptv/connections') ? {items:[provider],next_cursor:null} : {items,next_cursor:null}));

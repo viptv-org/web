@@ -55,6 +55,7 @@ function ScopedVodMatches({ api }: { api: Client }) {
   const scroll = useRef<HTMLDivElement>(null);
   const opener = useRef<HTMLButtonElement | undefined>(undefined);
   const retained = useRef<{ top: number; id: string } | undefined>(undefined);
+  const historyEntry = useRef<string | undefined>(undefined);
   const action = useAction();
   const path = `/v2/iptv/matches?limit=50${provider ? `&provider_id=${encodeURIComponent(provider)}` : ''}${kind ? `&kind=${kind}` : ''}${query ? `&search=${encodeURIComponent(query)}` : ''}`;
   const result = useVodWindow(checkedApi, path, !!target);
@@ -77,7 +78,10 @@ function ScopedVodMatches({ api }: { api: Client }) {
     if (first < result.base && result.previous) result.back();
     else if (first >= result.base + result.items.length && result.next) result.more();
   }, [first, result.base, result.items.length, result.loading, result.error, result.previous, result.next, target, result.back, result.more]);
-  const close = () => {
+  const close = (fromBack = false) => {
+    if (!fromBack && historyEntry.current && history.state?.vodMatchDialog === historyEntry.current) {
+      history.back(); return;
+    }
     setTarget(undefined);setMetadataDraft(''); action.clear();
     requestAnimationFrame(() => {
       if (retained.current && scroll.current) scroll.current.scrollTop = retained.current.top;
@@ -86,15 +90,20 @@ function ScopedVodMatches({ api }: { api: Client }) {
     });
   };
   const closeDialog = useRef(close); closeDialog.current = close;
+  const busyNow = useRef(action.busy); busyNow.current = action.busy;
   useEffect(() => {
     if (!target) return;
-    const marker = {};
+    const marker = crypto.randomUUID(); historyEntry.current = marker;
     history.pushState({ ...history.state, vodMatchDialog: marker }, '');
-    const pop = () => closeDialog.current();
+    const pop = () => {
+      if (busyNow.current) { history.pushState({ ...history.state, vodMatchDialog: marker }, ''); return; }
+      historyEntry.current = undefined; closeDialog.current(true);
+    };
     window.addEventListener('popstate', pop);
     return () => {
       window.removeEventListener('popstate', pop);
-      if (history.state?.vodMatchDialog) history.back();
+      historyEntry.current = undefined;
+      if (history.state?.vodMatchDialog === marker) history.back();
     };
   }, [!!target]);
   return <div>
@@ -144,7 +153,7 @@ function ScopedVodMatches({ api }: { api: Client }) {
         <Field label="Metadata ID" name="metadata_id" value={metadataDraft} onChange={event=>setMetadataDraft(event.target.value)} placeholder="tt0133093" required maxLength={256} autoFocus />
         <label className="grid gap-2 text-sm font-medium">Type<select name="type" value={typeDraft} onChange={event=>setTypeDraft(event.target.value as 'movie'|'series')}><option value="movie">Movie</option><option value="series">Series</option></select></label>
         <Feedback error={action.error} />
-        <div className="flex flex-wrap gap-3"><Button type="submit" disabled={action.busy}>{action.busy ? 'Saving…' : 'Save match'}</Button><Button type="button" variant="outline" disabled={action.busy} onClick={close}>Cancel</Button></div>
+        <div className="flex flex-wrap gap-3"><Button type="submit" disabled={action.busy}>{action.busy ? 'Saving…' : 'Save match'}</Button><Button type="button" variant="outline" disabled={action.busy} onClick={() => close()}>Cancel</Button></div>
       </form>}
     </Modal>
   </div>;
