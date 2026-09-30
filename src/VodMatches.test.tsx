@@ -20,6 +20,53 @@ function scrollNearEnd(region: HTMLElement, offset: number) {
   region.scrollTop = offset * 112; fireEvent.scroll(region);
 }
 describe('bounded v2 VOD matching', () => {
+  it('times out a stalled save after 30 seconds, aborts it and retains retryable edits', async () => {
+    vi.useFakeTimers();const api=fixture();const ordinary=api.getMockImplementation()!;
+    let finish!: (value:unknown)=>void;
+    api.mockImplementation((...args)=>args[1]==='PUT'?new Promise(done=>{finish=done}):ordinary(...args));
+    render(<VodMatches api={api}/>);await act(async()=>{await Promise.resolve();});
+    fireEvent.click(screen.getAllByRole('button',{name:'Match title'})[0]);
+    fireEvent.change(screen.getByLabelText('Metadata ID'),{target:{value:'retained-timeout-draft'}});
+    fireEvent.click(screen.getByRole('button',{name:'Save match'}));
+    const signal=api.mock.calls.find(([,method])=>method==='PUT')![3];
+    await act(async()=>{vi.advanceTimersByTime(29_999);});
+    expect(screen.getByRole('button',{name:'Saving…'})).toBeDisabled();
+    await act(async()=>{vi.advanceTimersByTime(1);});
+    expect(signal.aborted).toBe(true);
+    expect(screen.getByRole('alert')).toHaveTextContent('Save timed out. Try again.');
+    expect(screen.getByLabelText('Metadata ID')).toHaveValue('retained-timeout-draft');
+    expect(screen.getByRole('button',{name:'Save match'})).toBeEnabled();
+    await act(async()=>finish({ok:true}));
+    expect(screen.getByRole('dialog')).toBeInTheDocument();
+    expect(screen.queryByRole('button',{name:'Edit match'})).not.toBeInTheDocument();
+  });
+  it('keeps rows and travelled spacer extent while a forward jump refills or fails', async () => {
+    const api=fixture();render(<VodMatches api={api}/>);await screen.findByText('Title 0');const region=screen.getByRole('region');
+    for(let offset=40;offset<=1490;offset+=50){
+      scrollNearEnd(region,offset);
+      await waitFor(()=>expect(region.dataset.visitedExtent).toBe(String(offset+60)));
+    }
+    scrollNearEnd(region,0);await screen.findByText('Title 0');
+    expect(region.dataset.windowBase).toBe('0');
+    const extent=Number(region.dataset.visitedExtent), ordinary=api.getMockImplementation()!;
+    let reject!: (error:Error)=>void;
+    api.mockImplementation((path,...args)=>path.includes('cursor=cursor_150')?new Promise((_,fail)=>{reject=fail}):ordinary(path,...args));
+    scrollNearEnd(region,1000);
+    await waitFor(()=>expect(screen.getByRole('status')).toHaveTextContent('Loading titles'));
+    const assertGeometry=()=>{
+      const rows=region.querySelectorAll('[data-match-id]');expect(rows.length).toBe(20);
+      const spacers=[...region.querySelectorAll<HTMLDivElement>(':scope > div[aria-hidden="true"]')].slice(0,2);
+      expect([...spacers].reduce((sum,node)=>sum+parseFloat(node.style.height),0)+rows.length*112).toBe(extent*112);
+      expect(parseFloat(spacers[0].style.height)).toBe(1000*112);
+      expect(region.scrollTop).toBe(1000*112);
+    };
+    assertGeometry();await act(async()=>reject(new Error('Temporary page failure')));
+    expect(screen.getByRole('alert')).toHaveTextContent('Temporary page failure');assertGeometry();
+    api.mockImplementation(ordinary);fireEvent.click(screen.getByRole('button',{name:'Try again'}));
+    await waitFor(()=>expect(Number(region.dataset.windowBase)).toBeGreaterThanOrEqual(900));
+    expect(region.querySelectorAll('[data-match-id]').length).toBeLessThanOrEqual(20);
+    expect(region.scrollTop).toBe(1000*112);
+  });
   it('includes the 208th owned provider and keeps its raw ID in the filter', async () => {
     const api=fixture(); const ordinary=api.getMockImplementation()!;
     api.mockImplementation((path,...args)=>path.startsWith('/v2/iptv/connections') ? Promise.resolve({items:Array.from({length:path.includes('cursor')?8:200},(_,i)=>({id:String(i+(path.includes('cursor')?201:1)),name:`Provider ${i+(path.includes('cursor')?201:1)}`})),next_cursor:path.includes('cursor')?null:'providers_200'}) : ordinary(path,...args));

@@ -75,8 +75,11 @@ Long names wrap within the fixed row without horizontal overflow. No new assets.
   prior-account rows/provider options/dialog state, and never apply late results.
 - Opening `Match title`/`Edit match` freezes paging and retains filters, position
   and its opener. Tab follows the visual controls and rows. Escape, Cancel and
-  browser Back close only the match dialog, make no save, and restore position
-  and opener focus. Save errors retain edits; success updates only that row and
+  browser Back close an idle or failed match dialog, make no save, and restore
+  position and opener focus. While `Saving…`, disable Cancel/Escape/Back until
+  the request settles; a submitted save cannot be undone by dismissing its dialog.
+  Bound a stalled save to 30 seconds, then retain edits with an actionable
+  timeout and retry. Save errors retain edits; success updates only that row and
   announces `Metadata match saved`. If a removed opener cannot regain focus,
   focus the labelled list region. No hold/repeat-only actions are introduced.
 

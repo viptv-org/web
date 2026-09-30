@@ -69,8 +69,12 @@ function ScopedVodMatches({ api }: { api: Client }) {
     media.addEventListener('change', update); return () => media.removeEventListener('change', update);
   }, []);
   const localFirst = Math.max(0, first - result.base);
-  const start = Math.max(0, localFirst - 4);
-  const end = Math.min(result.items.length, localFirst + 16);
+  const start = Math.max(0, Math.min(localFirst - 4, result.items.length - 20));
+  const end = Math.min(result.items.length, start + 20);
+  const outsideWindow = first < result.base || first >= result.base + result.items.length;
+  // Keep retained edge rows visible at the requested position during refill,
+  // without stretching the scalar travelled extent or retaining extra pages.
+  const displayOffset = outsideWindow ? Math.max(0, Math.min(first, result.extent - (end - start))) : result.base + start;
   const names = new Map(providers.items.map(item => [String(item.id), item.name]));
   useEffect(() => {
     if (target || result.loading || result.error || !result.items.length) return;
@@ -111,8 +115,8 @@ function ScopedVodMatches({ api }: { api: Client }) {
     <p className="text-sm text-muted-foreground mb-6">Match your provider’s titles to metadata IDs so the right streams appear for movies and exact episodes.</p>
     <div className="admin-toolbar">
       <Field label="Search titles" value={search} maxLength={128} onChange={event => setSearch(event.target.value)} type="search" />
-      <label className="grid gap-2 text-sm font-medium">Provider<select value={provider} onChange={event => setProvider(event.target.value)}><option value="">All providers</option>{providers.items.map(item => <option key={item.id} value={item.id}>{item.name}</option>)}</select></label>
-      <label className="grid gap-2 text-sm font-medium">Type<select value={kind} onChange={event => setKind(event.target.value)}><option value="">All types</option><option value="movie">Movie</option><option value="series">Series</option></select></label>
+      <label className="grid gap-2 text-sm font-medium">Provider<select aria-label="Provider" value={provider} onChange={event => setProvider(event.target.value)}><option value="">All providers</option>{providers.items.map(item => <option key={item.id} value={item.id}>{item.name}</option>)}</select></label>
+      <label className="grid gap-2 text-sm font-medium">Type<select aria-label="Type" value={kind} onChange={event => setKind(event.target.value)}><option value="">All types</option><option value="movie">Movie</option><option value="series">Series</option></select></label>
     </div>
     <Feedback error={result.error || providers.error} success={!target ? action.success : ''} />
     {result.error && <Button variant="outline" onClick={result.refreshRequired ? () => { if (scroll.current) scroll.current.scrollTop = 0; setFirst(0); result.reload(); } : result.retry}>{result.refreshRequired ? 'Refresh titles' : 'Try again'}</Button>}
@@ -126,13 +130,13 @@ function ScopedVodMatches({ api }: { api: Client }) {
         if (index <= result.base + 4 && result.previous) result.back();
         else if (index + Math.ceil(node.clientHeight / rowHeight) + 8 >= result.base + result.items.length) result.more();
       }}>
-      <div aria-hidden="true" style={{ height: (result.base + start) * rowHeight }} />
+      <div aria-hidden="true" style={{ height: displayOffset * rowHeight }} />
       {result.items.slice(start, end).map(item => <div className="admin-match-row" data-match-id={item.vod_id} key={item.vod_id}>
         <div><h3>{item.name}</h3><p>{names.get(String(item.provider_id)) ?? `IPTV connection ${item.provider_id}`} · {item.type === 'series' ? 'Series' : 'Movie'} · {item.year ?? 'Year unavailable'}</p></div>
         <div className="admin-match-status"><span className="admin-status">{item.matched ? 'Matched' : 'Unmatched'}</span></div>
         <Button variant="outline" onClick={event => { action.clear(); opener.current = event.currentTarget; retained.current = { top: scroll.current?.scrollTop ?? 0, id: item.vod_id }; setMetadataDraft(item.metadataId??'');setTypeDraft(item.type);setTarget(item); }}>{item.matched ? 'Edit match' : 'Match title'}</Button>
       </div>)}
-      <div aria-hidden="true" style={{ height: Math.max(0, result.extent - result.base - end) * rowHeight }} />
+      <div aria-hidden="true" style={{ height: Math.max(0, result.extent - displayOffset - (end - start)) * rowHeight }} />
       <CursorEnd onLoad={result.more} disabled={!!target || result.loading || !!result.error || !result.next} generation={result.base + result.extent} />
       {result.loading && <p role="status" className="p-5 text-sm text-muted-foreground">Loading titles…</p>}
       {!result.loading && !result.items.length && !result.error && <div className="p-8"><h2>{query || provider || kind ? 'No matching titles' : 'No unmatched titles'}</h2><p className="text-sm text-muted-foreground mt-2">Try another filter, or wait for your provider’s next catalog refresh.</p></div>}
@@ -145,7 +149,15 @@ function ScopedVodMatches({ api }: { api: Client }) {
         const chosen = target;
         const controller = saves.current;
         void action.run(async () => {
-          await api('/v2/iptv/matches', 'PUT', { vod_id: chosen.vod_id, metadata_id: String(fields.get('metadata_id')).trim(), type: fields.get('type') }, controller.signal);
+          const attempt = new AbortController();
+          const signal = AbortSignal.any([controller.signal, attempt.signal]);
+          let timer: ReturnType<typeof setTimeout> | undefined;
+          try {
+            await Promise.race([
+              api('/v2/iptv/matches', 'PUT', { vod_id: chosen.vod_id, metadata_id: String(fields.get('metadata_id')).trim(), type: fields.get('type') }, signal),
+              new Promise<never>((_, reject) => { timer = setTimeout(() => { reject(new Error('Save timed out. Try again.')); attempt.abort(); }, 30_000); }),
+            ]);
+          } finally { clearTimeout(timer); }
           if (controller.signal.aborted) return;
           result.setItems(items => items.map(item => item.vod_id === chosen.vod_id ? { ...item, type: fields.get('type') as 'movie'|'series', matched: true, metadataId: String(fields.get('metadata_id')).trim() } : item));
           savedDialog.current = true;
@@ -153,7 +165,7 @@ function ScopedVodMatches({ api }: { api: Client }) {
         }, 'Metadata match saved');
       }}>
         <Field label="Metadata ID" name="metadata_id" value={metadataDraft} onChange={event=>setMetadataDraft(event.target.value)} placeholder="tt0133093" required maxLength={256} autoFocus />
-        <label className="grid gap-2 text-sm font-medium">Type<select name="type" value={typeDraft} onChange={event=>setTypeDraft(event.target.value as 'movie'|'series')}><option value="movie">Movie</option><option value="series">Series</option></select></label>
+        <label className="grid gap-2 text-sm font-medium">Type<select aria-label="Type" name="type" value={typeDraft} onChange={event=>setTypeDraft(event.target.value as 'movie'|'series')}><option value="movie">Movie</option><option value="series">Series</option></select></label>
         <Feedback error={action.error} />
         <div className="flex flex-wrap gap-3"><Button type="submit" disabled={action.busy}>{action.busy ? 'Saving…' : 'Save match'}</Button><Button type="button" variant="outline" disabled={action.busy} onClick={() => close()}>Cancel</Button></div>
       </form>}
