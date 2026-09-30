@@ -9,6 +9,17 @@ import type { Client } from './lib/api';
 import { cursorPage, type IptvConnection, type VodMatch } from './lib/v2';
 
 export function VodMatches({ api }: { api: Client }) {
+  const scope = useRef({ api, generation: 0 });
+  if (scope.current.api !== api) scope.current = { api, generation: scope.current.generation + 1 };
+  return <ScopedVodMatches key={scope.current.generation} api={api} />;
+}
+
+function ScopedVodMatches({ api }: { api: Client }) {
+  const saves = useRef(new AbortController());
+  useEffect(() => {
+    saves.current = new AbortController();
+    return () => saves.current.abort();
+  }, []);
   const checkedApi = useMemo<Client>(() => async <T,>(path: string, method?: string, body?: unknown, signal?: AbortSignal) => {
     const value = await api<unknown>(path, method, body, signal);
     if (method === 'GET' && path.startsWith('/v2/iptv/matches?')) {
@@ -46,7 +57,7 @@ export function VodMatches({ api }: { api: Client }) {
   const retained = useRef<{ top: number; id: string } | undefined>(undefined);
   const action = useAction();
   const path = `/v2/iptv/matches?limit=50${provider ? `&provider_id=${encodeURIComponent(provider)}` : ''}${kind ? `&kind=${kind}` : ''}${query ? `&search=${encodeURIComponent(query)}` : ''}`;
-  const result = useVodWindow(checkedApi, path);
+  const result = useVodWindow(checkedApi, path, !!target);
   useEffect(() => { const timer = setTimeout(() => setQuery(search.trim().slice(0, 128)), 250); return () => clearTimeout(timer); }, [search]);
   useEffect(() => { if (scroll.current) scroll.current.scrollTop = 0; setFirst(0); }, [path]);
   useEffect(() => {
@@ -74,6 +85,18 @@ export function VodMatches({ api }: { api: Client }) {
       else scroll.current?.focus();
     });
   };
+  const closeDialog = useRef(close); closeDialog.current = close;
+  useEffect(() => {
+    if (!target) return;
+    const marker = {};
+    history.pushState({ ...history.state, vodMatchDialog: marker }, '');
+    const pop = () => closeDialog.current();
+    window.addEventListener('popstate', pop);
+    return () => {
+      window.removeEventListener('popstate', pop);
+      if (history.state?.vodMatchDialog) history.back();
+    };
+  }, [!!target]);
   return <div>
     <p className="text-sm text-muted-foreground mb-6">Match your provider’s titles to metadata IDs so the right streams appear for movies and exact episodes.</p>
     <div className="admin-toolbar">
@@ -82,9 +105,10 @@ export function VodMatches({ api }: { api: Client }) {
       <label className="grid gap-2 text-sm font-medium">Type<select value={kind} onChange={event => setKind(event.target.value)}><option value="">All types</option><option value="movie">Movie</option><option value="series">Series</option></select></label>
     </div>
     <Feedback error={result.error || providers.error} success={!target ? action.success : ''} />
-    {result.error && <Button variant="outline" onClick={result.retry}>Try again</Button>}
+    {result.error && <Button variant="outline" onClick={result.refreshRequired ? () => { if (scroll.current) scroll.current.scrollTop = 0; setFirst(0); result.reload(); } : result.retry}>{result.refreshRequired ? 'Refresh titles' : 'Try again'}</Button>}
     {providers.error && <Button variant="outline" onClick={providers.reload}>Try again</Button>}
     <div className="admin-match-scroll" ref={scroll} role="region" aria-label="Unmatched provider titles" tabIndex={0}
+      data-retained-rows={result.items.length} data-retained-pages={result.retainedPages} data-visited-extent={result.extent} data-window-base={result.base} data-cursor-slots={result.cursorSlots}
       onScroll={event => {
         const node = event.currentTarget;
         const index = Math.floor(node.scrollTop / rowHeight); setFirst(index);
@@ -109,9 +133,11 @@ export function VodMatches({ api }: { api: Client }) {
         if (!form.reportValidity() || action.busy) return;
         const fields = new FormData(form);
         const chosen = target;
+        const controller = saves.current;
         void action.run(async () => {
-          await api('/v2/iptv/matches', 'PUT', { vod_id: chosen.vod_id, metadata_id: String(fields.get('metadata_id')).trim(), type: fields.get('type') });
-          result.setItems(items => items.map(item => item.vod_id === chosen.vod_id ? { ...item, matched: true, metadataId: String(fields.get('metadata_id')).trim() } : item));
+          await api('/v2/iptv/matches', 'PUT', { vod_id: chosen.vod_id, metadata_id: String(fields.get('metadata_id')).trim(), type: fields.get('type') }, controller.signal);
+          if (controller.signal.aborted) return;
+          result.setItems(items => items.map(item => item.vod_id === chosen.vod_id ? { ...item, type: fields.get('type') as 'movie'|'series', matched: true, metadataId: String(fields.get('metadata_id')).trim() } : item));
           close();
         }, 'Metadata match saved');
       }}>

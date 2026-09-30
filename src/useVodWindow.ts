@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import type { Client } from './lib/api';
+import { ApiError, type Client } from './lib/api';
 import { cursorPage, type VodMatch } from './lib/v2';
 
 type Page = { items: VodMatch[]; cursor: string | null; next: string | null; previous: string | null | undefined; offset: number };
@@ -14,10 +14,12 @@ function decode(value: unknown, cursor: string | null, offset: number): Page {
 }
 
 /** Three real pages; only scalar travelled extent survives eviction. */
-export function useVodWindow(api: Client, path: string) {
+export function useVodWindow(api: Client, path: string, paused = false) {
+  const pausedNow = useRef(paused); pausedNow.current = paused;
   const [window, setWindow] = useState<Window>({ pages: [], extent: 0 });
   const current = useRef(window); current.current = window;
   const [loading, setLoading] = useState(true), [error, setError] = useState('');
+  const [refreshRequired, setRefreshRequired] = useState(false);
   const [version, setVersion] = useState(0);
   const generation = useRef(0), pending = useRef(false);
   const abort = useRef<AbortController | undefined>(undefined);
@@ -27,7 +29,7 @@ export function useVodWindow(api: Client, path: string) {
   useEffect(() => {
     const ticket = ++generation.current;
     abort.current?.abort(); const controller = new AbortController(); abort.current = controller;
-    pending.current = true; failed.current = undefined; setLoading(true); setError('');
+    pending.current = true; failed.current = undefined; setLoading(true); setError(''); setRefreshRequired(false);
     if (priorPath.current !== path) { const empty = { pages: [], extent: 0 }; current.current = empty; setWindow(empty); }
     priorPath.current = path;
     void api<unknown>(path, 'GET', undefined, controller.signal).then(value => {
@@ -39,7 +41,7 @@ export function useVodWindow(api: Client, path: string) {
     return () => controller.abort();
   }, [api, path, version]);
   const move = useCallback((direction: 'next' | 'previous') => {
-    if (pending.current || !abort.current || abort.current.signal.aborted) return;
+    if (pausedNow.current || pending.current || !abort.current || abort.current.signal.aborted) return;
     const before = current.current;
     const edge = direction === 'next' ? before.pages.at(-1) : before.pages[0];
     const cursor = direction === 'next' ? edge?.next : edge?.previous;
@@ -48,7 +50,7 @@ export function useVodWindow(api: Client, path: string) {
     const controller = abort.current, ticket = generation.current;
     pending.current = true; setLoading(true); setError('');
     void api<unknown>(`${path}&cursor=${encodeURIComponent(cursor)}`, 'GET', undefined, controller.signal).then(value => {
-      if (controller.signal.aborted || ticket !== generation.current) return;
+      if (pausedNow.current || controller.signal.aborted || ticket !== generation.current) return;
       const incoming = decode(value, cursor, 0);
       if (!incoming.items.length || incoming.next === cursor || incoming.previous === cursor) throw new Error('The server repeated or interrupted a title page. Try again.');
       const ids = new Set(before.pages.flatMap(page => page.items.map(item => item.vod_id)));
@@ -64,7 +66,7 @@ export function useVodWindow(api: Client, path: string) {
       }
       const next = { pages, extent: Math.max(before.extent, incoming.offset + incoming.items.length) };
       failed.current = undefined; current.current = next; setWindow(next);
-    }).catch(e => { if (!controller.signal.aborted && ticket === generation.current) { failed.current = direction; setError(e instanceof Error ? e.message : 'Could not load this title page.'); } })
+    }).catch(e => { if (!controller.signal.aborted && ticket === generation.current) { failed.current = direction; setRefreshRequired(e instanceof ApiError && e.errorCode === 'catalog_changed'); setError(e instanceof Error ? e.message : 'Could not load this title page.'); } })
       .finally(() => { if (!controller.signal.aborted && ticket === generation.current) { pending.current = false; setLoading(false); } });
   }, [api, path]);
   const more = useCallback(() => move('next'), [move]);
@@ -78,6 +80,7 @@ export function useVodWindow(api: Client, path: string) {
     });
   }, []);
   return { items: window.pages.flatMap(page => page.items), base: window.pages[0]?.offset ?? 0, extent: window.extent,
+    retainedPages: window.pages.length, cursorSlots: window.pages.reduce((count, page) => count + Number(!!page.cursor) + Number(!!page.next) + Number(!!page.previous), 0),
     next: window.pages.at(-1)?.next ?? null, previous: window.pages[0]?.previous ?? null,
-    loading, error, more, back: previous, retry, reload, setItems };
+    loading, error, refreshRequired, more, back: previous, retry, reload, setItems };
 }

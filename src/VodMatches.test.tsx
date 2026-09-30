@@ -12,7 +12,7 @@ function fixture() {
     if (path.startsWith('/v2/iptv/connections')) return Promise.resolve({ items: [provider], next_cursor: null });
     if (method === 'PUT') return Promise.resolve({ ok: true });
     const cursor = new URLSearchParams(path.split('?')[1]).get('cursor'); const offset = cursor ? Number(cursor.slice(7)) : 0;
-    return Promise.resolve({ items: titles(offset), next_cursor: offset < 99950 ? `cursor_${offset + 50}` : null });
+    return Promise.resolve({ items: titles(offset), next_cursor: offset < 99950 ? `cursor_${offset + 50}` : null, previous_cursor: offset ? `cursor_${offset - 50}` : null });
   });
 }
 function scrollNearEnd(region: HTMLElement, offset: number) {
@@ -20,6 +20,39 @@ function scrollNearEnd(region: HTMLElement, offset: number) {
   region.scrollTop = offset * 112; fireEvent.scroll(region);
 }
 describe('bounded v2 VOD matching', () => {
+  it('includes the 208th owned provider and keeps its raw ID in the filter', async () => {
+    const api=fixture(); const ordinary=api.getMockImplementation()!;
+    api.mockImplementation((path,...args)=>path.startsWith('/v2/iptv/connections') ? Promise.resolve({items:Array.from({length:path.includes('cursor')?8:200},(_,i)=>({id:String(i+(path.includes('cursor')?201:1)),name:`Provider ${i+(path.includes('cursor')?201:1)}`})),next_cursor:path.includes('cursor')?null:'providers_200'}) : ordinary(path,...args));
+    render(<VodMatches api={api}/>);
+    await screen.findByRole('option',{name:'Provider 208'});
+    fireEvent.change(screen.getByLabelText('Provider'),{target:{value:'208'}});
+    await waitFor(()=>expect(api.mock.calls.some(([path])=>path==='/v2/iptv/matches?limit=50&provider_id=208')).toBe(true));
+  });
+  it('account change aborts saves and clears old dialog, filters and late results', async () => {
+    const first=fixture(),second=fixture();let finish!: (value:unknown)=>void;
+    const ordinary=first.getMockImplementation()!;
+    first.mockImplementation((...args)=>args[1]==='PUT'?new Promise(done=>{finish=done}):ordinary(...args));
+    const view=render(<VodMatches api={first}/>);
+    fireEvent.click((await screen.findAllByRole('button',{name:'Match title'}))[0]);
+    fireEvent.change(screen.getByLabelText('Metadata ID'),{target:{value:'old-account-draft'}});
+    fireEvent.click(screen.getByRole('button',{name:'Save match'}));
+    const signal=first.mock.calls.find(([,method])=>method==='PUT')![3];
+    view.rerender(<VodMatches api={second}/>);
+    expect(signal.aborted).toBe(true);
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+    await screen.findByText('Title 0');
+    await act(async()=>finish({ok:true}));
+    expect(screen.queryByText('Metadata match saved')).not.toBeInTheDocument();
+    expect(screen.queryByRole('button',{name:'Edit match'})).not.toBeInTheDocument();
+  });
+  it('browser Back closes only the dialog and restores its opener',async()=>{
+    const api=fixture();render(<VodMatches api={api}/>);
+    const opener=(await screen.findAllByRole('button',{name:'Match title'}))[0];opener.focus();fireEvent.click(opener);
+    act(()=>history.back());
+    await waitFor(()=>expect(screen.queryByRole('dialog')).not.toBeInTheDocument());
+    await waitFor(()=>expect(opener).toHaveFocus());
+    expect(api.mock.calls.some(([,method])=>method==='PUT')).toBe(false);
+  });
   it('rejects malformed or duplicate rows with a recoverable error instead of publishing them', async () => {
     for (const items of [[{vod_id:'broken',provider_id:'1',name:'Malformed',type:'movie'}], [titles(0,1)[0],titles(0,1)[0]]]) {
       const api = vi.fn().mockImplementation(path => Promise.resolve(path.startsWith('/v2/iptv/connections') ? {items:[provider],next_cursor:null} : {items,next_cursor:null}));
@@ -65,7 +98,7 @@ describe('bounded v2 VOD matching', () => {
     const opener = within(row as HTMLElement).getByRole('button', {name:'Match title'}); opener.focus(); fireEvent.click(opener);
     fireEvent.change(screen.getByLabelText('Metadata ID'), {target:{value:'tt0133093'}});
     fireEvent.click(screen.getByRole('button', {name:'Save match'}));
-    await waitFor(() => expect(api).toHaveBeenCalledWith('/v2/iptv/matches','PUT',{vod_id:'vod:1:0',metadata_id:'tt0133093',type:'movie'}));
+    await waitFor(() => expect(api).toHaveBeenCalledWith('/v2/iptv/matches','PUT',{vod_id:'vod:1:0',metadata_id:'tt0133093',type:'movie'},expect.any(AbortSignal)));
     await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument());
     expect(within(row as HTMLElement).getByText('Matched')).toBeInTheDocument();
     expect(within(row as HTMLElement).getByRole('button',{name:'Edit match'})).toBeInTheDocument();

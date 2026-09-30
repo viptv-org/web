@@ -15,8 +15,11 @@ runtime remains baseline until the acceptance ledger records its replacement.
   import is introduced. Existing Xtream-native guide reads remain supported.
 - Advanced family-lineup/filtering/repair configuration is exported, not silently
   discarded. Building its independent organizer is deferred.
-- Only the account/admin website is redesigned. Client layouts remain unchanged
-  except removing local-only/max-quality controls and displaying v2 errors.
+- Owner scope update, 2026-09-30: UI changes are allowed across affected clients,
+  including Android; the earlier backend/logic-only layout restriction is lifted.
+  Update affected screens/states and acceptance in design first, then adopt an
+  immutable revision following DESIGN_SYNC.md. Existing product semantics remain
+  the baseline; this permission does not itself add deferred features.
 
 ## Playback contract
 
@@ -102,12 +105,14 @@ serving the prior snapshot; clients never synchronize whole playlists.
 
 ### Guide cutover contract (implementation pending)
 
-Existing phone/desktop/TV guide geometry, time window, channel actions, details,
-700ms hold and Back/focus restoration stay unchanged. Entry uses the account
+Existing phone/desktop/TV guide geometry is the baseline for design-first UI
+changes. Preserve time window, channel actions, details, 700ms hold and Back/focus
+restoration unless a specific behavior change is documented. Entry uses the account
 default raw playlist. `All channels`, `My channels`, `Recent` and provider
 categories are the existing filters; remove US classification and exact counts.
 Search matches channel names only: placeholder `Search channels`, empty copy
-`No channels match your search.` No swap control or additional viewing UI is added.
+`No channels match your search.` Playlist swap remains deferred; UI permission
+alone does not introduce that feature. Other screen changes follow DESIGN_SYNC.md.
 
 Opaque next/previous cursors carry the same catalog/filter/profile/generation
 binding. Remote page transitions keep the selected time slot and return to the
