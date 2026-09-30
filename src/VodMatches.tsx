@@ -1,12 +1,12 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Button } from './components/ui/button';
 import { Field, Feedback, Modal } from './shared';
-import { useAction, useResource } from './hooks';
-import { useCursorResource } from './useCursorResource';
+import { useAction } from './hooks';
+import { useVodWindow } from './useVodWindow';
+import { useProviderNames } from './useProviderNames';
 import { CursorEnd } from './CursorEnd';
 import type { Client } from './lib/api';
-import { cursorPage, type CursorPage, type IptvConnection, type VodMatch } from './lib/v2';
-const matchKey = (item: VodMatch) => item.vod_id;
+import { cursorPage, type IptvConnection, type VodMatch } from './lib/v2';
 
 export function VodMatches({ api }: { api: Client }) {
   const checkedApi = useMemo<Client>(() => async <T,>(path: string, method?: string, body?: unknown, signal?: AbortSignal) => {
@@ -21,7 +21,7 @@ export function VodMatches({ api }: { api: Client }) {
           throw new Error('The server returned invalid unmatched-title data. Try again or update the server.');
         ids.add(row.vod_id);
       }
-      return page as T;
+      return { ...page, previous_cursor: (value as { previous_cursor?: unknown }).previous_cursor } as T;
     }
     if (method === 'GET' && path.startsWith('/v2/iptv/connections?')) {
       const page = cursorPage<IptvConnection>(value, 200);
@@ -31,7 +31,7 @@ export function VodMatches({ api }: { api: Client }) {
     }
     return value as T;
   }, [api]);
-  const providers = useResource<CursorPage<IptvConnection>>(checkedApi, '/v2/iptv/connections?limit=200');
+  const providers = useProviderNames(checkedApi);
   const [provider, setProvider] = useState('');
   const [kind, setKind] = useState('');
   const [search, setSearch] = useState('');
@@ -46,7 +46,7 @@ export function VodMatches({ api }: { api: Client }) {
   const retained = useRef<{ top: number; id: string } | undefined>(undefined);
   const action = useAction();
   const path = `/v2/iptv/matches?limit=50${provider ? `&provider_id=${encodeURIComponent(provider)}` : ''}${kind ? `&kind=${kind}` : ''}${query ? `&search=${encodeURIComponent(query)}` : ''}`;
-  const result = useCursorResource<VodMatch>(checkedApi, path, matchKey);
+  const result = useVodWindow(checkedApi, path);
   useEffect(() => { const timer = setTimeout(() => setQuery(search.trim().slice(0, 128)), 250); return () => clearTimeout(timer); }, [search]);
   useEffect(() => { if (scroll.current) scroll.current.scrollTop = 0; setFirst(0); }, [path]);
   useEffect(() => {
@@ -55,9 +55,17 @@ export function VodMatches({ api }: { api: Client }) {
     const update = () => { setRowHeight(media.matches ? 184 : 112); setFirst(0); if (scroll.current) scroll.current.scrollTop = 0; };
     media.addEventListener('change', update); return () => media.removeEventListener('change', update);
   }, []);
-  const start = Math.max(0, first - 4);
-  const end = Math.min(result.items.length, first + 16);
-  const names = new Map((providers.data?.items ?? []).map(item => [String(item.id), item.name]));
+  const localFirst = Math.max(0, first - result.base);
+  const start = Math.max(0, localFirst - 4);
+  const end = Math.min(result.items.length, localFirst + 16);
+  const names = new Map(providers.items.map(item => [String(item.id), item.name]));
+  useEffect(() => {
+    if (target || result.loading || result.error || !result.items.length) return;
+    // A scrollbar jump can land inside an evicted spacer. Refill toward it,
+    // one actual adjacent page at a time, without retaining historical pages.
+    if (first < result.base && result.previous) result.back();
+    else if (first >= result.base + result.items.length && result.next) result.more();
+  }, [first, result.base, result.items.length, result.loading, result.error, result.previous, result.next, target, result.back, result.more]);
   const close = () => {
     setTarget(undefined);setMetadataDraft(''); action.clear();
     requestAnimationFrame(() => {
@@ -70,25 +78,28 @@ export function VodMatches({ api }: { api: Client }) {
     <p className="text-sm text-muted-foreground mb-6">Match your provider’s titles to metadata IDs so the right streams appear for movies and exact episodes.</p>
     <div className="admin-toolbar">
       <Field label="Search titles" value={search} maxLength={128} onChange={event => setSearch(event.target.value)} type="search" />
-      <label className="grid gap-2 text-sm font-medium">Provider<select value={provider} onChange={event => setProvider(event.target.value)}><option value="">All providers</option>{(providers.data?.items ?? []).map(item => <option key={item.id} value={item.id}>{item.name}</option>)}</select></label>
+      <label className="grid gap-2 text-sm font-medium">Provider<select value={provider} onChange={event => setProvider(event.target.value)}><option value="">All providers</option>{providers.items.map(item => <option key={item.id} value={item.id}>{item.name}</option>)}</select></label>
       <label className="grid gap-2 text-sm font-medium">Type<select value={kind} onChange={event => setKind(event.target.value)}><option value="">All types</option><option value="movie">Movie</option><option value="series">Series</option></select></label>
     </div>
     <Feedback error={result.error || providers.error} success={!target ? action.success : ''} />
-    {result.error && <Button variant="outline" onClick={() => result.items.length ? result.more() : result.reload()}>Try again</Button>}
+    {result.error && <Button variant="outline" onClick={result.retry}>Try again</Button>}
+    {providers.error && <Button variant="outline" onClick={providers.reload}>Try again</Button>}
     <div className="admin-match-scroll" ref={scroll} role="region" aria-label="Unmatched provider titles" tabIndex={0}
       onScroll={event => {
         const node = event.currentTarget;
         const index = Math.floor(node.scrollTop / rowHeight); setFirst(index);
-        if (!result.error && index + Math.ceil(node.clientHeight / rowHeight) + 8 >= result.items.length) result.more();
+        if (target || result.error) return;
+        if (index <= result.base + 4 && result.previous) result.back();
+        else if (index + Math.ceil(node.clientHeight / rowHeight) + 8 >= result.base + result.items.length) result.more();
       }}>
-      <div aria-hidden="true" style={{ height: start * rowHeight }} />
+      <div aria-hidden="true" style={{ height: (result.base + start) * rowHeight }} />
       {result.items.slice(start, end).map(item => <div className="admin-match-row" data-match-id={item.vod_id} key={item.vod_id}>
         <div><h3>{item.name}</h3><p>{names.get(String(item.provider_id)) ?? `IPTV connection ${item.provider_id}`} · {item.type === 'series' ? 'Series' : 'Movie'} · {item.year ?? 'Year unavailable'}</p></div>
         <div className="admin-match-status"><span className="admin-status">{item.matched ? 'Matched' : 'Unmatched'}</span></div>
         <Button variant="outline" onClick={event => { action.clear(); opener.current = event.currentTarget; retained.current = { top: scroll.current?.scrollTop ?? 0, id: item.vod_id }; setMetadataDraft(item.metadataId??'');setTypeDraft(item.type);setTarget(item); }}>{item.matched ? 'Edit match' : 'Match title'}</Button>
       </div>)}
-      <div aria-hidden="true" style={{ height: Math.max(0, result.items.length - end) * rowHeight }} />
-      <CursorEnd onLoad={result.more} disabled={result.loading || !!result.error || !result.next} generation={result.items.length} />
+      <div aria-hidden="true" style={{ height: Math.max(0, result.extent - result.base - end) * rowHeight }} />
+      <CursorEnd onLoad={result.more} disabled={!!target || result.loading || !!result.error || !result.next} generation={result.base + result.extent} />
       {result.loading && <p role="status" className="p-5 text-sm text-muted-foreground">Loading titles…</p>}
       {!result.loading && !result.items.length && !result.error && <div className="p-8"><h2>{query || provider || kind ? 'No matching titles' : 'No unmatched titles'}</h2><p className="text-sm text-muted-foreground mt-2">Try another filter, or wait for your provider’s next catalog refresh.</p></div>}
     </div>
