@@ -38,6 +38,8 @@ export function createAccountClient(onExpired: () => void) {
           ['/auth/login', '/auth/recover'].includes(path) ? 'Sign-in or recovery failed. Check your details and try again.' : path === '/auth/register' ? 'Account creation failed. Check your details and try again.' : displayError(record?.error, response.status),
           response.status, typeof record?.error_code === 'string' ? record.error_code : undefined,
         );
+        if (method === 'GET' && (/^\/(profiles|devices|accounts)(?:\?|$)/.test(path) || /^\/profiles\/[^/]+\/approvals(?:\?|$)/.test(path)) && !Array.isArray(data))
+          throw new Error('The server returned an invalid account list. Try again or update the server.');
         acceptCsrf(data, response);
         return data as T;
       } finally { controllers.delete(controller); }

@@ -1,26 +1,26 @@
 import {ParentalControls,ParentUnlock} from './ParentalControls';
 import {PlaybackPreferences} from "./PlaybackPreferences";
 import {useCallback,useEffect,useMemo,useRef,useState} from 'react';
-import {LogOut} from 'lucide-react';
 import {Card,CardContent,CardHeader,CardTitle} from '@/components/ui/card';
 import {Button} from '@/components/ui/button';
 import {ViewingHistory} from './ViewingHistory';
 import {MyList} from './MyList';
 import {ViewingQueue} from './ViewingQueue';
-import {FamilyLineup} from './FamilyLineup';
-import {Connections,Matches,Overview} from './Admin';
+import { AdminShell, type AdminPage } from './AdminShell';
+import { V2Connections, V2Addons } from './V2Connections';
+import { V2Gateways } from './V2Gateways';
+import { VodMatches } from './VodMatches';
+import { OperatorOverview } from './OperatorOverview';
 import {Feedback,Modal} from './shared';
 import {ApiError,type Client,type Profile} from './lib/api';
 import {createAccountClient} from './lib/accountApi';
-import {AuthScreen,ProfileScreen,ProfileAvatar,AccountManagement,Onboarding,DeviceManagement,DeviceActivation,type AuthMode,type AvatarStyle} from './AccountScreens';
+import {AuthScreen,ProfileScreen,ProfileAvatar,AccountManagement,DeviceManagement,DeviceActivation,type AuthMode,type AvatarStyle} from './AccountScreens';
 import {LinkTv} from './LinkTv';
 
 type Identity={id:string;name?:string;username?:string;role?:string};
 type Me={account?:Identity;user?:Identity;id?:string;account_id?:string|number;name?:string;username?:string;role?:string;capabilities?:{create_profiles?:boolean;can_create_profile?:boolean};can_create_profile?:boolean;restricted?:boolean;profile_id?:string|null};
 type State='boot'|'device-code'|'auth'|'recovery-codes'|'activate'|'profiles'|'ready'|'unavailable';
-type Page='Viewing history'|'My List'|'Continue Watching'|'Account'|'Addons'|'Overview'|'Providers'|'Family lineup'|'VOD matches'|'Accounts'|'Service setup';
-const NAV:Page[]=['Account','Continue Watching','My List','Viewing history','Addons'];
-const ADMIN:Page[]=['Overview','Providers','Family lineup','VOD matches','Accounts','Service setup'];
+type Page = AdminPage;
 function normalizeMe(data:Me):Me{if(!data.account&&!data.user&&(data.account_id!=null||data.id!=null))return{...data,account:{id:String(data.account_id??data.id),name:data.name,username:data.username,role:data.role}};return data}
 function isDeviceEntryRoute(){return typeof window!=='undefined'&&['/device','/activate'].includes(window.location.pathname)}
 function initialDeviceCode(){if(!isDeviceEntryRoute())return'';const value=new URLSearchParams(window.location.search).get('code')?.trim().toUpperCase()??'';return/^[A-Z0-9]{6,12}$/.test(value)?value:''}
@@ -59,22 +59,21 @@ export default function AccountApp(){
   {state==='activate'&&deviceCode&&<DeviceActivation api={api} code={deviceCode} onComplete={async()=>{clearDeviceCode();await loadProfiles()}} onCancel={async()=>{clearDeviceCode();await loadProfiles()}}/>}
   {state==='profiles'&&<ProfileScreen profiles={profiles} canCreate={canCreate} onSelect={select} onCreate={create} onUpdate={update} onDelete={removeProfile} onLogout={logout} busy={busy} error={error}/>}
  </main>{logoutDialog}</div>;
- const selected=profiles.find(item=>item.id===profile);const links=owner?[...NAV,...ADMIN]:NAV;
- return <div className="mx-auto max-w-5xl space-y-6 p-4 sm:p-8">
-  <header className="flex items-center justify-between gap-4"><div><h1 className="text-2xl font-semibold">VIPTV</h1><p className="text-sm text-muted-foreground">Account and server management</p></div><Button variant="outline" onClick={logout}><LogOut/>Sign out</Button></header>
-  <nav aria-label="Main navigation" className="flex flex-wrap gap-2">{links.map(name=><Button key={name} variant={page===name?'default':'outline'} aria-current={page===name?'page':undefined} onClick={()=>setPage(name)}>{name}</Button>)}</nav>
-  <main className="space-y-6"><h2 className="text-xl font-semibold">{page}</h2><Feedback error={error}/><section key={`${identity?.id}:${profile}:${page}`}>
-   {page==='Account'&&<div className="space-y-6"><Card><CardHeader><CardTitle>{identity?.name??identity?.username}</CardTitle></CardHeader><CardContent className="space-y-4"><p>@{identity?.username} · {owner?'Owner':'Member'}</p><div className="flex min-w-0 flex-wrap items-center gap-4"><ProfileAvatar profile={selected??{name:'Profile'}} size="small"/><span className="min-w-0 flex-1 break-words [overflow-wrap:anywhere]">{selected?.name}</span><Button className="w-full sm:w-auto" variant="outline" onClick={()=>{setProfile('');void action(loadProfiles)}}>Manage profiles</Button></div></CardContent></Card><PlaybackPreferences key={profile} api={scopedApi} profile={profile}/><ParentalControls api={scopedApi} profiles={profiles} onChanged={async()=>{const data=normalizeMe(await api<Me>('/auth/me'));setMe(data);setProfiles(await api<Profile[]>('/profiles'))}}/><DeviceManagement api={scopedApi}/></div>}
-   {page==='Viewing history'&&<ViewingHistory key={profile} api={scopedApi} profile={profile}/>}
+ const selected=profiles.find(item=>item.id===profile);
+ return <AdminShell page={page} owner={owner} profile={selected?.name} navigate={setPage} signOut={logout}>
+  <Feedback error={error}/><section key={`${identity?.id}:${profile}:${page}`}>
+   {page==='Account'&&<div className="space-y-6"><Card><CardHeader><CardTitle>{identity?.name??identity?.username}</CardTitle></CardHeader><CardContent className="space-y-4"><p>@{identity?.username} · {owner?'Owner':'Member'}</p><div className="flex min-w-0 flex-wrap items-center gap-4"><ProfileAvatar profile={selected??{name:'Profile'}} size="small"/><span className="min-w-0 flex-1 break-words [overflow-wrap:anywhere]">{selected?.name}</span><Button className="w-full sm:w-auto" variant="outline" onClick={()=>{setProfile('');void action(loadProfiles)}}>Manage profiles</Button></div></CardContent></Card><PlaybackPreferences key={profile} api={scopedApi} profile={profile}/><ParentalControls api={scopedApi} profiles={profiles} onChanged={async()=>{const data=normalizeMe(await api<Me>('/auth/me'));setMe(data);setProfiles(await api<Profile[]>('/profiles'))}}/></div>}
+   {page==='Devices'&&<DeviceManagement api={scopedApi}/>}
+   {page==='History'&&<ViewingHistory key={profile} api={scopedApi} profile={profile}/>}
    {page==='My List'&&<MyList key={profile} api={scopedApi} profile={profile}/>}
    {page==='Continue Watching'&&<ViewingQueue key={profile} api={scopedApi} profile={profile}/>}
-   {page==='Addons'&&<Connections api={scopedApi} kind="addons"/>}
-   {owner&&page==='Overview'&&<Overview api={scopedApi} navigate={value=>setPage(value as Page)}/>}
-   {owner&&page==='Providers'&&<Connections api={scopedApi} kind="providers"/>}
-   {owner&&page==='Family lineup'&&<FamilyLineup api={scopedApi}/>}
-   {owner&&page==='VOD matches'&&<Matches api={scopedApi}/>}
+   {page==='Add-ons'&&<V2Addons api={scopedApi}/>}
+   {page==='Xtream connections'&&<V2Connections api={scopedApi}/>}
+   {page==='VOD matches'&&<VodMatches api={scopedApi}/>}
+   {page==='Gateways'&&<V2Gateways api={scopedApi} operator={owner}/>}
+   {owner&&page==='Overview'&&<OperatorOverview api={scopedApi}/>}
+   {owner&&page==='Gateway grants'&&<V2Gateways api={scopedApi} operator grantsOnly/>}
    {owner&&page==='Accounts'&&<AccountManagement api={scopedApi}/>}
-   {owner&&page==='Service setup'&&<Onboarding api={scopedApi} onDone={()=>setPage('Account')}/>}
-  </section></main>{logoutDialog}
- </div>
+  </section>{logoutDialog}
+ </AdminShell>
 }

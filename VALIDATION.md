@@ -1,5 +1,36 @@
 # Extraction validation
 
+## ADM-002 / BE-002 management — 2026-09-30
+
+Account/admin design adopts approved design revision
+`4e153a7daca300389049e5fcfd5c3bc0af5edbee`. The independent Link TV snapshot
+is unchanged. Local fonts, responsive labelled navigation, safe error states,
+write-only credentials, and bounded VOD rendering replace the retired
+organizer/setup screens. Historical extraction checksums are retained;
+explicitly retired files are marked removed rather than losing their provenance.
+
+At this revision: 71 unit tests passed; TypeScript, production build, both
+design locks and extraction integrity passed. Local HTTPS browser acceptance
+passed at 1440×900 and 390×844 against built asset `index-BUxkFkx7.js`:
+all twelve owner routes rendered without page exceptions or horizontal
+overflow, member navigation hid operator routes, and a synthetic 100,000-title
+catalog fetched only cursor pages of 50 with at most 20 mounted rows. This is
+not a claim that all 100,000 titles were fetched or tested. Tests traversed
+18 continuation pages per viewport, restored match-dialog focus, saved a match
+without losing its row, and exercised empty, slow, retry, grant-dialog and
+zero-capacity states. API requests were fully mocked; external hosts were
+blocked. Screenshots were inspected locally and remain private temporary QA
+artifacts, not production data.
+
+Remaining qualification: real backend/gateway integration, the full browser
+authentication/recovery and parent-unlock transition matrix, and accounts with
+more than 200 connections (the VOD provider filter currently loads one bounded
+connection page). Parent-required transitions currently replace the ready page;
+unsaved form drafts across that transition are not yet guaranteed. Loaded VOD
+metadata accumulates as pages are traversed even though rendered DOM is bounded.
+No production migration, deployment, real-device pairing or gateway playback
+was performed by this admin acceptance run.
+
 ## Link your TV — 2026-09-23
 
 The `/device` and `/activate` routes without a code now show the design system's

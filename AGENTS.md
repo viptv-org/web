@@ -9,8 +9,8 @@ Before changing product behavior, read the pinned design revision in DESIGN_REF 
 
 The public `/device` code-entry page follows the newer VIPTV design system. Its
 separate revision and generated variables are locked in
-`design-contract/link-tv/lock.json`; keep the account/admin theme's `DESIGN_REF`
-unchanged until that broader application adopts the new system.
+`design-contract/link-tv/lock.json`. Account/admin screens now follow the
+approved ADM-002 design at `DESIGN_REF`; preserve the independent Link TV lock.
 
 Specs and tickets live in this repository's GitHub Issues. Search existing issues first; use needs-triage, needs-info, ready-for-agent, ready-for-human, and wontfix. Work from SPEC.md and the issue; validate the affected interface using repository CI commands. Report actual results separately from hardware or deployment checks that were not run.
 

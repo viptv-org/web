@@ -19,6 +19,27 @@ the existing sign-in and device approval flow. Its design-system token snapshot
 has a separate lock under `design-contract/link-tv/`; the account/admin theme
 remains pinned to `DESIGN_REF`.
 
+## Account and operator management
+
+ADM-002 implements account-owned Xtream connections, add-ons, private playback
+gateways, operator gateway grants, and cursor-paged VOD matching against BE-002.
+The default live playlist is explicit; other owned providers remain available
+for movie and series sources. Retired family-lineup, provider-pool, repair and
+Service setup screens are no longer shipped. This does not delete server data.
+
+Credentials are write-only: connection passwords and gateway keys are never
+prefilled from saved records. Gateway checks display only actual backend
+capacity hints, including zero or unavailable capacity. VOD results are fetched
+in pages of 50, debounced and cancelled when filters change, with at most 20
+rendered rows; saving a match preserves the current viewport.
+
+Run `npm test`, `npm run build`, and `python3 scripts/verify-migration.py`.
+The optional local-HTTPS acceptance harness is
+`node tests/admin-v2.e2e.mjs`; it requires the workspace's TV-web Playwright
+installation and the reviewed dashboard build staged in the local HTTPS host.
+Every API call in that harness is intercepted; it must not mutate production.
+See [VALIDATION.md](VALIDATION.md) for evidence and remaining qualification.
+
 ## License
 
 Copyright (C) 2026 viptv contributors.
