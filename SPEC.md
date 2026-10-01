@@ -20,7 +20,7 @@ The existing React/TypeScript account and administration app is moved verbatim f
 ## Acceptance
 - Every migrated source hash matches MIGRATION.json.
 - npm ci, npm test -- --run, and npm run build pass.
-- CI uploads a web-dist artifact; version tags publish a checksum-bearing release archive only after validation.
+- Retired by the delivery policy (2026-09-27): no hosted CI artifact or automatic release archive. The local checks `npm test -- --run`, `npm run build` and `python3 scripts/verify-migration.py` pass instead.
 - Backend pins an exact revision as dashboard; it serves the bundle on the existing authenticated origin.
 
 ## Next implementation

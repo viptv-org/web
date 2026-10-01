@@ -18,8 +18,8 @@
       "source": "dashboard/README.md",
       "destination": "README.md",
       "sha256": "ff64e3d40c4f1e80ce6c2b8329a306094e4e91b09c96277b6dbe414ede7ab173",
-      "extracted_sha256": "0023aae1b6a1df64865086770361be589d575b05517117fbafa9c48e9d50232e",
-      "reason": "Document the Link your TV page and its separate design snapshot. ADM-002 account-owned v2 management and approved design adoption; original extraction checksum retained. ADM-002 account-owned v2 management and approved design adoption; original extraction checksum retained. Document in-memory parent-challenge draft preservation and authority-based discard."
+      "extracted_sha256": "f6b1a9fbd7273bd471e74014ba5e09d9c277922e4c2b5bb97eeabcb15a2a4364",
+      "reason": "Document the Link your TV page and its separate design snapshot. ADM-002 account-owned v2 management and approved design adoption; original extraction checksum retained. ADM-002 account-owned v2 management and approved design adoption; original extraction checksum retained. Document in-memory parent-challenge draft preservation and authority-based discard. Document the bounded VOD window, auto-loading lists and local-only checks under the 2026-09-27 delivery policy."
     },
     {
       "source": "dashboard/components.json",

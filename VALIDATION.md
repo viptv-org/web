@@ -1,5 +1,28 @@
 # Extraction validation
 
+## Bounded VOD window and auto-loading lists — 2026-09-30
+
+VOD matching follows every owned connection page for the Provider filter (208
+providers in the fixture) and retains at most three adjacent 50-title pages
+(150 rows, 20 rendered) with forward and reverse cursors, per design
+`1dc92f7b4a571df00f89cc3915aaf1165a42bf94` (ADM-002-VOD-WINDOW). The trusted-HTTPS
+traversal evidence is recorded in the backend's
+`docs/BOUNDED_VOD_ACCEPTANCE.md`.
+
+My List, Continue Watching, History and approved titles no longer have
+Previous/Next pagers. A sentinel at either end of the list loads the adjacent
+offset page, a skeleton covers the first load and a "Loading more titles…" row
+the rest. At most 100 rows (1,000 approvals) stay rendered; the first visible
+row keeps its position when rows above it are evicted or reloaded. Confirmed
+removals, restores and corrections adjust later offsets instead of refetching.
+
+Evidence: 103 unit tests pass in a single Vitest fork, including auto-load,
+eviction/reload, scroll anchoring, offset shift after removal, in-place queue
+restore and legacy approvals beyond 500; TypeScript, production build, both
+design locks and `python3 scripts/verify-migration.py` pass. Browser
+qualification of the auto-loading lists, physical devices and deployment were
+not run.
+
 ## ADM-002 / BE-002 management — 2026-09-30
 
 Parent-required draft preservation now keeps already-authorized, same-account
@@ -54,14 +77,13 @@ zero-capacity states. API requests were fully mocked; external hosts were
 blocked. Screenshots were inspected locally and remain private temporary QA
 artifacts, not production data.
 
-Remaining qualification: real backend/gateway integration, the full browser
-authentication/recovery and parent-unlock transition matrix, and accounts with
-more than 200 connections (the VOD provider filter currently loads one bounded
-connection page). The prior uncertainty about same-scope unsaved drafts through
-a parent challenge is superseded by the focused evidence above; this does not
-complete the full authentication/recovery/parent-transition matrix. Loaded VOD
-metadata accumulates as pages are traversed even though rendered DOM is bounded.
-No production migration, deployment, real-device pairing or gateway playback
+Remaining qualification at that revision: real backend/gateway integration and
+the full browser authentication/recovery and parent-unlock transition matrix.
+The prior uncertainty about same-scope unsaved drafts through a parent challenge
+is superseded by the focused evidence above; this does not complete the full
+authentication/recovery/parent-transition matrix. The provider-filter limit
+(more than 200 connections) and VOD row retention are closed by the bounded VOD
+window section above. No production migration, deployment, real-device pairing or gateway playback
 was performed by this admin acceptance run.
 
 ## Link your TV — 2026-09-23
