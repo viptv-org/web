@@ -3,8 +3,9 @@ import '@testing-library/jest-dom/vitest';
 import {cleanup,render,screen,fireEvent,waitFor} from '@testing-library/react';
 import {afterEach,it,expect,vi} from 'vitest';
 import {ParentUnlock} from './ParentalControls';
+import {stubIntersections} from './test-intersections';
 import type {Client} from './lib/api';
-afterEach(cleanup);
+afterEach(()=>{cleanup();vi.unstubAllGlobals()});
 it('masks and clears a parent PIN on failed attempts and cancellation',async()=>{
  const api=vi.fn().mockRejectedValue(new Error('Incorrect PIN'));const cancel=vi.fn();const done=vi.fn();
  render(<ParentUnlock api={api as Client} onUnlocked={done} onCancel={cancel}/>);
@@ -48,14 +49,19 @@ it('aborts an obsolete search and ignores late results after the search type cha
  complete({items:[{id:'tt0241527',type:'movie',name:'Old movie result'}]});
  await new Promise(resolve=>setTimeout(resolve,0));expect(screen.queryByText('Old movie result')).not.toBeInTheDocument();
 });
-it('pages legacy approvals and revokes a title beyond the supported cap',async()=>{
+it('auto-loads legacy approvals beyond the supported cap and revokes one',async()=>{
+ const edges=stubIntersections();
  const api=vi.fn(async(path:string,method?:string)=>{if(path==='/parent/status')return {pin_configured:true};if(path.endsWith('/kids'))return {enabled:true,max_age:10};if(method==='POST')return {};if(path.endsWith('?offset=500'))return [{id:'legacy-last',type:'movie',name:'Legacy last'}];if(path.endsWith('/approvals'))return Array.from({length:500},(_,i)=>({id:`title-${i}`,type:'movie',name:`Title ${i}`}));return []});
  const {ParentalControls}=await import('./ParentalControls');render(<ParentalControls api={api as Client} profiles={[{id:'2',name:'Kids'}]}/>);
- const next=await screen.findByRole('button',{name:'Next approvals'});await waitFor(()=>expect(next).toBeEnabled());fireEvent.click(next);
+ await screen.findByText('Title 499');
+ expect(screen.queryByRole('button',{name:/approvals$/})).not.toBeInTheDocument();
+ await edges.reach(screen.getByRole('list',{name:'Approved titles'}),'end');
  await screen.findByText('Legacy last');
- fireEvent.click(screen.getByRole('button',{name:'Revoke'}));
+ expect(api).toHaveBeenCalledWith('/profiles/2/approvals?offset=500','GET',undefined,expect.any(AbortSignal));
+ fireEvent.click(screen.getByRole('button',{name:'Revoke Legacy last'}));
  await screen.findByText('Title approval saved.');
  expect(api).toHaveBeenCalledWith('/profiles/2/approvals','POST',{id:'legacy-last',type:'movie',approved:false});
- expect(screen.getByRole('button',{name:'Previous approvals'})).toBeEnabled();
+ await waitFor(()=>expect(screen.queryByText('Legacy last')).not.toBeInTheDocument());
+ expect(screen.getByText('Title 0')).toBeInTheDocument();
  expect(screen.getByText(/Up to 500 approved titles/)).toBeInTheDocument();
 });

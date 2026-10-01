@@ -199,24 +199,30 @@
     {
       "source": "dashboard/src/MyList.test.tsx",
       "destination": "src/MyList.test.tsx",
-      "sha256": "1d0caa8661fef50bd7abb16f34e2f8aacf582ed3ba5444d679d07ae70657699e"
+      "sha256": "1d0caa8661fef50bd7abb16f34e2f8aacf582ed3ba5444d679d07ae70657699e",
+      "extracted_sha256": "67efab548cf24d1bd12b6aa96d2c057cf2872e2eb077d5f0328b900c3a74a550",
+      "reason": "Replace manual Previous/Next pagers with auto-loading offset windows (at most 100 retained rows; approvals 1,000) per the design system loading rules."
     },
     {
       "source": "dashboard/src/MyList.tsx",
       "destination": "src/MyList.tsx",
-      "sha256": "c696c0a97ce8faa3f2109102173f0f6cde5b72f2f46dbdef460060fa057df0a1"
+      "sha256": "c696c0a97ce8faa3f2109102173f0f6cde5b72f2f46dbdef460060fa057df0a1",
+      "extracted_sha256": "ded0789348f88cc348d649452c6919b6ff23de34aca6dd6b6f16d25821859bc0",
+      "reason": "Replace manual Previous/Next pagers with auto-loading offset windows (at most 100 retained rows; approvals 1,000) per the design system loading rules."
     },
     {
       "source": "dashboard/src/ParentalControls.test.tsx",
       "destination": "src/ParentalControls.test.tsx",
-      "sha256": "8eb76e594c9caf357169ed95252c7c27992978d30503fbe240a11b7b86b3639f"
+      "sha256": "8eb76e594c9caf357169ed95252c7c27992978d30503fbe240a11b7b86b3639f",
+      "extracted_sha256": "edb53670c4d2583d7944dfc20ef1db8d6343518cd81d90ffbf2482b60e1318ee",
+      "reason": "Replace manual Previous/Next pagers with auto-loading offset windows (at most 100 retained rows; approvals 1,000) per the design system loading rules."
     },
     {
       "source": "dashboard/src/ParentalControls.tsx",
       "destination": "src/ParentalControls.tsx",
       "sha256": "56bab4363961f5303f3382759215f7f926506b17937ddb9c3b860ae73e4f442d",
-      "extracted_sha256": "0c80b391cce30976ef990f197560b8d8635d9d3cf98ff52d329f3ca77d37cead",
-      "reason": "ADM-002 account-owned v2 management and approved design adoption; original extraction checksum retained. Bound duplicate PIN submissions and restore PIN focus after rejected authorization."
+      "extracted_sha256": "96943eaf3ffbe33419ee0a9a5f64cc38b79d2af44e15fdeed8c16d200aeb6014",
+      "reason": "ADM-002 account-owned v2 management and approved design adoption; original extraction checksum retained. Bound duplicate PIN submissions and restore PIN focus after rejected authorization. Replace manual Previous/Next pagers with auto-loading offset windows (at most 100 retained rows; approvals 1,000) per the design system loading rules."
     },
     {
       "source": "dashboard/src/PlaybackPreferences.test.tsx",
@@ -287,23 +293,29 @@
       "source": "dashboard/src/ViewingHistory.test.tsx",
       "destination": "src/ViewingHistory.test.tsx",
       "sha256": "9cce2bbd016b7cc3eb0a9025da505ae20cad58d9536251b0a8ce15ea1cdf280c",
-      "extracted_sha256": "98725153280ba75bf957146379fbfae0688ed0decbd2ecd453c3729869691cf9",
-      "reason": "ADM-002 account-owned v2 management and approved design adoption; original extraction checksum retained."
+      "extracted_sha256": "fe798253f1b431f4f3f8088d69a99c569b056d053fdab418589243b63ae226c8",
+      "reason": "ADM-002 account-owned v2 management and approved design adoption; original extraction checksum retained. Replace manual Previous/Next pagers with auto-loading offset windows (at most 100 retained rows; approvals 1,000) per the design system loading rules."
     },
     {
       "source": "dashboard/src/ViewingHistory.tsx",
       "destination": "src/ViewingHistory.tsx",
-      "sha256": "773031d906a77971a584b3de16235a070fd6f399c033442945f7fc565db9b0da"
+      "sha256": "773031d906a77971a584b3de16235a070fd6f399c033442945f7fc565db9b0da",
+      "extracted_sha256": "968175d3ebd6b0da10fb206af407e5075bee973abee6671a64c6af141d88f18e",
+      "reason": "Replace manual Previous/Next pagers with auto-loading offset windows (at most 100 retained rows; approvals 1,000) per the design system loading rules."
     },
     {
       "source": "dashboard/src/ViewingQueue.test.tsx",
       "destination": "src/ViewingQueue.test.tsx",
-      "sha256": "40094ac53dbb8f56c9a041d94a505fb1e6d7dd6c365ddfc2376270bc0b17a760"
+      "sha256": "40094ac53dbb8f56c9a041d94a505fb1e6d7dd6c365ddfc2376270bc0b17a760",
+      "extracted_sha256": "f2d43c80513210915e29ea8633c24965eee3b78ddf5dc9e6f2b17e1f2c36e917",
+      "reason": "Replace manual Previous/Next pagers with auto-loading offset windows (at most 100 retained rows; approvals 1,000) per the design system loading rules."
     },
     {
       "source": "dashboard/src/ViewingQueue.tsx",
       "destination": "src/ViewingQueue.tsx",
-      "sha256": "b2336368cc9c56b3c8bf44b8f3ea75cc3813af9be674e8d3119fe1561579c463"
+      "sha256": "b2336368cc9c56b3c8bf44b8f3ea75cc3813af9be674e8d3119fe1561579c463",
+      "extracted_sha256": "8cce2e2a886c0db351bf5a609d6c287e38af1f91e2d291c5b4a6b2feede265a1",
+      "reason": "Replace manual Previous/Next pagers with auto-loading offset windows (at most 100 retained rows; approvals 1,000) per the design system loading rules."
     },
     {
       "source": "dashboard/src/components/ui/button.tsx",
