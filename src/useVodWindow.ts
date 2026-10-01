@@ -1,14 +1,21 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { ApiError, type Client } from './lib/api';
-import { cursorPage, type VodMatch } from './lib/v2';
+import { cursorPage, isCursorToken, isPositiveId, type VodMatch } from './lib/v2';
 
 type Page = { items: VodMatch[]; cursor: string | null; next: string | null; previous: string | null | undefined; offset: number };
-type Window = { pages: Page[]; extent: number };
-const token = (value: unknown) => value === null || typeof value === 'string' && /^[A-Za-z0-9_-]{1,4096}$/.test(value);
+type Retained = { pages: Page[]; extent: number };
+const invalidRows = () => new Error('The server returned invalid unmatched-title data. Try again or update the server.');
+function vodMatch(value: unknown): VodMatch {
+  const row = value as VodMatch | null;
+  if (!row || typeof row.vod_id !== 'string' || !row.vod_id || typeof row.name !== 'string' || !['movie', 'series'].includes(row.type) ||
+      !isPositiveId(row.provider_id) || row.year !== null && !Number.isSafeInteger(row.year)) throw invalidRows();
+  return row;
+}
 function decode(value: unknown, cursor: string | null, offset: number): Page {
-  const page = cursorPage<VodMatch>(value);
+  const page = cursorPage(value, 50, vodMatch);
+  if (new Set(page.items.map(item => item.vod_id)).size !== page.items.length) throw invalidRows();
   const previous = (value as { previous_cursor?: unknown }).previous_cursor;
-  if (previous !== undefined && !token(previous)) throw new Error('The server returned an invalid reverse cursor. Update the server.');
+  if (previous !== undefined && previous !== null && !isCursorToken(previous)) throw new Error('The server returned an invalid reverse cursor. Update the server.');
   if (!page.items.length && (page.next_cursor !== null || previous)) throw new Error('The server interrupted a title page. Try again.');
   return { items: page.items, cursor, next: page.next_cursor, previous: previous as Page['previous'], offset };
 }
@@ -16,8 +23,8 @@ function decode(value: unknown, cursor: string | null, offset: number): Page {
 /** Three real pages; only scalar travelled extent survives eviction. */
 export function useVodWindow(api: Client, path: string, paused = false) {
   const pausedNow = useRef(paused); pausedNow.current = paused;
-  const [window, setWindow] = useState<Window>({ pages: [], extent: 0 });
-  const current = useRef(window); current.current = window;
+  const [view, setView] = useState<Retained>({ pages: [], extent: 0 });
+  const current = useRef(view); current.current = view;
   const [loading, setLoading] = useState(true), [error, setError] = useState('');
   const [refreshRequired, setRefreshRequired] = useState(false);
   const [version, setVersion] = useState(0);
@@ -30,12 +37,12 @@ export function useVodWindow(api: Client, path: string, paused = false) {
     const ticket = ++generation.current;
     abort.current?.abort(); const controller = new AbortController(); abort.current = controller;
     pending.current = true; failed.current = undefined; setLoading(true); setError(''); setRefreshRequired(false);
-    if (priorPath.current !== path) { const empty = { pages: [], extent: 0 }; current.current = empty; setWindow(empty); }
+    if (priorPath.current !== path) { const empty = { pages: [], extent: 0 }; current.current = empty; setView(empty); }
     priorPath.current = path;
     void api<unknown>(path, 'GET', undefined, controller.signal).then(value => {
       if (controller.signal.aborted || ticket !== generation.current) return;
       const page = decode(value, null, 0);
-      const next = { pages: [page], extent: page.items.length }; current.current = next; setWindow(next);
+      const next = { pages: [page], extent: page.items.length }; current.current = next; setView(next);
     }).catch(e => { if (!controller.signal.aborted && ticket === generation.current) setError(e instanceof Error ? e.message : 'Could not load titles.'); })
       .finally(() => { if (!controller.signal.aborted && ticket === generation.current) { pending.current = false; setLoading(false); } });
     return () => controller.abort();
@@ -65,7 +72,7 @@ export function useVodWindow(api: Client, path: string, paused = false) {
         pages = direction === 'next' ? pages.slice(1) : pages.slice(0, 3);
       }
       const next = { pages, extent: Math.max(before.extent, incoming.offset + incoming.items.length) };
-      failed.current = undefined; current.current = next; setWindow(next);
+      failed.current = undefined; current.current = next; setView(next);
     }).catch(e => { if (!controller.signal.aborted && ticket === generation.current) { failed.current = direction; setRefreshRequired(e instanceof ApiError && e.errorCode === 'catalog_changed'); setError(e instanceof Error ? e.message : 'Could not load this title page.'); } })
       .finally(() => { if (!controller.signal.aborted && ticket === generation.current) { pending.current = false; setLoading(false); } });
   }, [api, path]);
@@ -73,14 +80,14 @@ export function useVodWindow(api: Client, path: string, paused = false) {
   const previous = useCallback(() => move('previous'), [move]);
   const retry = useCallback(() => failed.current ? move(failed.current) : reload(), [move, reload]);
   const setItems = useCallback((update: (items: VodMatch[]) => VodMatch[]) => {
-    setWindow(old => {
+    setView(old => {
       const items = update(old.pages.flatMap(page => page.items)); let index = 0;
       const next = { ...old, pages: old.pages.map(page => ({ ...page, items: items.slice(index, index += page.items.length) })) };
       current.current = next; return next;
     });
   }, []);
-  return { items: window.pages.flatMap(page => page.items), base: window.pages[0]?.offset ?? 0, extent: window.extent,
-    retainedPages: window.pages.length, cursorSlots: window.pages.reduce((count, page) => count + Number(!!page.cursor) + Number(!!page.next) + Number(!!page.previous), 0),
-    next: window.pages.at(-1)?.next ?? null, previous: window.pages[0]?.previous ?? null,
+  return { items: view.pages.flatMap(page => page.items), base: view.pages[0]?.offset ?? 0, extent: view.extent,
+    retainedPages: view.pages.length, cursorSlots: view.pages.reduce((count, page) => count + Number(!!page.cursor) + Number(!!page.next) + Number(!!page.previous), 0),
+    next: view.pages.at(-1)?.next ?? null, previous: view.pages[0]?.previous ?? null,
     loading, error, refreshRequired, more, back: previous, retry, reload, setItems };
 }

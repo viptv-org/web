@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Puzzle, Server } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
@@ -6,7 +6,7 @@ import { Empty, Feedback, Field, Modal, Submit, words } from './shared';
 import { useAction } from './hooks';
 import { useCursorResource } from './useCursorResource';
 import { encode, safeImage, type Client } from './lib/api';
-import { cursorPage, type IptvConnection } from './lib/v2';
+import { isPositiveId, type IptvConnection } from './lib/v2';
 import { displayError } from './lib/displayError';
 import { CursorEnd } from './CursorEnd';
 
@@ -14,24 +14,15 @@ const invalid = () => new Error('The server returned invalid connection settings
 const connectionKey = (item: IptvConnection) => item.id;
 function connection(value: unknown): IptvConnection {
   const row = value as IptvConnection;
-  if (!row || !['string', 'number'].includes(typeof row.id) || !Number.isSafeInteger(Number(row.id)) || Number(row.id) <= 0 || typeof row.name !== 'string' ||
+  if (!row || !isPositiveId(row.id) || typeof row.name !== 'string' ||
       ['enabled', 'enable_live', 'enable_movies', 'enable_series', 'credentials_encrypted'].some(key => typeof row[key as keyof IptvConnection] !== 'boolean') ||
       !row.refresh || typeof row.refresh.state !== 'string') throw invalid();
   return { id: String(row.id), name: row.name, enabled: row.enabled, enable_live: row.enable_live,
     enable_movies: row.enable_movies, enable_series: row.enable_series, credentials_encrypted: row.credentials_encrypted,
     refresh: { state: row.refresh.state, error: row.refresh.error ? displayError(row.refresh.error, 503) : null } };
 }
-function useGuardedAction() {
-  const action = useAction(); const pending = useRef(false);
-  function run(work: () => Promise<void>, message: string) {
-    if (pending.current) return;
-    pending.current = true;
-    void action.run(async () => { try { await work(); } finally { pending.current = false; } }, message);
-  }
-  return { ...action, run };
-}
-function Paging({ resource }: { resource: Pick<ReturnType<typeof useCursorResource<unknown>>, 'items' | 'error' | 'loading' | 'reload' | 'next' | 'more'> }) {
-  return <><Feedback error={resource.error}/>{resource.loading && <p role="status">Loading connections…</p>}{resource.error && <Button variant="outline" onClick={resource.reload}>Try again</Button>}<CursorEnd onLoad={resource.more} disabled={!resource.next || resource.loading || !!resource.error} generation={resource.items.length}/></>;
+function Paging({ resource, label }: { resource: Pick<ReturnType<typeof useCursorResource<unknown>>, 'items' | 'error' | 'loading' | 'reload' | 'next' | 'more'>; label: string }) {
+  return <><Feedback error={resource.error}/>{resource.loading && <p role="status">{label}</p>}{resource.error && <Button variant="outline" onClick={resource.reload}>Try again</Button>}<CursorEnd onLoad={resource.more} disabled={!resource.next || resource.loading || !!resource.error} generation={resource.items.length}/></>;
 }
 type Scopes = Pick<IptvConnection, 'enabled' | 'enable_live' | 'enable_movies' | 'enable_series'>;
 const allScopes: Scopes = { enabled: true, enable_live: true, enable_movies: true, enable_series: true };
@@ -42,15 +33,8 @@ function ScopeFields({ value, change, disabled }: { value: Scopes; change: (valu
 }
 
 export function V2Connections({ api }: { api: Client }) {
-  const checkedApi = useMemo<Client>(() => async <T,>(path: string, method?: string, body?: unknown, signal?: AbortSignal) => {
-    const value = await api<unknown>(path, method, body, signal);
-    if (method === 'GET' && path.startsWith('/v2/iptv/connections?')) {
-      const page = cursorPage<unknown>(value); return { ...page, items: page.items.map(connection) } as T;
-    }
-    return value as T;
-  }, [api]);
-  const resource = useCursorResource<IptvConnection>(checkedApi, '/v2/iptv/connections?limit=50', connectionKey);
-  const action = useGuardedAction();
+  const resource = useCursorResource<IptvConnection>(api, '/v2/iptv/connections?limit=50', connectionKey, connection);
+  const action = useAction();
   const [defaultLive, setDefaultLive] = useState<string | null>(null); const [defaultError, setDefaultError] = useState('');
   const [defaultVersion, setDefaultVersion] = useState(0);
   const [mode, setMode] = useState<'create' | 'edit' | 'password' | 'delete' | 'default'>();
@@ -70,7 +54,7 @@ export function V2Connections({ api }: { api: Client }) {
   }
   function close() { setMode(undefined); setDraft({ name: '', url: '', username: '', password: '' }); }
   function save() {
-    action.run(async () => {
+    void action.run(async () => {
       const path = `/v2/iptv/connections${selected ? `/${encode(selected.id)}` : ''}`;
       if (mode === 'delete') { await api(path, 'DELETE'); resource.setItems(rows => rows.filter(row => row.id !== selected!.id)); setDefaultVersion(value => value + 1); }
       else if (mode === 'default') { const result = await api<{catalog_id: number | string}>('/v2/iptv/live-default', 'PUT', { catalog_id: Number(selected!.id) }); setDefaultLive(String(result.catalog_id)); }
@@ -92,7 +76,7 @@ export function V2Connections({ api }: { api: Client }) {
         resource.setItems(rows => rows.map(old => old.id === row.id ? { ...old, refresh: state } : old));
       }, 'Sync requested. Refresh the list to check progress.')} aria-label={`Sync ${row.name}`}>Sync now</Button>
       {row.enabled && row.enable_live && defaultLive !== row.id && <Button variant="outline" disabled={action.busy} onClick={() => open('default', row)} aria-label={`Use ${row.name} as default live playlist`}>Use as default live</Button>}<Button variant="outline" disabled={action.busy || !row.credentials_encrypted} onClick={() => open('delete', row)} aria-label={`Delete ${row.name}`}>Delete</Button></div></Card>)}
-    {!resource.loading && !resource.error && !resource.items.length && <Empty title="No Xtream connections">Add a connection to browse your IPTV catalog.</Empty>}<Paging resource={resource}/>
+    {!resource.loading && !resource.error && !resource.items.length && <Empty title="No Xtream connections">Add a connection to browse your IPTV catalog.</Empty>}<Paging resource={resource} label="Loading connections…"/>
     <Modal open={!!mode} onOpenChange={value => { if (!value) close(); }} title={mode === 'create' ? 'Add Xtream connection' : mode === 'edit' ? 'Edit connection' : mode === 'password' ? 'Replace password' : mode === 'default' ? 'Change default live playlist' : 'Delete connection'} description={mode === 'delete' ? `Remove ${selected?.name}? Its catalog and active sources become unavailable. Viewing history is retained.` : mode === 'default' ? `Use ${selected?.name} for future default live browsing. Current playback continues.` : 'Credentials are private. Stored passwords and server addresses are never filled in.'}>
       <form className="grid gap-4" onSubmit={event => { event.preventDefault(); save(); }}><fieldset disabled={action.busy} className="grid min-w-0 gap-4">
         {(mode === 'create' || mode === 'edit') && <Field label="Connection name" required maxLength={200} value={draft.name} onChange={event => setDraft({ ...draft, name: event.target.value })}/>}
@@ -106,7 +90,7 @@ type Addon = { id: string; name: string; enabled: boolean; logo?: string | null;
 const addonKey = (item: Addon) => item.id;
 function addon(value: unknown): Addon {
   const row = value as Addon;
-  if (!row || !['number', 'string'].includes(typeof row.id) || !Number.isSafeInteger(Number(row.id)) || Number(row.id) <= 0 || typeof row.name !== 'string' || typeof row.enabled !== 'boolean' || typeof row.credentials_encrypted !== 'boolean') throw invalid();
+  if (!row || !isPositiveId(row.id) || typeof row.name !== 'string' || typeof row.enabled !== 'boolean' || typeof row.credentials_encrypted !== 'boolean') throw invalid();
   return { id: String(row.id), name: row.name, enabled: row.enabled, credentials_encrypted: row.credentials_encrypted, logo: typeof row.logo === 'string' ? safeImage(row.logo) : null,
     configuration_error: typeof row.configuration_error === 'string' ? displayError(row.configuration_error, 503) : null };
 }
@@ -115,17 +99,14 @@ function AddonIcon({ logo }: { logo?: string | null }) {
   return logo && !failed ? <img className="admin-row-icon" src={logo} alt="" loading="lazy" referrerPolicy="no-referrer" onError={() => setFailed(true)}/> : <Puzzle className="admin-row-icon" aria-hidden="true"/>;
 }
 export function V2Addons({ api }: { api: Client }) {
-  const checkedApi = useMemo<Client>(() => async <T,>(path: string, method?: string, body?: unknown, signal?: AbortSignal) => {
-    const page = cursorPage<unknown>(await api(path, method, body, signal)); return { ...page, items: page.items.map(addon) } as T;
-  }, [api]);
-  const resource = useCursorResource<Addon>(checkedApi, '/v2/addons?limit=50', addonKey); const action = useGuardedAction();
+  const resource = useCursorResource<Addon>(api, '/v2/addons?limit=50', addonKey, addon); const action = useAction();
   const [open, setOpen] = useState(false); const [remove, setRemove] = useState<Addon>(); const [url, setUrl] = useState('');
   function close() { setOpen(false); setRemove(undefined); setUrl(''); }
   return <div className="space-y-4"><div className="admin-toolbar"><p>Your account’s catalog add-ons.</p><Button disabled={action.busy} onClick={() => { action.clear(); setOpen(true); }}>Add add-on</Button><Button variant="outline" disabled={resource.loading} onClick={resource.reload}>Refresh list</Button></div><Feedback error={action.error} success={action.success}/>
     {resource.items.map(row => <Card className="admin-state-row" key={row.id}><AddonIcon logo={row.logo}/><div className="admin-row-main"><div><h3>{row.name}</h3><p className="admin-status">{row.enabled ? 'Enabled' : 'Disabled'}</p>{!row.credentials_encrypted && <p>Operator migration required before updating this add-on.</p>}<Feedback error={row.configuration_error??undefined}/></div></div><div className="admin-row-actions"><Button variant="outline" role="switch" aria-checked={row.enabled} aria-label={`Enable ${row.name}`} disabled={action.busy} onClick={() => action.run(async () => {
       const updated = addon(await api(`/v2/addons/${encode(row.id)}`, 'PATCH', { enabled: !row.enabled })); resource.setItems(rows => rows.map(old => old.id === row.id ? updated : old));
     }, 'Add-on updated.')}>{row.enabled ? 'Disable' : 'Enable'}</Button><Button variant="outline" disabled={action.busy} aria-label={`Delete ${row.name}`} onClick={() => { action.clear(); setRemove(row); }}>Delete</Button></div></Card>)}
-    {!resource.loading && !resource.error && !resource.items.length && <Empty title="No add-ons">Add an add-on to find more catalogs and sources.</Empty>}<Paging resource={resource}/>
+    {!resource.loading && !resource.error && !resource.items.length && <Empty title="No add-ons">Add an add-on to find more catalogs and sources.</Empty>}<Paging resource={resource} label="Loading add-ons…"/>
     <Modal open={open || !!remove} onOpenChange={value => { if (!value && !action.busy) close(); }} title={remove ? 'Delete add-on' : 'Add add-on'} description={remove ? `Remove ${remove.name}? New discovery cannot use this add-on. Viewing history is retained.` : 'Enter the manifest address supplied by your add-on.'}><form className="grid gap-4" onSubmit={event => { event.preventDefault(); action.run(async () => {
       if (remove) { await api(`/v2/addons/${encode(remove.id)}`, 'DELETE'); resource.setItems(rows => rows.filter(row => row.id !== remove.id)); }
       else { const added = addon(await api('/v2/addons', 'POST', { manifest_url: url })); resource.setItems(rows => [added, ...rows]); }

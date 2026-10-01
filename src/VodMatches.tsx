@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Button } from './components/ui/button';
 import { Field, Feedback, Modal } from './shared';
 import { useAction } from './hooks';
@@ -6,7 +6,7 @@ import { useVodWindow } from './useVodWindow';
 import { useProviderNames } from './useProviderNames';
 import { CursorEnd } from './CursorEnd';
 import type { Client } from './lib/api';
-import { cursorPage, type IptvConnection, type VodMatch } from './lib/v2';
+import type { VodMatch } from './lib/v2';
 
 export function VodMatches({ api }: { api: Client }) {
   const scope = useRef({ api, generation: 0 });
@@ -20,29 +20,7 @@ function ScopedVodMatches({ api }: { api: Client }) {
     saves.current = new AbortController();
     return () => saves.current.abort();
   }, []);
-  const checkedApi = useMemo<Client>(() => async <T,>(path: string, method?: string, body?: unknown, signal?: AbortSignal) => {
-    const value = await api<unknown>(path, method, body, signal);
-    if (method === 'GET' && path.startsWith('/v2/iptv/matches?')) {
-      const page = cursorPage<VodMatch>(value);
-      const ids = new Set<string>();
-      for (const row of page.items) {
-        if (!row || typeof row.vod_id !== 'string' || !row.vod_id || ids.has(row.vod_id) ||
-            typeof row.name !== 'string' || !['movie', 'series'].includes(row.type) ||
-            !/^[1-9][0-9]*$/.test(String(row.provider_id)) || row.year !== null && !Number.isSafeInteger(row.year))
-          throw new Error('The server returned invalid unmatched-title data. Try again or update the server.');
-        ids.add(row.vod_id);
-      }
-      return { ...page, previous_cursor: (value as { previous_cursor?: unknown }).previous_cursor } as T;
-    }
-    if (method === 'GET' && path.startsWith('/v2/iptv/connections?')) {
-      const page = cursorPage<IptvConnection>(value, 200);
-      if (page.items.some(row => !row || !/^[1-9][0-9]*$/.test(String(row.id)) || typeof row.name !== 'string'))
-        throw new Error('The server returned invalid provider names. Try again.');
-      return page as T;
-    }
-    return value as T;
-  }, [api]);
-  const providers = useProviderNames(checkedApi);
+  const providers = useProviderNames(api);
   const [provider, setProvider] = useState('');
   const [kind, setKind] = useState('');
   const [search, setSearch] = useState('');
@@ -59,7 +37,7 @@ function ScopedVodMatches({ api }: { api: Client }) {
   const savedDialog = useRef(false);
   const action = useAction();
   const path = `/v2/iptv/matches?limit=50${provider ? `&provider_id=${encodeURIComponent(provider)}` : ''}${kind ? `&kind=${kind}` : ''}${query ? `&search=${encodeURIComponent(query)}` : ''}`;
-  const result = useVodWindow(checkedApi, path, !!target);
+  const result = useVodWindow(api, path, !!target);
   useEffect(() => { const timer = setTimeout(() => setQuery(search.trim().slice(0, 128)), 250); return () => clearTimeout(timer); }, [search]);
   useEffect(() => { if (scroll.current) scroll.current.scrollTop = 0; setFirst(0); }, [path]);
   useEffect(() => {
@@ -110,6 +88,8 @@ function ScopedVodMatches({ api }: { api: Client }) {
       historyEntry.current = undefined;
       if (history.state?.vodMatchDialog === marker) history.back();
     };
+    // One history entry per open dialog: re-run only when it opens or closes,
+    // not when the selected row object is replaced while it stays open.
   }, [!!target]);
   return <div>
     <p className="text-sm text-muted-foreground mb-6">Match your provider’s titles to metadata IDs so the right streams appear for movies and exact episodes.</p>
@@ -121,6 +101,7 @@ function ScopedVodMatches({ api }: { api: Client }) {
     <Feedback error={result.error || providers.error} success={!target ? action.success : ''} />
     {result.error && <Button variant="outline" onClick={result.refreshRequired ? () => { if (scroll.current) scroll.current.scrollTop = 0; setFirst(0); result.reload(); } : result.retry}>{result.refreshRequired ? 'Refresh titles' : 'Try again'}</Button>}
     {providers.error && <Button variant="outline" onClick={providers.reload}>Try again</Button>}
+    {/* The data-* window measurements are read by backend scripts/check-bounded-vod.js (bounded VOD acceptance). */}
     <div className="admin-match-scroll" ref={scroll} role="region" aria-label="Unmatched provider titles" tabIndex={0}
       data-retained-rows={result.items.length} data-retained-pages={result.retainedPages} data-visited-extent={result.extent} data-window-base={result.base} data-cursor-slots={result.cursorSlots}
       onScroll={event => {

@@ -5,13 +5,14 @@ import { ApiError, type Client } from './lib/api';
 import { useVodWindow } from './useVodWindow';
 
 afterEach(cleanup);
+const match = (vod_id: string) => ({ vod_id, provider_id: '1', type: 'movie', name: `Title ${vod_id}`, year: null });
 it('freezes rows when a dialog opens during an adjacent request', async () => {
   let finish!: (value: unknown) => void;
-  const api = vi.fn((path: string) => path.includes('cursor') ? new Promise(done => {finish=done;}) : Promise.resolve({items:[{vod_id:'opener'}],next_cursor:'next',previous_cursor:null})) as Client;
+  const api = vi.fn((path: string) => path.includes('cursor') ? new Promise(done => {finish=done;}) : Promise.resolve({items:[match('opener')],next_cursor:'next',previous_cursor:null})) as Client;
   const {result,rerender}=renderHook(({paused})=>useVodWindow(api,'/matches?limit=50',paused),{initialProps:{paused:false}});
   await waitFor(()=>expect(result.current.loading).toBe(false));
   act(()=>result.current.more()); rerender({paused:true});
-  await act(async()=>finish({items:[{vod_id:'later'}],next_cursor:null,previous_cursor:null}));
+  await act(async()=>finish({items:[match('later')],next_cursor:null,previous_cursor:null}));
   expect(result.current.items.map(row=>row.vod_id)).toEqual(['opener']);
   expect(result.current.loading).toBe(false);
   expect(result.current.next).toBe('next');
@@ -19,7 +20,7 @@ it('freezes rows when a dialog opens during an adjacent request', async () => {
 it('reloads evicted adjacent pages in both directions while retaining only 150 rows', async () => {
   const api = vi.fn(async (path: string) => {
     const offset = Number(new URLSearchParams(path.split('?')[1]).get('cursor')?.slice(1) ?? 0);
-    return { items: Array.from({length: 50}, (_, i) => ({vod_id: String(offset+i)})), next_cursor: `p${offset+50}`, previous_cursor: offset ? `p${offset-50}` : null };
+    return { items: Array.from({length: 50}, (_, i) => (match(String(offset+i)))), next_cursor: `p${offset+50}`, previous_cursor: offset ? `p${offset-50}` : null };
   }) as Client;
   const {result} = renderHook(() => useVodWindow(api, '/matches?limit=50'));
   await waitFor(() => expect(result.current.loading).toBe(false));
@@ -46,7 +47,7 @@ it('preserves the failed direction and rows, and distinguishes a changed catalog
   let fail = true;
   const api = vi.fn(async (path: string) => {
     if(path.includes('cursor') && fail) throw new Error('Temporarily unavailable');
-    return {items:[{vod_id:path.includes('cursor')?'second':'first'}], next_cursor:path.includes('cursor')?null:'next', previous_cursor:null};
+    return {items:[match(path.includes('cursor')?'second':'first')], next_cursor:path.includes('cursor')?null:'next', previous_cursor:null};
   }) as Client;
   const {result} = renderHook(() => useVodWindow(api, '/matches?limit=50'));
   await waitFor(() => expect(result.current.loading).toBe(false));
@@ -57,7 +58,7 @@ it('preserves the failed direction and rows, and distinguishes a changed catalog
   await waitFor(() => expect(result.current.items.length).toBe(2));
   const changed = vi.fn(async (path:string) => {
     if(path.includes('cursor')) throw new ApiError('Catalog changed. Refresh titles.',409,'catalog_changed');
-    return {items:[{vod_id:'fresh'}],next_cursor:'next',previous_cursor:null};
+    return {items:[match('fresh')],next_cursor:'next',previous_cursor:null};
   }) as Client;
   const other = renderHook(() => useVodWindow(changed, '/matches?limit=50'));
   await waitFor(() => expect(other.result.current.loading).toBe(false));

@@ -107,6 +107,11 @@ describe('v2 account add-ons', () => {
     fireEvent.click(within(screen.getByRole('dialog')).getByRole('button',{name:'Delete add-on'}));
     await waitFor(()=>expect(api).toHaveBeenCalledWith('/v2/addons/7','DELETE'));
   });
+  it('labels its own pending page as add-ons', async () => {
+    render(<V2Addons api={vi.fn().mockReturnValue(new Promise(() => {}))}/>);
+    expect(screen.getByRole('status')).toHaveTextContent('Loading add-ons…');
+    expect(screen.queryByText('Loading connections…')).not.toBeInTheDocument();
+  });
   it('loads the next bounded page without exposing configuration URLs', async () => {
     const observers: IntersectionObserverCallback[]=[];
     vi.stubGlobal('IntersectionObserver',class {constructor(callback:IntersectionObserverCallback){observers.push(callback)}observe(){}disconnect(){}unobserve(){}});

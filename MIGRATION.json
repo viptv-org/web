@@ -58,8 +58,8 @@
       "source": "dashboard/src/AccountApp.tsx",
       "destination": "src/AccountApp.tsx",
       "sha256": "081aad698b244cd0564b34ff45387fe84188255c58c7cb3f5a2f25901ee13979",
-      "extracted_sha256": "209ceec00d4cd7781edb20c7eb7b00b0cea7a2a51f704d19e0b1232da6ec2e23",
-      "reason": "Route code-free device links through the designed code-entry page. ADM-002 account-owned v2 management and approved design adoption; original extraction checksum retained. Preserve same-profile drafts during parent authorization while masking protected presentation and requests."
+      "extracted_sha256": "cb195c3eeb71c5bcb91e60e4419fcb7cc7478fe366ba468404eb3035adbfcfc3",
+      "reason": "Route code-free device links through the designed code-entry page. ADM-002 account-owned v2 management and approved design adoption; original extraction checksum retained. Preserve same-profile drafts during parent authorization while masking protected presentation and requests. Remove dead and duplicated code: shared v2 cursor/ID validators, one row validation pass in the paging hooks, useAction as the single pending-action guard."
     },
     {
       "source": "dashboard/src/AccountPools.test.tsx",
@@ -86,8 +86,8 @@
       "source": "dashboard/src/AccountScreens.tsx",
       "destination": "src/AccountScreens.tsx",
       "sha256": "8ba4784b3fbcc3294bde89396542ffd710bd661e0a41a93ef0576e95a130e443",
-      "extracted_sha256": "fb4bb1a13fb4a1de0b443f162d15fc30178bfade17d8f1dd6a5fccdad6bd7ffa",
-      "reason": "Re-pinned: changed by the RUI-027 centered-authentication work after this extraction, not by the cleanup commit. ADM-002 account-owned v2 management and approved design adoption; original extraction checksum retained."
+      "extracted_sha256": "b8109b46a8927879a033231936ebd6cdc7ad2f9d2fdbd968e39727b628c1925c",
+      "reason": "Re-pinned: changed by the RUI-027 centered-authentication work after this extraction, not by the cleanup commit. ADM-002 account-owned v2 management and approved design adoption; original extraction checksum retained. Remove dead and duplicated code: shared v2 cursor/ID validators, one row validation pass in the paging hooks, useAction as the single pending-action guard."
     },
     {
       "source": "dashboard/src/AddonSettings.tsx",
@@ -357,8 +357,8 @@
       "source": "dashboard/src/hooks.ts",
       "destination": "src/hooks.ts",
       "sha256": "f15ac2ae444870a59b751b08261565140718a92cc1322a110d6721c3c35aeab9",
-      "extracted_sha256": "bd4c9d8fed253acc46729dc96d6f51216509eaf03194c5054671ad169b0bdaa1",
-      "reason": "ADM-002 account-owned v2 management and approved design adoption; original extraction checksum retained."
+      "extracted_sha256": "5d4840d50dd7ec46f5f98057702860f38f5cbff4c83a5591fa5c77838efe0dd2",
+      "reason": "ADM-002 account-owned v2 management and approved design adoption; original extraction checksum retained. Remove dead and duplicated code: shared v2 cursor/ID validators, one row validation pass in the paging hooks, useAction as the single pending-action guard."
     },
     {
       "source": "dashboard/src/index.css",
@@ -376,8 +376,8 @@
       "source": "dashboard/src/lib/accountApi.ts",
       "destination": "src/lib/accountApi.ts",
       "sha256": "82a7e19e0b6b93bb71b58e4c66bd1d542d53ff951f91f107c9a93239c275c20c",
-      "extracted_sha256": "b9f30812221efe2aca3269465cc7daa04a59b868168ddae3630ccdd91f060794",
-      "reason": "ADM-002 account-owned v2 management and approved design adoption; original extraction checksum retained."
+      "extracted_sha256": "0b9dad1476d9f86287b3dd67afeea63ecbb6576c30a24c10b42fc631d586b7f0",
+      "reason": "ADM-002 account-owned v2 management and approved design adoption; original extraction checksum retained. Remove request timeouts for the retired /sync and /playback endpoints."
     },
     {
       "source": "dashboard/src/lib/api.ts",
