@@ -11,11 +11,14 @@ if (mode === 'sync') {
   const revision = process.argv[4] ?? execFileSync('git', ['-C', source, 'rev-parse', 'HEAD'], { encoding: 'utf8' }).trim();
   const dirty = execFileSync('git', ['-C', source, 'status', '--porcelain'], { encoding: 'utf8' }).trim();
   if (dirty) throw new Error('Commit the design source before adoption');
-  const names = ['tokens/responsive.json', 'tokens/tokens.css'];
+  const names = ['ADMIN_V2.md', 'BACKEND_V2.md',
+    'viptv-design-system/tokens/tokens.json', 'viptv-design-system/tokens/tokens.css'];
   const entries = {};
   for (const path of names) {
-    const data = execFileSync('git', ['-C', source, 'show', `${revision}:${path}`]);
-    mkdirSync(join(destination, 'tokens'), { recursive: true });
+    let data = execFileSync('git', ['-C', source, 'show', `${revision}:${path}`]);
+    // Fonts are bundled locally. Derive the same tokens without a network import.
+    if (path.endsWith('.css')) data = Buffer.from(data.toString().replace(/^@import url\('https:\/\/fonts\.googleapis\.com[^\n]*\);\r?\n/m, ''));
+    mkdirSync(resolve(destination, path, '..'), { recursive: true });
     writeFileSync(join(destination, path), data);
     entries[`design-contract/${path}`] = hash(data);
   }

@@ -6,7 +6,8 @@
       "source": "dashboard/.gitignore",
       "destination": ".gitignore",
       "sha256": "af01f416f1ab806cf3e4e1ede29a16702e1718c45c7539604a760b2eb8d27858",
-      "extracted_sha256": "599c7d393af2a0e5976fdad8dacbe65b8ff69867746087154b9903b3b6978e9e"
+      "extracted_sha256": "db4f121fe4013c7a4bf0f0e62c4db89ff2d399c702e3eeb1707375f34d14ddf6",
+      "reason": "Ignore a symlinked node_modules worktree link as well as a directory."
     },
     {
       "source": "dashboard/ACCOUNTS.md",
@@ -17,8 +18,8 @@
       "source": "dashboard/README.md",
       "destination": "README.md",
       "sha256": "ff64e3d40c4f1e80ce6c2b8329a306094e4e91b09c96277b6dbe414ede7ab173",
-      "extracted_sha256": "e8ffd0da4fad02aafda1b57286eabf03a50c011d3840e45f8017021486c09afe",
-      "reason": "Document the Link your TV page and its separate design snapshot."
+      "extracted_sha256": "f6b1a9fbd7273bd471e74014ba5e09d9c277922e4c2b5bb97eeabcb15a2a4364",
+      "reason": "Document the Link your TV page and its separate design snapshot. ADM-002 account-owned v2 management and approved design adoption; original extraction checksum retained. ADM-002 account-owned v2 management and approved design adoption; original extraction checksum retained. Document in-memory parent-challenge draft preservation and authority-based discard. Document the bounded VOD window, auto-loading lists and local-only checks under the 2026-09-27 delivery policy."
     },
     {
       "source": "dashboard/components.json",
@@ -50,148 +51,192 @@
       "source": "dashboard/src/AccountApp.test.tsx",
       "destination": "src/AccountApp.test.tsx",
       "sha256": "d823ea805b37d020916231da4c64bebe4d822d5648c7955efa6c4b0dc3ea7596",
-      "extracted_sha256": "7da1277f08164da13b0f8a2c5a37f2b25b507f765636a1afb09d63d4725affc2",
-      "reason": "Cover code entry and the existing sign-in handoff."
+      "extracted_sha256": "7b6101dd2d75aee0f8afbd159c57f6e426b195d68f6dfa86a5abe361c838086c",
+      "reason": "Cover code entry and the existing sign-in handoff. ADM-002 account-owned v2 management and approved design adoption; original extraction checksum retained."
     },
     {
       "source": "dashboard/src/AccountApp.tsx",
       "destination": "src/AccountApp.tsx",
       "sha256": "081aad698b244cd0564b34ff45387fe84188255c58c7cb3f5a2f25901ee13979",
-      "extracted_sha256": "55f9b70c15786fb930aa7b2b1f06eec349b4322ab629d7dd699bfcf7ee12a6ed",
-      "reason": "Route code-free device links through the designed code-entry page."
+      "extracted_sha256": "cb195c3eeb71c5bcb91e60e4419fcb7cc7478fe366ba468404eb3035adbfcfc3",
+      "reason": "Route code-free device links through the designed code-entry page. ADM-002 account-owned v2 management and approved design adoption; original extraction checksum retained. Preserve same-profile drafts during parent authorization while masking protected presentation and requests. Remove dead and duplicated code: shared v2 cursor/ID validators, one row validation pass in the paging hooks, useAction as the single pending-action guard."
     },
     {
       "source": "dashboard/src/AccountPools.test.tsx",
       "destination": "src/AccountPools.test.tsx",
-      "sha256": "a1142c491b1804d050819d871a052760f06b674e0f87669c583db30f69b86356"
+      "sha256": "a1142c491b1804d050819d871a052760f06b674e0f87669c583db30f69b86356",
+      "removed": true,
+      "reason": "ADM-002 retires the legacy organizer/setup UI and its obsolete tests; original extraction checksum remains historical provenance."
     },
     {
       "source": "dashboard/src/AccountPools.tsx",
       "destination": "src/AccountPools.tsx",
-      "sha256": "1198cd182d2f1f981043e45fdf2f65f1ff2725f58aeff5f561292d756cdd0abc"
+      "sha256": "1198cd182d2f1f981043e45fdf2f65f1ff2725f58aeff5f561292d756cdd0abc",
+      "removed": true,
+      "reason": "ADM-002 retires the legacy organizer/setup UI and its obsolete tests; original extraction checksum remains historical provenance."
     },
     {
       "source": "dashboard/src/AccountScreens.test.tsx",
       "destination": "src/AccountScreens.test.tsx",
       "sha256": "7935ab339951c60ac10760f8f019c574556ee576f20b2e221e13778148d0d1ad",
-      "extracted_sha256": "b30c88ac1a45d3f6b012bbf3286966ab76e8a017a482da66ba7c527929799e03",
-      "reason": "Re-pinned: cleanup commit 534b3cb merged the duplicate-setup ProfileManagement profile cases into this file."
+      "extracted_sha256": "60143513966c5e512d79d0b9cec45e2fa1feb5a7798e18aa228f902841e98623",
+      "reason": "Re-pinned: cleanup commit 534b3cb merged the duplicate-setup ProfileManagement profile cases into this file. ADM-002 account-owned v2 management and approved design adoption; original extraction checksum retained."
     },
     {
       "source": "dashboard/src/AccountScreens.tsx",
       "destination": "src/AccountScreens.tsx",
       "sha256": "8ba4784b3fbcc3294bde89396542ffd710bd661e0a41a93ef0576e95a130e443",
-      "extracted_sha256": "b86a9a7b6ed422ff6fed2c90d3b3ac62574df3159e4c4e7d0a082b81f5039168",
-      "reason": "Re-pinned: changed by the RUI-027 centered-authentication work after this extraction, not by the cleanup commit."
+      "extracted_sha256": "b8109b46a8927879a033231936ebd6cdc7ad2f9d2fdbd968e39727b628c1925c",
+      "reason": "Re-pinned: changed by the RUI-027 centered-authentication work after this extraction, not by the cleanup commit. ADM-002 account-owned v2 management and approved design adoption; original extraction checksum retained. Remove dead and duplicated code: shared v2 cursor/ID validators, one row validation pass in the paging hooks, useAction as the single pending-action guard."
     },
     {
       "source": "dashboard/src/AddonSettings.tsx",
       "destination": "src/AddonSettings.tsx",
-      "sha256": "c17560c9b20fbdc9e1fcd83b7f221aeadfd9402f91d56162aea508f83ab6dc5d"
+      "sha256": "c17560c9b20fbdc9e1fcd83b7f221aeadfd9402f91d56162aea508f83ab6dc5d",
+      "removed": true,
+      "reason": "ADM-002 retires the legacy organizer/setup UI and its obsolete tests; original extraction checksum remains historical provenance."
     },
     {
       "source": "dashboard/src/Addons.test.tsx",
       "destination": "src/Addons.test.tsx",
-      "sha256": "ac957c5e3ad1d056dc4fe12a7f2b3ce388833891504795189c26314c414af4a4"
+      "sha256": "ac957c5e3ad1d056dc4fe12a7f2b3ce388833891504795189c26314c414af4a4",
+      "removed": true,
+      "reason": "ADM-002 retires the legacy organizer/setup UI and its obsolete tests; original extraction checksum remains historical provenance."
     },
     {
       "source": "dashboard/src/Admin.tsx",
       "destination": "src/Admin.tsx",
-      "sha256": "5836e53c0d7d5e4b7fba7e0adb8fec02a09701810a2ecb80ee90649254c332ca"
+      "sha256": "5836e53c0d7d5e4b7fba7e0adb8fec02a09701810a2ecb80ee90649254c332ca",
+      "removed": true,
+      "reason": "ADM-002 retires the legacy organizer/setup UI and its obsolete tests; original extraction checksum remains historical provenance."
     },
     {
       "source": "dashboard/src/CatalogAutomation.test.tsx",
       "destination": "src/CatalogAutomation.test.tsx",
-      "sha256": "e5fe81b86147c5ad93c0480cf87b819ec80f1095fea14afedf63081becdec096"
+      "sha256": "e5fe81b86147c5ad93c0480cf87b819ec80f1095fea14afedf63081becdec096",
+      "removed": true,
+      "reason": "ADM-002 retires the legacy organizer/setup UI and its obsolete tests; original extraction checksum remains historical provenance."
     },
     {
       "source": "dashboard/src/CatalogAutomation.tsx",
       "destination": "src/CatalogAutomation.tsx",
-      "sha256": "a1ede8345d922bee196ec27b48751840026fd2bd13547539e7886137ab371e46"
+      "sha256": "a1ede8345d922bee196ec27b48751840026fd2bd13547539e7886137ab371e46",
+      "removed": true,
+      "reason": "ADM-002 retires the legacy organizer/setup UI and its obsolete tests; original extraction checksum remains historical provenance."
     },
     {
       "source": "dashboard/src/FamilyActivity.tsx",
       "destination": "src/FamilyActivity.tsx",
       "sha256": "2920e1ff175eaa53030513846bf8373856eb804f80fd8ff2330ac778010e3f91",
       "extracted_sha256": "c62db87660c33f98aa0c37b21e1010431ed5497eea23f8b4e91fabc3d775dcdb",
-      "reason": "Re-pinned: cleanup commit 534b3cb replaced the duplicated local words() with the shared helper in shared.tsx."
+      "reason": "ADM-002 retires the legacy organizer/setup UI and its obsolete tests; original extraction checksum remains historical provenance.",
+      "removed": true
     },
     {
       "source": "dashboard/src/FamilyGuides.tsx",
       "destination": "src/FamilyGuides.tsx",
-      "sha256": "4133a74fcf74cbfd70ef763993c850895f334a60bd4e9964f9389547dfd8de3b"
+      "sha256": "4133a74fcf74cbfd70ef763993c850895f334a60bd4e9964f9389547dfd8de3b",
+      "removed": true,
+      "reason": "ADM-002 retires the legacy organizer/setup UI and its obsolete tests; original extraction checksum remains historical provenance."
     },
     {
       "source": "dashboard/src/FamilyHealth.tsx",
       "destination": "src/FamilyHealth.tsx",
       "sha256": "786041365f575ebd8e4a0903842c0de94b7f9fc9859ff2f52f294f17cd785a76",
       "extracted_sha256": "9b3b89eb6558c5b9c1d30debf43c3b21b4c8e1d6e7ed8331ed6e20c1f8d02188",
-      "reason": "Re-pinned: cleanup commit 534b3cb replaced the duplicated local words() with the shared helper in shared.tsx."
+      "reason": "ADM-002 retires the legacy organizer/setup UI and its obsolete tests; original extraction checksum remains historical provenance.",
+      "removed": true
     },
     {
       "source": "dashboard/src/FamilyLineup.test.tsx",
       "destination": "src/FamilyLineup.test.tsx",
-      "sha256": "6761bc8ae7584e5703ddfdfefc7b0cc8ebd081ddcff16932986c6144821158d8"
+      "sha256": "6761bc8ae7584e5703ddfdfefc7b0cc8ebd081ddcff16932986c6144821158d8",
+      "removed": true,
+      "reason": "ADM-002 retires the legacy organizer/setup UI and its obsolete tests; original extraction checksum remains historical provenance."
     },
     {
       "source": "dashboard/src/FamilyLineup.tsx",
       "destination": "src/FamilyLineup.tsx",
-      "sha256": "3d97c79abda4a486cb9c692b76891f181b2742ffabb7fa8edd456f5073ca1eca"
+      "sha256": "3d97c79abda4a486cb9c692b76891f181b2742ffabb7fa8edd456f5073ca1eca",
+      "removed": true,
+      "reason": "ADM-002 retires the legacy organizer/setup UI and its obsolete tests; original extraction checksum remains historical provenance."
     },
     {
       "source": "dashboard/src/FamilyMaintenance.test.tsx",
       "destination": "src/FamilyMaintenance.test.tsx",
-      "sha256": "e7d1111c2af8a019923947464d2262820da7ea098fafe27d072a54db2f7f9676"
+      "sha256": "e7d1111c2af8a019923947464d2262820da7ea098fafe27d072a54db2f7f9676",
+      "removed": true,
+      "reason": "ADM-002 retires the legacy organizer/setup UI and its obsolete tests; original extraction checksum remains historical provenance."
     },
     {
       "source": "dashboard/src/FamilyMatching.test.tsx",
       "destination": "src/FamilyMatching.test.tsx",
-      "sha256": "37020acf82a9f3284f9ef325beb247b1077a520f53dd979275a199fc664b44ad"
+      "sha256": "37020acf82a9f3284f9ef325beb247b1077a520f53dd979275a199fc664b44ad",
+      "removed": true,
+      "reason": "ADM-002 retires the legacy organizer/setup UI and its obsolete tests; original extraction checksum remains historical provenance."
     },
     {
       "source": "dashboard/src/FamilyMatching.tsx",
       "destination": "src/FamilyMatching.tsx",
-      "sha256": "019aae63d9d4aec28f55968149eb9162b1dc127df5edae7a69405fb4ba517d99"
+      "sha256": "019aae63d9d4aec28f55968149eb9162b1dc127df5edae7a69405fb4ba517d99",
+      "removed": true,
+      "reason": "ADM-002 retires the legacy organizer/setup UI and its obsolete tests; original extraction checksum remains historical provenance."
     },
     {
       "source": "dashboard/src/LiveCategories.test.tsx",
       "destination": "src/LiveCategories.test.tsx",
-      "sha256": "8df1b2b999d8155a604743aa7eb9ff895a5f39eb26f12f3a9e6a93587b4dc062"
+      "sha256": "8df1b2b999d8155a604743aa7eb9ff895a5f39eb26f12f3a9e6a93587b4dc062",
+      "removed": true,
+      "reason": "ADM-002 retires the legacy organizer/setup UI and its obsolete tests; original extraction checksum remains historical provenance."
     },
     {
       "source": "dashboard/src/LiveCategories.tsx",
       "destination": "src/LiveCategories.tsx",
-      "sha256": "270e10cc315adc021e2160b518ee8d8d6c741b517843bc2e656f4b8489ddf6dc"
+      "sha256": "270e10cc315adc021e2160b518ee8d8d6c741b517843bc2e656f4b8489ddf6dc",
+      "removed": true,
+      "reason": "ADM-002 retires the legacy organizer/setup UI and its obsolete tests; original extraction checksum remains historical provenance."
     },
     {
       "source": "dashboard/src/MyList.test.tsx",
       "destination": "src/MyList.test.tsx",
-      "sha256": "1d0caa8661fef50bd7abb16f34e2f8aacf582ed3ba5444d679d07ae70657699e"
+      "sha256": "1d0caa8661fef50bd7abb16f34e2f8aacf582ed3ba5444d679d07ae70657699e",
+      "extracted_sha256": "67efab548cf24d1bd12b6aa96d2c057cf2872e2eb077d5f0328b900c3a74a550",
+      "reason": "Replace manual Previous/Next pagers with auto-loading offset windows (at most 100 retained rows; approvals 1,000) per the design system loading rules."
     },
     {
       "source": "dashboard/src/MyList.tsx",
       "destination": "src/MyList.tsx",
-      "sha256": "c696c0a97ce8faa3f2109102173f0f6cde5b72f2f46dbdef460060fa057df0a1"
+      "sha256": "c696c0a97ce8faa3f2109102173f0f6cde5b72f2f46dbdef460060fa057df0a1",
+      "extracted_sha256": "ded0789348f88cc348d649452c6919b6ff23de34aca6dd6b6f16d25821859bc0",
+      "reason": "Replace manual Previous/Next pagers with auto-loading offset windows (at most 100 retained rows; approvals 1,000) per the design system loading rules."
     },
     {
       "source": "dashboard/src/ParentalControls.test.tsx",
       "destination": "src/ParentalControls.test.tsx",
-      "sha256": "8eb76e594c9caf357169ed95252c7c27992978d30503fbe240a11b7b86b3639f"
+      "sha256": "8eb76e594c9caf357169ed95252c7c27992978d30503fbe240a11b7b86b3639f",
+      "extracted_sha256": "edb53670c4d2583d7944dfc20ef1db8d6343518cd81d90ffbf2482b60e1318ee",
+      "reason": "Replace manual Previous/Next pagers with auto-loading offset windows (at most 100 retained rows; approvals 1,000) per the design system loading rules."
     },
     {
       "source": "dashboard/src/ParentalControls.tsx",
       "destination": "src/ParentalControls.tsx",
-      "sha256": "56bab4363961f5303f3382759215f7f926506b17937ddb9c3b860ae73e4f442d"
+      "sha256": "56bab4363961f5303f3382759215f7f926506b17937ddb9c3b860ae73e4f442d",
+      "extracted_sha256": "96943eaf3ffbe33419ee0a9a5f64cc38b79d2af44e15fdeed8c16d200aeb6014",
+      "reason": "ADM-002 account-owned v2 management and approved design adoption; original extraction checksum retained. Bound duplicate PIN submissions and restore PIN focus after rejected authorization. Replace manual Previous/Next pagers with auto-loading offset windows (at most 100 retained rows; approvals 1,000) per the design system loading rules."
     },
     {
       "source": "dashboard/src/PlaybackPreferences.test.tsx",
       "destination": "src/PlaybackPreferences.test.tsx",
-      "sha256": "207c5d620f61b6c5fdc7c8f6f950be45f848149fd325d7c5d41fc2c428d7e6c0"
+      "sha256": "207c5d620f61b6c5fdc7c8f6f950be45f848149fd325d7c5d41fc2c428d7e6c0",
+      "extracted_sha256": "2e3eea1fe45024735abba352a408cd17830416c4a59825c9aa4bac64aeb6e1b1",
+      "reason": "ADM-002 account-owned v2 management and approved design adoption; original extraction checksum retained."
     },
     {
       "source": "dashboard/src/PlaybackPreferences.tsx",
       "destination": "src/PlaybackPreferences.tsx",
-      "sha256": "6212b4e7a4188e3b0e954b11a526f93efba7312cc5dcec928dfdaae4437db480"
+      "sha256": "6212b4e7a4188e3b0e954b11a526f93efba7312cc5dcec928dfdaae4437db480",
+      "extracted_sha256": "46f19538b4737512c488376d49c156b93f3628b2f94cd206ee0d574e8140e1d0",
+      "reason": "ADM-002 account-owned v2 management and approved design adoption; original extraction checksum retained."
     },
     {
       "source": "dashboard/src/ProfileManagement.test.tsx",
@@ -199,59 +244,78 @@
       "sha256": "f14e95387059d573ebe381ec1698ae082727492da8c9d085821ea3d37ee25eb6",
       "extracted_sha256": null,
       "removed": true,
-      "reason": "Removed by cleanup commit 534b3cb: duplicate setup; its two cases moved verbatim into src/AccountScreens.test.tsx."
+      "reason": "ADM-002 retires the legacy organizer/setup UI and its obsolete tests; original extraction checksum remains historical provenance."
     },
     {
       "source": "dashboard/src/ProviderAccounts.test.tsx",
       "destination": "src/ProviderAccounts.test.tsx",
-      "sha256": "68cd439d38c088fc8349e6afef60ef63638672b2c612018ec93dab08fc373f74"
+      "sha256": "68cd439d38c088fc8349e6afef60ef63638672b2c612018ec93dab08fc373f74",
+      "removed": true,
+      "reason": "ADM-002 retires the legacy organizer/setup UI and its obsolete tests; original extraction checksum remains historical provenance."
     },
     {
       "source": "dashboard/src/ProviderAccounts.tsx",
       "destination": "src/ProviderAccounts.tsx",
-      "sha256": "c9a0d69fa1fc6d1234bd58c9a924bb6d99c31b89e4874e3e7e791331b9355b66"
+      "sha256": "c9a0d69fa1fc6d1234bd58c9a924bb6d99c31b89e4874e3e7e791331b9355b66",
+      "removed": true,
+      "reason": "ADM-002 retires the legacy organizer/setup UI and its obsolete tests; original extraction checksum remains historical provenance."
     },
     {
       "source": "dashboard/src/ProviderSettings.tsx",
       "destination": "src/ProviderSettings.tsx",
-      "sha256": "4d4bc9b49b511644b021e248f3f73183f111e024bdecad42781ba91f41d1d3bf"
+      "sha256": "4d4bc9b49b511644b021e248f3f73183f111e024bdecad42781ba91f41d1d3bf",
+      "removed": true,
+      "reason": "ADM-002 retires the legacy organizer/setup UI and its obsolete tests; original extraction checksum remains historical provenance."
     },
     {
       "source": "dashboard/src/Providers.test.tsx",
       "destination": "src/Providers.test.tsx",
-      "sha256": "72b7d0e470774a624a90f46d06c19668739de65fce4bc6162f5ca2af06805ec0"
+      "sha256": "72b7d0e470774a624a90f46d06c19668739de65fce4bc6162f5ca2af06805ec0",
+      "removed": true,
+      "reason": "ADM-002 retires the legacy organizer/setup UI and its obsolete tests; original extraction checksum remains historical provenance."
     },
     {
       "source": "dashboard/src/ServiceHealth.test.tsx",
       "destination": "src/ServiceHealth.test.tsx",
-      "sha256": "7aa039aa50f66c03aee6035f2cddc54680a40a0531e8b0c33a9e691610e8821f"
+      "sha256": "7aa039aa50f66c03aee6035f2cddc54680a40a0531e8b0c33a9e691610e8821f",
+      "removed": true,
+      "reason": "ADM-002 retires the legacy organizer/setup UI and its obsolete tests; original extraction checksum remains historical provenance."
     },
     {
       "source": "dashboard/src/ServiceHealth.tsx",
       "destination": "src/ServiceHealth.tsx",
       "sha256": "d0b9c9dc84de5ec1746746fd1720e89a6259e83ecfd711286835d0b8c53af8b3",
       "extracted_sha256": "d80812e4579576d13f39d44584b75d1657779b2f2c5d317f8ee2cfdcec2f4cf1",
-      "reason": "Re-pinned: cleanup commit 534b3cb replaced the duplicated local words() with the shared helper in shared.tsx."
+      "reason": "ADM-002 retires the legacy organizer/setup UI and its obsolete tests; original extraction checksum remains historical provenance.",
+      "removed": true
     },
     {
       "source": "dashboard/src/ViewingHistory.test.tsx",
       "destination": "src/ViewingHistory.test.tsx",
-      "sha256": "9cce2bbd016b7cc3eb0a9025da505ae20cad58d9536251b0a8ce15ea1cdf280c"
+      "sha256": "9cce2bbd016b7cc3eb0a9025da505ae20cad58d9536251b0a8ce15ea1cdf280c",
+      "extracted_sha256": "fe798253f1b431f4f3f8088d69a99c569b056d053fdab418589243b63ae226c8",
+      "reason": "ADM-002 account-owned v2 management and approved design adoption; original extraction checksum retained. Replace manual Previous/Next pagers with auto-loading offset windows (at most 100 retained rows; approvals 1,000) per the design system loading rules."
     },
     {
       "source": "dashboard/src/ViewingHistory.tsx",
       "destination": "src/ViewingHistory.tsx",
-      "sha256": "773031d906a77971a584b3de16235a070fd6f399c033442945f7fc565db9b0da"
+      "sha256": "773031d906a77971a584b3de16235a070fd6f399c033442945f7fc565db9b0da",
+      "extracted_sha256": "968175d3ebd6b0da10fb206af407e5075bee973abee6671a64c6af141d88f18e",
+      "reason": "Replace manual Previous/Next pagers with auto-loading offset windows (at most 100 retained rows; approvals 1,000) per the design system loading rules."
     },
     {
       "source": "dashboard/src/ViewingQueue.test.tsx",
       "destination": "src/ViewingQueue.test.tsx",
-      "sha256": "40094ac53dbb8f56c9a041d94a505fb1e6d7dd6c365ddfc2376270bc0b17a760"
+      "sha256": "40094ac53dbb8f56c9a041d94a505fb1e6d7dd6c365ddfc2376270bc0b17a760",
+      "extracted_sha256": "f2d43c80513210915e29ea8633c24965eee3b78ddf5dc9e6f2b17e1f2c36e917",
+      "reason": "Replace manual Previous/Next pagers with auto-loading offset windows (at most 100 retained rows; approvals 1,000) per the design system loading rules."
     },
     {
       "source": "dashboard/src/ViewingQueue.tsx",
       "destination": "src/ViewingQueue.tsx",
-      "sha256": "b2336368cc9c56b3c8bf44b8f3ea75cc3813af9be674e8d3119fe1561579c463"
+      "sha256": "b2336368cc9c56b3c8bf44b8f3ea75cc3813af9be674e8d3119fe1561579c463",
+      "extracted_sha256": "8cce2e2a886c0db351bf5a609d6c287e38af1f91e2d291c5b4a6b2feede265a1",
+      "reason": "Replace manual Previous/Next pagers with auto-loading offset windows (at most 100 retained rows; approvals 1,000) per the design system loading rules."
     },
     {
       "source": "dashboard/src/components/ui/button.tsx",
@@ -271,8 +335,8 @@
       "source": "dashboard/src/components/ui/dialog.tsx",
       "destination": "src/components/ui/dialog.tsx",
       "sha256": "859683c2a409f383c123ff2c7928bdeabc708c842aae73028557b183df2c6790",
-      "extracted_sha256": "2c04763d570c9d7f07e9cb9c51681873ffab51f3efbf63bde8a903d2ed65a858",
-      "reason": "Graphite dark-theme port to the pinned design tokens (design 59c9664)"
+      "extracted_sha256": "8fa06c295d1217952d7aef73aea4b617ad0fdaa88e564fc2d72d7fa1e372ffe9",
+      "reason": "Graphite dark-theme port to the pinned design tokens (design 59c9664) ADM-002 account-owned v2 management and approved design adoption; original extraction checksum retained."
     },
     {
       "source": "dashboard/src/components/ui/input.tsx",
@@ -287,19 +351,21 @@
       "sha256": "db5dfcd98a78c5b7c3c01e0bb7726a3adbf0470f4d552e777ccf4751b51e6a56",
       "extracted_sha256": null,
       "removed": true,
-      "reason": "Removed by cleanup commit 534b3cb: Label had no importer in this repository."
+      "reason": "ADM-002 retires the legacy organizer/setup UI and its obsolete tests; original extraction checksum remains historical provenance."
     },
     {
       "source": "dashboard/src/hooks.ts",
       "destination": "src/hooks.ts",
-      "sha256": "f15ac2ae444870a59b751b08261565140718a92cc1322a110d6721c3c35aeab9"
+      "sha256": "f15ac2ae444870a59b751b08261565140718a92cc1322a110d6721c3c35aeab9",
+      "extracted_sha256": "5d4840d50dd7ec46f5f98057702860f38f5cbff4c83a5591fa5c77838efe0dd2",
+      "reason": "ADM-002 account-owned v2 management and approved design adoption; original extraction checksum retained. Remove dead and duplicated code: shared v2 cursor/ID validators, one row validation pass in the paging hooks, useAction as the single pending-action guard."
     },
     {
       "source": "dashboard/src/index.css",
       "destination": "src/index.css",
       "sha256": "c6bee3e42b6496a10d0f5eb7f91e5f721f457f545ae031e6133d4192f994fbca",
-      "extracted_sha256": "6bbc68f4c7a1dbddf9fa0fa63a5a20fb2df586fccec20d8ad83bcf722793bb6e",
-      "reason": "Graphite dark-theme port to the pinned design tokens (design 59c9664)"
+      "extracted_sha256": "79459562a51d15a18634d7e79613cdfb07bb38b5ab957b651e0d98fd40495748",
+      "reason": "Graphite dark-theme port to the pinned design tokens (design 59c9664) ADM-002 account-owned v2 management and approved design adoption; original extraction checksum retained. ADM-002 account-owned v2 management and approved design adoption; original extraction checksum retained. ADM-002 account-owned v2 management and approved design adoption; original extraction checksum retained. ADM-002-VOD-WINDOW (design 1dc92f7): fixed 60vh VOD match list with a 320px minimum so spacer geometry is stable during bounded window refills."
     },
     {
       "source": "dashboard/src/lib/accountApi.test.ts",
@@ -309,14 +375,16 @@
     {
       "source": "dashboard/src/lib/accountApi.ts",
       "destination": "src/lib/accountApi.ts",
-      "sha256": "82a7e19e0b6b93bb71b58e4c66bd1d542d53ff951f91f107c9a93239c275c20c"
+      "sha256": "82a7e19e0b6b93bb71b58e4c66bd1d542d53ff951f91f107c9a93239c275c20c",
+      "extracted_sha256": "0b9dad1476d9f86287b3dd67afeea63ecbb6576c30a24c10b42fc631d586b7f0",
+      "reason": "ADM-002 account-owned v2 management and approved design adoption; original extraction checksum retained. Remove request timeouts for the retired /sync and /playback endpoints."
     },
     {
       "source": "dashboard/src/lib/api.ts",
       "destination": "src/lib/api.ts",
       "sha256": "438b3880fef796f0dd18c9d8deb78e22c4624cf0d96c74748bd92892f8dcdca8",
-      "extracted_sha256": "3fcfa309ac8a1db0d9e4c3741b21142581b464b9be2f65b6552071cbfe601c62",
-      "reason": "Re-pinned: cleanup commit 534b3cb deleted the unimported Media, Catalog, Channel and Status types."
+      "extracted_sha256": "e9df84f4946b93fbca8f6e102c35b9f6b021c67d95aef4172daa2eeaa818e140",
+      "reason": "Re-pinned: cleanup commit 534b3cb deleted the unimported Media, Catalog, Channel and Status types. ADM-002 account-owned v2 management and approved design adoption; original extraction checksum retained."
     },
     {
       "source": "dashboard/src/lib/utils.ts",
@@ -326,14 +394,16 @@
     {
       "source": "dashboard/src/main.tsx",
       "destination": "src/main.tsx",
-      "sha256": "d85779447040c12c2e9285f87300b8e8d55f7c06180bdeffa0d23db2f4e64f73"
+      "sha256": "d85779447040c12c2e9285f87300b8e8d55f7c06180bdeffa0d23db2f4e64f73",
+      "extracted_sha256": "45493c0268f98efd1a4cdd3b60eca0b8e6384f376d41772bc94721e685be9e22",
+      "reason": "ADM-002 account-owned v2 management and approved design adoption; original extraction checksum retained."
     },
     {
       "source": "dashboard/src/shared.tsx",
       "destination": "src/shared.tsx",
       "sha256": "a0f49f9017b001ef6bf74f6f5aafc9a01a78bddf66b5002fa398d1bfeb5705ee",
-      "extracted_sha256": "e6c3116fa88e9b6d780b737868d864a68846f9ad333f0069bbabef8fabf08fe7",
-      "reason": "Re-pinned: cleanup commit 534b3cb added the single shared words() helper."
+      "extracted_sha256": "f548dff833359b6f169d88217f63c6e908e68b9cf58ac2135be771b9fe110158",
+      "reason": "Re-pinned: cleanup commit 534b3cb added the single shared words() helper. ADM-002 account-owned v2 management and approved design adoption; original extraction checksum retained. ADM-002 account-owned v2 management and approved design adoption; original extraction checksum retained. ADM-002 account-owned v2 management and approved design adoption; original extraction checksum retained. Suppress protected portals during parent challenges without discarding owning-component draft state."
     },
     {
       "source": "dashboard/tsconfig.json",
@@ -343,7 +413,9 @@
     {
       "source": "dashboard/vite.config.ts",
       "destination": "vite.config.ts",
-      "sha256": "04bf7d4b796efe3e7b6ff49c4fa5379cd69fdec1387367ce73bf10b06de0cdb3"
+      "sha256": "04bf7d4b796efe3e7b6ff49c4fa5379cd69fdec1387367ce73bf10b06de0cdb3",
+      "extracted_sha256": "afd37fac67cd4ebe0a080f9a2a119f81830bf119ff8e37eb83e220a63c601bd0",
+      "reason": "Register Testing Library DOM cleanup after every Vitest test (no globals)."
     }
   ],
   "packaging_changes": [

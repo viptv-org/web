@@ -20,11 +20,10 @@ export function createAccountClient(onExpired: () => void) {
     const initialRevision = refreshRevision;
     const send = async (): Promise<T> => {
       const controller = new AbortController(); controllers.add(controller);
-      const timeout = path.endsWith('/sync') ? 180000 : path === '/playback' ? 70000 : 45000;
       try {
         const response = await fetch(`/api${path}`, {
           method, credentials: 'include', cache: 'no-store',
-          signal: AbortSignal.any([controller.signal, AbortSignal.timeout(timeout), ...(signal ? [signal] : [])]),
+          signal: AbortSignal.any([controller.signal, AbortSignal.timeout(45000), ...(signal ? [signal] : [])]),
           headers: { ...(body !== undefined ? { 'Content-Type': 'application/json' } : {}), ...(method !== 'GET' && csrf ? { 'X-CSRF-Token': csrf } : {}) },
           ...(body !== undefined ? { body: JSON.stringify(body) } : {}),
         });
@@ -38,6 +37,8 @@ export function createAccountClient(onExpired: () => void) {
           ['/auth/login', '/auth/recover'].includes(path) ? 'Sign-in or recovery failed. Check your details and try again.' : path === '/auth/register' ? 'Account creation failed. Check your details and try again.' : displayError(record?.error, response.status),
           response.status, typeof record?.error_code === 'string' ? record.error_code : undefined,
         );
+        if (method === 'GET' && (/^\/(profiles|devices|accounts)(?:\?|$)/.test(path) || /^\/profiles\/[^/]+\/approvals(?:\?|$)/.test(path)) && !Array.isArray(data))
+          throw new Error('The server returned an invalid account list. Try again or update the server.');
         acceptCsrf(data, response);
         return data as T;
       } finally { controllers.delete(controller); }

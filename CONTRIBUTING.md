@@ -7,7 +7,7 @@ Thanks for your interest. VIPTV is a multi-repository product; this repository o
 1. Product behavior starts in [viptv-org/design](https://github.com/viptv-org/design). Read the pinned `DESIGN_REF` commit before changing screens; record proposed UX changes in design first.
 2. Search this repository's GitHub Issues before opening a new one.
 3. Never commit credentials, tokens, provider URLs or user data; keep screenshots out of the repository.
-4. Validate before pushing: `npm run test`, `npm run build` (includes the design snapshot check and a strict TypeScript build).
+4. Validate before pushing: `npm test -- --run`, `npm run build` (includes the design snapshot check and a strict TypeScript build) and `python3 scripts/verify-migration.py`.
 
 ## License
 

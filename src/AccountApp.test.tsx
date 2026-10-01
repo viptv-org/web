@@ -17,12 +17,15 @@ describe('public account-only dashboard',()=>{
  it('sends an already authenticated activation link directly to confirmation',async()=>{history.replaceState({},'','/activate?code=READY123');const f=baseFetch({authenticated:true});f.mockImplementation(async(url:string,init?:RequestInit)=>url==='/api/device/lookup'?json({device_name:'Bedroom Roku'}):baseFetch({authenticated:true})(url,init));vi.stubGlobal('fetch',f);render(<AccountApp/>);expect(await screen.findByText('Bedroom Roku')).toBeInTheDocument();expect(screen.queryByRole('heading',{name:'Sign in'})).not.toBeInTheDocument()});
  it('patches imported profile presentation while preserving its ID',async()=>{const imported=[{id:'42',name:'Default',setup_complete:false}];const f=baseFetch({profiles:imported});vi.stubGlobal('fetch',f);render(<AccountApp/>);await login();expect(await screen.findByRole('heading',{name:'Make this profile yours'})).toBeInTheDocument();fireEvent.change(screen.getByLabelText('Profile name'),{target:{value:'Owner'}});fireEvent.click(screen.getByRole('button',{name:'Save profile'}));await waitFor(()=>expect(f).toHaveBeenCalledWith('/api/profiles/42',expect.objectContaining({method:'PATCH',body:'{"name":"Owner","avatar_style":"critters","setup_complete":true}'})))});
  it('restores only a server-selected profile without browser storage',async()=>{const f=baseFetch({authenticated:true});f.mockImplementation(async(url:string,init?:RequestInit)=>url==='/api/auth/me'?json({account:{id:'a1',name:'Alex',username:'alex',role:'member'},profile_id:'p1'}):baseFetch({authenticated:true})(url,init));const stored=vi.spyOn(Storage.prototype,'setItem');vi.stubGlobal('fetch',f);render(<AccountApp/>);expect(await screen.findByRole('navigation',{name:'Main navigation'})).toBeInTheDocument();expect(screen.getByText('Viewer',{selector:'span'})).toBeInTheDocument();expect(stored).not.toHaveBeenCalled()});
- it('shows grouped settings and retains owner administration',async()=>{const f=baseFetch({authenticated:true});f.mockImplementation(async(url:string,init?:RequestInit)=>url==='/api/auth/me'?json({account:{id:'a1',name:'Owner',username:'owner',role:'owner'},can_create_profile:true}):baseFetch({authenticated:true})(url,init));vi.stubGlobal('fetch',f);render(<AccountApp/>);fireEvent.click(await screen.findByRole('button',{name:'Viewer'}));await screen.findByRole('navigation',{name:'Main navigation'});fireEvent.click(screen.getByRole('button',{name:'Account'}));expect(await screen.findByRole('heading',{name:'Signed-in televisions'})).toBeInTheDocument();expect(screen.getByRole('button',{name:'Providers'})).toBeInTheDocument();expect(screen.getByRole('button',{name:'Manage profiles'})).toBeInTheDocument()});
+ it('shows account-owned connections and separate device/operator sections without retired setup',async()=>{const f=baseFetch({authenticated:true});f.mockImplementation(async(url:string,init?:RequestInit)=>url==='/api/auth/me'?json({account:{id:'a1',name:'Owner',username:'owner',role:'owner'},can_create_profile:true}):baseFetch({authenticated:true})(url,init));vi.stubGlobal('fetch',f);render(<AccountApp/>);fireEvent.click(await screen.findByRole('button',{name:'Viewer'}));await screen.findByRole('navigation',{name:'Main navigation'});expect(screen.getByRole('button',{name:'Xtream connections'})).toBeInTheDocument();expect(screen.getByRole('button',{name:'Gateway grants'})).toBeInTheDocument();expect(screen.queryByRole('button',{name:'Family lineup'})).not.toBeInTheDocument();expect(screen.queryByRole('button',{name:'Service setup'})).not.toBeInTheDocument();expect(screen.getByRole('button',{name:'Manage profiles'})).toBeInTheDocument();fireEvent.click(screen.getByRole('button',{name:'Devices'}));expect(await screen.findByRole('heading',{name:'Signed-in televisions'})).toBeInTheDocument()});
  it('shows members account addons and requires logout confirmation',async()=>{
  const f=baseFetch({authenticated:true});vi.stubGlobal('fetch',f);render(<AccountApp/>);
  fireEvent.click(await screen.findByRole('button',{name:'Viewer'}));
  await screen.findByRole('navigation',{name:'Main navigation'});
- expect(screen.getByRole('button',{name:'Addons'})).toBeInTheDocument();
+ expect(screen.getByRole('button',{name:'Add-ons'})).toBeInTheDocument();
+ expect(screen.getByRole('button',{name:'Xtream connections'})).toBeInTheDocument();
+ expect(screen.getByRole('button',{name:'VOD matches'})).toBeInTheDocument();
+ expect(screen.queryByRole('button',{name:'Accounts'})).not.toBeInTheDocument();
  expect(screen.queryByRole('button',{name:'Providers'})).not.toBeInTheDocument();
  expect(screen.queryByRole('button',{name:'Discover'})).not.toBeInTheDocument();
  fireEvent.click(screen.getByRole('button',{name:'Sign out'}));
@@ -72,6 +75,8 @@ it('discards account content and returns to profile selection when policy change
  return baseFetch({authenticated:true})(url,init);
  });
  vi.stubGlobal('fetch',f);render(<AccountApp/>);
+ await screen.findByRole('navigation');
+ fireEvent.click(screen.getByRole('button',{name:'Devices'}));
  expect(await screen.findByRole('button',{name:'Viewer'})).toBeInTheDocument();
  expect(screen.queryByRole('navigation')).not.toBeInTheDocument();
 });

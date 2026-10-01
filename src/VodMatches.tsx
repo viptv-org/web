@@ -1,0 +1,155 @@
+import { useEffect, useRef, useState } from 'react';
+import { Button } from './components/ui/button';
+import { Field, Feedback, Modal } from './shared';
+import { useAction } from './hooks';
+import { useVodWindow } from './useVodWindow';
+import { useProviderNames } from './useProviderNames';
+import { CursorEnd } from './CursorEnd';
+import type { Client } from './lib/api';
+import type { VodMatch } from './lib/v2';
+
+export function VodMatches({ api }: { api: Client }) {
+  const scope = useRef({ api, generation: 0 });
+  if (scope.current.api !== api) scope.current = { api, generation: scope.current.generation + 1 };
+  return <ScopedVodMatches key={scope.current.generation} api={api} />;
+}
+
+function ScopedVodMatches({ api }: { api: Client }) {
+  const saves = useRef(new AbortController());
+  useEffect(() => {
+    saves.current = new AbortController();
+    return () => saves.current.abort();
+  }, []);
+  const providers = useProviderNames(api);
+  const [provider, setProvider] = useState('');
+  const [kind, setKind] = useState('');
+  const [search, setSearch] = useState('');
+  const [query, setQuery] = useState('');
+  const [target, setTarget] = useState<VodMatch>();
+  const [metadataDraft, setMetadataDraft] = useState('');
+  const [typeDraft, setTypeDraft] = useState<'movie'|'series'>('movie');
+  const [first, setFirst] = useState(0);
+  const [rowHeight, setRowHeight] = useState(() => typeof matchMedia === 'function' && matchMedia('(max-width: 767px)').matches ? 184 : 112);
+  const scroll = useRef<HTMLDivElement>(null);
+  const opener = useRef<HTMLButtonElement | undefined>(undefined);
+  const retained = useRef<{ top: number; id: string } | undefined>(undefined);
+  const historyEntry = useRef<string | undefined>(undefined);
+  const savedDialog = useRef(false);
+  const action = useAction();
+  const path = `/v2/iptv/matches?limit=50${provider ? `&provider_id=${encodeURIComponent(provider)}` : ''}${kind ? `&kind=${kind}` : ''}${query ? `&search=${encodeURIComponent(query)}` : ''}`;
+  const result = useVodWindow(api, path, !!target);
+  useEffect(() => { const timer = setTimeout(() => setQuery(search.trim().slice(0, 128)), 250); return () => clearTimeout(timer); }, [search]);
+  useEffect(() => { if (scroll.current) scroll.current.scrollTop = 0; setFirst(0); }, [path]);
+  useEffect(() => {
+    if (typeof matchMedia !== 'function') return;
+    const media = matchMedia('(max-width: 767px)');
+    const update = () => { setRowHeight(media.matches ? 184 : 112); setFirst(0); if (scroll.current) scroll.current.scrollTop = 0; };
+    media.addEventListener('change', update); return () => media.removeEventListener('change', update);
+  }, []);
+  const localFirst = Math.max(0, first - result.base);
+  const start = Math.max(0, Math.min(localFirst - 4, result.items.length - 20));
+  const end = Math.min(result.items.length, start + 20);
+  const outsideWindow = first < result.base || first >= result.base + result.items.length;
+  // Keep retained edge rows visible at the requested position during refill,
+  // without stretching the scalar travelled extent or retaining extra pages.
+  const displayOffset = outsideWindow ? Math.max(0, Math.min(first, result.extent - (end - start))) : result.base + start;
+  const names = new Map(providers.items.map(item => [String(item.id), item.name]));
+  useEffect(() => {
+    if (target || result.loading || result.error || !result.items.length) return;
+    // A scrollbar jump can land inside an evicted spacer. Refill toward it,
+    // one actual adjacent page at a time, without retaining historical pages.
+    if (first < result.base && result.previous) result.back();
+    else if (first >= result.base + result.items.length && result.next) result.more();
+  }, [first, result.base, result.items.length, result.loading, result.error, result.previous, result.next, target, result.back, result.more]);
+  const close = (fromBack = false) => {
+    if (!fromBack && historyEntry.current && history.state?.vodMatchDialog === historyEntry.current) {
+      history.back(); return;
+    }
+    setTarget(undefined);setMetadataDraft(''); if (!savedDialog.current) action.clear(); savedDialog.current = false;
+    requestAnimationFrame(() => {
+      if (retained.current && scroll.current) scroll.current.scrollTop = retained.current.top;
+      if (opener.current?.isConnected) opener.current.focus();
+      else scroll.current?.focus();
+    });
+  };
+  const closeDialog = useRef(close); closeDialog.current = close;
+  const busyNow = useRef(action.busy); busyNow.current = action.busy;
+  useEffect(() => {
+    if (!target) return;
+    const marker = crypto.randomUUID(); historyEntry.current = marker;
+    history.pushState({ ...history.state, vodMatchDialog: marker }, '');
+    const pop = () => {
+      if (busyNow.current) { history.pushState({ ...history.state, vodMatchDialog: marker }, ''); return; }
+      historyEntry.current = undefined; closeDialog.current(true);
+    };
+    window.addEventListener('popstate', pop);
+    return () => {
+      window.removeEventListener('popstate', pop);
+      historyEntry.current = undefined;
+      if (history.state?.vodMatchDialog === marker) history.back();
+    };
+    // One history entry per open dialog: re-run only when it opens or closes,
+    // not when the selected row object is replaced while it stays open.
+  }, [!!target]);
+  return <div>
+    <p className="text-sm text-muted-foreground mb-6">Match your provider’s titles to metadata IDs so the right streams appear for movies and exact episodes.</p>
+    <div className="admin-toolbar">
+      <Field label="Search titles" value={search} maxLength={128} onChange={event => setSearch(event.target.value)} type="search" />
+      <label className="grid gap-2 text-sm font-medium">Provider<select aria-label="Provider" value={provider} onChange={event => setProvider(event.target.value)}><option value="">All providers</option>{providers.items.map(item => <option key={item.id} value={item.id}>{item.name}</option>)}</select></label>
+      <label className="grid gap-2 text-sm font-medium">Type<select aria-label="Type" value={kind} onChange={event => setKind(event.target.value)}><option value="">All types</option><option value="movie">Movie</option><option value="series">Series</option></select></label>
+    </div>
+    <Feedback error={result.error || providers.error} success={!target ? action.success : ''} />
+    {result.error && <Button variant="outline" onClick={result.refreshRequired ? () => { if (scroll.current) scroll.current.scrollTop = 0; setFirst(0); result.reload(); } : result.retry}>{result.refreshRequired ? 'Refresh titles' : 'Try again'}</Button>}
+    {providers.error && <Button variant="outline" onClick={providers.reload}>Try again</Button>}
+    {/* The data-* window measurements are read by backend scripts/check-bounded-vod.js (bounded VOD acceptance). */}
+    <div className="admin-match-scroll" ref={scroll} role="region" aria-label="Unmatched provider titles" tabIndex={0}
+      data-retained-rows={result.items.length} data-retained-pages={result.retainedPages} data-visited-extent={result.extent} data-window-base={result.base} data-cursor-slots={result.cursorSlots}
+      onScroll={event => {
+        const node = event.currentTarget;
+        const index = Math.floor(node.scrollTop / rowHeight); setFirst(index);
+        if (target || result.error) return;
+        if (index <= result.base + 4 && result.previous) result.back();
+        else if (index + Math.ceil(node.clientHeight / rowHeight) + 8 >= result.base + result.items.length) result.more();
+      }}>
+      <div aria-hidden="true" style={{ height: displayOffset * rowHeight }} />
+      {result.items.slice(start, end).map(item => <div className="admin-match-row" data-match-id={item.vod_id} key={item.vod_id}>
+        <div><h3>{item.name}</h3><p>{names.get(String(item.provider_id)) ?? `IPTV connection ${item.provider_id}`} · {item.type === 'series' ? 'Series' : 'Movie'} · {item.year ?? 'Year unavailable'}</p></div>
+        <div className="admin-match-status"><span className="admin-status">{item.matched ? 'Matched' : 'Unmatched'}</span></div>
+        <Button variant="outline" onClick={event => { action.clear(); opener.current = event.currentTarget; retained.current = { top: scroll.current?.scrollTop ?? 0, id: item.vod_id }; setMetadataDraft(item.metadataId??'');setTypeDraft(item.type);setTarget(item); }}>{item.matched ? 'Edit match' : 'Match title'}</Button>
+      </div>)}
+      <div aria-hidden="true" style={{ height: Math.max(0, result.extent - displayOffset - (end - start)) * rowHeight }} />
+      <CursorEnd onLoad={result.more} disabled={!!target || result.loading || !!result.error || !result.next} generation={result.base + result.extent} />
+      {result.loading && <p role="status" className="p-5 text-sm text-muted-foreground">Loading titles…</p>}
+      {!result.loading && !result.items.length && !result.error && <div className="p-8"><h2>{query || provider || kind ? 'No matching titles' : 'No unmatched titles'}</h2><p className="text-sm text-muted-foreground mt-2">Try another filter, or wait for your provider’s next catalog refresh.</p></div>}
+    </div>
+    <Modal open={!!target} onOpenChange={open => { if (!open && !action.busy) close(); }} title="Match to metadata" description={target?.name ?? 'Choose a metadata ID for this title.'}>
+      {target && <form className="grid gap-4" onSubmit={event => {
+        event.preventDefault(); const form = event.currentTarget;
+        if (!form.reportValidity() || action.busy) return;
+        const fields = new FormData(form);
+        const chosen = target;
+        const controller = saves.current;
+        void action.run(async () => {
+          const attempt = new AbortController();
+          const signal = AbortSignal.any([controller.signal, attempt.signal]);
+          let timer: ReturnType<typeof setTimeout> | undefined;
+          try {
+            await Promise.race([
+              api('/v2/iptv/matches', 'PUT', { vod_id: chosen.vod_id, metadata_id: String(fields.get('metadata_id')).trim(), type: fields.get('type') }, signal),
+              new Promise<never>((_, reject) => { timer = setTimeout(() => { reject(new Error('Save timed out. Try again.')); attempt.abort(); }, 30_000); }),
+            ]);
+          } finally { clearTimeout(timer); }
+          if (controller.signal.aborted) return;
+          result.setItems(items => items.map(item => item.vod_id === chosen.vod_id ? { ...item, type: fields.get('type') as 'movie'|'series', matched: true, metadataId: String(fields.get('metadata_id')).trim() } : item));
+          savedDialog.current = true;
+          close();
+        }, 'Metadata match saved');
+      }}>
+        <Field label="Metadata ID" name="metadata_id" value={metadataDraft} onChange={event=>setMetadataDraft(event.target.value)} placeholder="tt0133093" required maxLength={256} autoFocus />
+        <label className="grid gap-2 text-sm font-medium">Type<select aria-label="Type" name="type" value={typeDraft} onChange={event=>setTypeDraft(event.target.value as 'movie'|'series')}><option value="movie">Movie</option><option value="series">Series</option></select></label>
+        <Feedback error={action.error} />
+        <div className="flex flex-wrap gap-3"><Button type="submit" disabled={action.busy}>{action.busy ? 'Saving…' : 'Save match'}</Button><Button type="button" variant="outline" disabled={action.busy} onClick={() => close()}>Cancel</Button></div>
+      </form>}
+    </Modal>
+  </div>;
+}
