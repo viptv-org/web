@@ -6,7 +6,8 @@
       "source": "dashboard/.gitignore",
       "destination": ".gitignore",
       "sha256": "af01f416f1ab806cf3e4e1ede29a16702e1718c45c7539604a760b2eb8d27858",
-      "extracted_sha256": "599c7d393af2a0e5976fdad8dacbe65b8ff69867746087154b9903b3b6978e9e"
+      "extracted_sha256": "db4f121fe4013c7a4bf0f0e62c4db89ff2d399c702e3eeb1707375f34d14ddf6",
+      "reason": "Ignore a symlinked node_modules worktree link as well as a directory."
     },
     {
       "source": "dashboard/ACCOUNTS.md",
@@ -351,8 +352,8 @@
       "source": "dashboard/src/index.css",
       "destination": "src/index.css",
       "sha256": "c6bee3e42b6496a10d0f5eb7f91e5f721f457f545ae031e6133d4192f994fbca",
-      "extracted_sha256": "38220748bc6ec3b9cdbc41047557642e9b25b72638607b458423e095f15c58b3",
-      "reason": "Graphite dark-theme port to the pinned design tokens (design 59c9664) ADM-002 account-owned v2 management and approved design adoption; original extraction checksum retained. ADM-002 account-owned v2 management and approved design adoption; original extraction checksum retained. ADM-002 account-owned v2 management and approved design adoption; original extraction checksum retained."
+      "extracted_sha256": "79459562a51d15a18634d7e79613cdfb07bb38b5ab957b651e0d98fd40495748",
+      "reason": "Graphite dark-theme port to the pinned design tokens (design 59c9664) ADM-002 account-owned v2 management and approved design adoption; original extraction checksum retained. ADM-002 account-owned v2 management and approved design adoption; original extraction checksum retained. ADM-002 account-owned v2 management and approved design adoption; original extraction checksum retained. ADM-002-VOD-WINDOW (design 1dc92f7): fixed 60vh VOD match list with a 320px minimum so spacer geometry is stable during bounded window refills."
     },
     {
       "source": "dashboard/src/lib/accountApi.test.ts",
@@ -400,7 +401,9 @@
     {
       "source": "dashboard/vite.config.ts",
       "destination": "vite.config.ts",
-      "sha256": "04bf7d4b796efe3e7b6ff49c4fa5379cd69fdec1387367ce73bf10b06de0cdb3"
+      "sha256": "04bf7d4b796efe3e7b6ff49c4fa5379cd69fdec1387367ce73bf10b06de0cdb3",
+      "extracted_sha256": "afd37fac67cd4ebe0a080f9a2a119f81830bf119ff8e37eb83e220a63c601bd0",
+      "reason": "Register Testing Library DOM cleanup after every Vitest test (no globals)."
     }
   ],
   "packaging_changes": [
