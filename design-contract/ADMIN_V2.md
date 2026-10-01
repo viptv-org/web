@@ -46,6 +46,52 @@ that row without refreshing the entire catalog and return focus to its opener.
 Cancel/Back/Escape perform no mutation and restore the originating row. Empty
 copy is `No unmatched titles` and filtered-empty copy is `No matching titles`.
 
+### ADM-002-VOD-WINDOW — bounded bidirectional browsing
+
+Status: proposed for web issue 5; functional and rendered acceptance pending.
+Applies only to the account/admin VOD matches list at 390x844 and 1440x900.
+Retain the visual contract above: native labelled Search titles, Provider and
+Type controls; compact rows; existing dialog and focus ring. Desktop rows are
+112px tall and phone rows 184px tall in a 60vh scrolling region (minimum 320px).
+Long names wrap within the fixed row without horizontal overflow. No new assets.
+
+- Follow every owned-provider metadata page before treating the selection as
+  complete, including providers beyond the first 200. Keep raw provider IDs as
+  option values. During loading retain available options; a failed metadata page
+  shows its safe cause with `Try again`, preserving the selected filter.
+- Retain at most three 50-title pages (150 rows), with at most 20 row elements.
+  Evict from the opposite edge; retain only scalar visited extent and the three
+  pages' cursor metadata. Scroll spacers preserve the travelled range. Scrolling
+  back reloads evicted pages via ownership/filter/catalog-revision-scoped opaque
+  reverse cursors. No exact-total count, full-catalog copy or historical page map.
+- Near either edge load the adjacent page automatically; keyboard Page Up/Down,
+  arrows and touch scrolling use the same region. A jump into an evicted spacer
+  refills toward the requested position one adjacent page at a time. Keep
+  existing rows visible while pending. Announce local `Loading titles…` status.
+  A failure preserves rows and position; `Try again` retries the failed direction.
+  A stale catalog requires refreshing the list instead of silently skipping rows.
+- Search (250ms debounce), Provider or Type changes cancel old requests and
+  reset list position. Account changes cancel pending reads and saves, clear
+  prior-account rows/provider options/dialog state, and never apply late results.
+- Opening `Match title`/`Edit match` freezes paging and retains filters, position
+  and its opener. Tab follows the visual controls and rows. Escape, Cancel and
+  browser Back close an idle or failed match dialog, make no save, and restore
+  position and opener focus. While `Saving…`, disable Cancel/Escape/Back until
+  the request settles; a submitted save cannot be undone by dismissing its dialog.
+  Bound a stalled save to 30 seconds, then retain edits with an actionable
+  timeout and retry. Save errors retain edits; success updates only that row and
+  announces `Metadata match saved`. If a removed opener cannot regain focus,
+  focus the labelled list region. No hold/repeat-only actions are introduced.
+
+Acceptance IDs: VOD-WINDOW-01 traverses a synthetic encrypted 100k-title catalog
+forward and backward with no omitted/duplicate rows and the stated row/DOM and
+cursor bounds; VOD-WINDOW-02 selects the 208th owned provider and excludes foreign
+providers; VOD-WINDOW-03 covers filter cancellation, retry, stale revision and
+account change; VOD-WINDOW-04 covers modal edit/save/error/Cancel/Escape/Back and
+scroll/focus restoration at both reference sizes. Record real trusted-HTTPS
+backend, functional, visual and browser/device evidence separately. Browser
+viewports do not establish physical phone acceptance or production deployment.
+
 ## Other interaction requirements
 
 - Add-on rows show the declared icon with a safe placeholder, name and enabled
@@ -63,4 +109,6 @@ copy is `No unmatched titles` and filtered-empty copy is `No matching titles`.
 
 Acceptance: every account/operator route at 390x844 and 1440x900; keyboard/modal
 return; slow/error/empty data; secret redaction; protected-account transitions;
-VOD paging with 100k backend rows and bounded DOM; no viewing-client redesign.
+VOD paging with 100k backend rows and bounded DOM. This document scopes the
+account/admin app; viewing-client UI changes are permitted under the updated
+BE-002 scope and their owning design contracts.

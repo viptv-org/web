@@ -20,11 +20,10 @@ export function createAccountClient(onExpired: () => void) {
     const initialRevision = refreshRevision;
     const send = async (): Promise<T> => {
       const controller = new AbortController(); controllers.add(controller);
-      const timeout = path.endsWith('/sync') ? 180000 : path === '/playback' ? 70000 : 45000;
       try {
         const response = await fetch(`/api${path}`, {
           method, credentials: 'include', cache: 'no-store',
-          signal: AbortSignal.any([controller.signal, AbortSignal.timeout(timeout), ...(signal ? [signal] : [])]),
+          signal: AbortSignal.any([controller.signal, AbortSignal.timeout(45000), ...(signal ? [signal] : [])]),
           headers: { ...(body !== undefined ? { 'Content-Type': 'application/json' } : {}), ...(method !== 'GET' && csrf ? { 'X-CSRF-Token': csrf } : {}) },
           ...(body !== undefined ? { body: JSON.stringify(body) } : {}),
         });

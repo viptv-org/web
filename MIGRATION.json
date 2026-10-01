@@ -6,7 +6,8 @@
       "source": "dashboard/.gitignore",
       "destination": ".gitignore",
       "sha256": "af01f416f1ab806cf3e4e1ede29a16702e1718c45c7539604a760b2eb8d27858",
-      "extracted_sha256": "599c7d393af2a0e5976fdad8dacbe65b8ff69867746087154b9903b3b6978e9e"
+      "extracted_sha256": "db4f121fe4013c7a4bf0f0e62c4db89ff2d399c702e3eeb1707375f34d14ddf6",
+      "reason": "Ignore a symlinked node_modules worktree link as well as a directory."
     },
     {
       "source": "dashboard/ACCOUNTS.md",
@@ -17,8 +18,8 @@
       "source": "dashboard/README.md",
       "destination": "README.md",
       "sha256": "ff64e3d40c4f1e80ce6c2b8329a306094e4e91b09c96277b6dbe414ede7ab173",
-      "extracted_sha256": "0023aae1b6a1df64865086770361be589d575b05517117fbafa9c48e9d50232e",
-      "reason": "Document the Link your TV page and its separate design snapshot. ADM-002 account-owned v2 management and approved design adoption; original extraction checksum retained. ADM-002 account-owned v2 management and approved design adoption; original extraction checksum retained. Document in-memory parent-challenge draft preservation and authority-based discard."
+      "extracted_sha256": "f6b1a9fbd7273bd471e74014ba5e09d9c277922e4c2b5bb97eeabcb15a2a4364",
+      "reason": "Document the Link your TV page and its separate design snapshot. ADM-002 account-owned v2 management and approved design adoption; original extraction checksum retained. ADM-002 account-owned v2 management and approved design adoption; original extraction checksum retained. Document in-memory parent-challenge draft preservation and authority-based discard. Document the bounded VOD window, auto-loading lists and local-only checks under the 2026-09-27 delivery policy."
     },
     {
       "source": "dashboard/components.json",
@@ -57,8 +58,8 @@
       "source": "dashboard/src/AccountApp.tsx",
       "destination": "src/AccountApp.tsx",
       "sha256": "081aad698b244cd0564b34ff45387fe84188255c58c7cb3f5a2f25901ee13979",
-      "extracted_sha256": "209ceec00d4cd7781edb20c7eb7b00b0cea7a2a51f704d19e0b1232da6ec2e23",
-      "reason": "Route code-free device links through the designed code-entry page. ADM-002 account-owned v2 management and approved design adoption; original extraction checksum retained. Preserve same-profile drafts during parent authorization while masking protected presentation and requests."
+      "extracted_sha256": "cb195c3eeb71c5bcb91e60e4419fcb7cc7478fe366ba468404eb3035adbfcfc3",
+      "reason": "Route code-free device links through the designed code-entry page. ADM-002 account-owned v2 management and approved design adoption; original extraction checksum retained. Preserve same-profile drafts during parent authorization while masking protected presentation and requests. Remove dead and duplicated code: shared v2 cursor/ID validators, one row validation pass in the paging hooks, useAction as the single pending-action guard."
     },
     {
       "source": "dashboard/src/AccountPools.test.tsx",
@@ -85,8 +86,8 @@
       "source": "dashboard/src/AccountScreens.tsx",
       "destination": "src/AccountScreens.tsx",
       "sha256": "8ba4784b3fbcc3294bde89396542ffd710bd661e0a41a93ef0576e95a130e443",
-      "extracted_sha256": "fb4bb1a13fb4a1de0b443f162d15fc30178bfade17d8f1dd6a5fccdad6bd7ffa",
-      "reason": "Re-pinned: changed by the RUI-027 centered-authentication work after this extraction, not by the cleanup commit. ADM-002 account-owned v2 management and approved design adoption; original extraction checksum retained."
+      "extracted_sha256": "b8109b46a8927879a033231936ebd6cdc7ad2f9d2fdbd968e39727b628c1925c",
+      "reason": "Re-pinned: changed by the RUI-027 centered-authentication work after this extraction, not by the cleanup commit. ADM-002 account-owned v2 management and approved design adoption; original extraction checksum retained. Remove dead and duplicated code: shared v2 cursor/ID validators, one row validation pass in the paging hooks, useAction as the single pending-action guard."
     },
     {
       "source": "dashboard/src/AddonSettings.tsx",
@@ -198,24 +199,30 @@
     {
       "source": "dashboard/src/MyList.test.tsx",
       "destination": "src/MyList.test.tsx",
-      "sha256": "1d0caa8661fef50bd7abb16f34e2f8aacf582ed3ba5444d679d07ae70657699e"
+      "sha256": "1d0caa8661fef50bd7abb16f34e2f8aacf582ed3ba5444d679d07ae70657699e",
+      "extracted_sha256": "67efab548cf24d1bd12b6aa96d2c057cf2872e2eb077d5f0328b900c3a74a550",
+      "reason": "Replace manual Previous/Next pagers with auto-loading offset windows (at most 100 retained rows; approvals 1,000) per the design system loading rules."
     },
     {
       "source": "dashboard/src/MyList.tsx",
       "destination": "src/MyList.tsx",
-      "sha256": "c696c0a97ce8faa3f2109102173f0f6cde5b72f2f46dbdef460060fa057df0a1"
+      "sha256": "c696c0a97ce8faa3f2109102173f0f6cde5b72f2f46dbdef460060fa057df0a1",
+      "extracted_sha256": "ded0789348f88cc348d649452c6919b6ff23de34aca6dd6b6f16d25821859bc0",
+      "reason": "Replace manual Previous/Next pagers with auto-loading offset windows (at most 100 retained rows; approvals 1,000) per the design system loading rules."
     },
     {
       "source": "dashboard/src/ParentalControls.test.tsx",
       "destination": "src/ParentalControls.test.tsx",
-      "sha256": "8eb76e594c9caf357169ed95252c7c27992978d30503fbe240a11b7b86b3639f"
+      "sha256": "8eb76e594c9caf357169ed95252c7c27992978d30503fbe240a11b7b86b3639f",
+      "extracted_sha256": "edb53670c4d2583d7944dfc20ef1db8d6343518cd81d90ffbf2482b60e1318ee",
+      "reason": "Replace manual Previous/Next pagers with auto-loading offset windows (at most 100 retained rows; approvals 1,000) per the design system loading rules."
     },
     {
       "source": "dashboard/src/ParentalControls.tsx",
       "destination": "src/ParentalControls.tsx",
       "sha256": "56bab4363961f5303f3382759215f7f926506b17937ddb9c3b860ae73e4f442d",
-      "extracted_sha256": "0c80b391cce30976ef990f197560b8d8635d9d3cf98ff52d329f3ca77d37cead",
-      "reason": "ADM-002 account-owned v2 management and approved design adoption; original extraction checksum retained. Bound duplicate PIN submissions and restore PIN focus after rejected authorization."
+      "extracted_sha256": "96943eaf3ffbe33419ee0a9a5f64cc38b79d2af44e15fdeed8c16d200aeb6014",
+      "reason": "ADM-002 account-owned v2 management and approved design adoption; original extraction checksum retained. Bound duplicate PIN submissions and restore PIN focus after rejected authorization. Replace manual Previous/Next pagers with auto-loading offset windows (at most 100 retained rows; approvals 1,000) per the design system loading rules."
     },
     {
       "source": "dashboard/src/PlaybackPreferences.test.tsx",
@@ -286,23 +293,29 @@
       "source": "dashboard/src/ViewingHistory.test.tsx",
       "destination": "src/ViewingHistory.test.tsx",
       "sha256": "9cce2bbd016b7cc3eb0a9025da505ae20cad58d9536251b0a8ce15ea1cdf280c",
-      "extracted_sha256": "98725153280ba75bf957146379fbfae0688ed0decbd2ecd453c3729869691cf9",
-      "reason": "ADM-002 account-owned v2 management and approved design adoption; original extraction checksum retained."
+      "extracted_sha256": "fe798253f1b431f4f3f8088d69a99c569b056d053fdab418589243b63ae226c8",
+      "reason": "ADM-002 account-owned v2 management and approved design adoption; original extraction checksum retained. Replace manual Previous/Next pagers with auto-loading offset windows (at most 100 retained rows; approvals 1,000) per the design system loading rules."
     },
     {
       "source": "dashboard/src/ViewingHistory.tsx",
       "destination": "src/ViewingHistory.tsx",
-      "sha256": "773031d906a77971a584b3de16235a070fd6f399c033442945f7fc565db9b0da"
+      "sha256": "773031d906a77971a584b3de16235a070fd6f399c033442945f7fc565db9b0da",
+      "extracted_sha256": "968175d3ebd6b0da10fb206af407e5075bee973abee6671a64c6af141d88f18e",
+      "reason": "Replace manual Previous/Next pagers with auto-loading offset windows (at most 100 retained rows; approvals 1,000) per the design system loading rules."
     },
     {
       "source": "dashboard/src/ViewingQueue.test.tsx",
       "destination": "src/ViewingQueue.test.tsx",
-      "sha256": "40094ac53dbb8f56c9a041d94a505fb1e6d7dd6c365ddfc2376270bc0b17a760"
+      "sha256": "40094ac53dbb8f56c9a041d94a505fb1e6d7dd6c365ddfc2376270bc0b17a760",
+      "extracted_sha256": "f2d43c80513210915e29ea8633c24965eee3b78ddf5dc9e6f2b17e1f2c36e917",
+      "reason": "Replace manual Previous/Next pagers with auto-loading offset windows (at most 100 retained rows; approvals 1,000) per the design system loading rules."
     },
     {
       "source": "dashboard/src/ViewingQueue.tsx",
       "destination": "src/ViewingQueue.tsx",
-      "sha256": "b2336368cc9c56b3c8bf44b8f3ea75cc3813af9be674e8d3119fe1561579c463"
+      "sha256": "b2336368cc9c56b3c8bf44b8f3ea75cc3813af9be674e8d3119fe1561579c463",
+      "extracted_sha256": "8cce2e2a886c0db351bf5a609d6c287e38af1f91e2d291c5b4a6b2feede265a1",
+      "reason": "Replace manual Previous/Next pagers with auto-loading offset windows (at most 100 retained rows; approvals 1,000) per the design system loading rules."
     },
     {
       "source": "dashboard/src/components/ui/button.tsx",
@@ -344,15 +357,15 @@
       "source": "dashboard/src/hooks.ts",
       "destination": "src/hooks.ts",
       "sha256": "f15ac2ae444870a59b751b08261565140718a92cc1322a110d6721c3c35aeab9",
-      "extracted_sha256": "bd4c9d8fed253acc46729dc96d6f51216509eaf03194c5054671ad169b0bdaa1",
-      "reason": "ADM-002 account-owned v2 management and approved design adoption; original extraction checksum retained."
+      "extracted_sha256": "5d4840d50dd7ec46f5f98057702860f38f5cbff4c83a5591fa5c77838efe0dd2",
+      "reason": "ADM-002 account-owned v2 management and approved design adoption; original extraction checksum retained. Remove dead and duplicated code: shared v2 cursor/ID validators, one row validation pass in the paging hooks, useAction as the single pending-action guard."
     },
     {
       "source": "dashboard/src/index.css",
       "destination": "src/index.css",
       "sha256": "c6bee3e42b6496a10d0f5eb7f91e5f721f457f545ae031e6133d4192f994fbca",
-      "extracted_sha256": "38220748bc6ec3b9cdbc41047557642e9b25b72638607b458423e095f15c58b3",
-      "reason": "Graphite dark-theme port to the pinned design tokens (design 59c9664) ADM-002 account-owned v2 management and approved design adoption; original extraction checksum retained. ADM-002 account-owned v2 management and approved design adoption; original extraction checksum retained. ADM-002 account-owned v2 management and approved design adoption; original extraction checksum retained."
+      "extracted_sha256": "79459562a51d15a18634d7e79613cdfb07bb38b5ab957b651e0d98fd40495748",
+      "reason": "Graphite dark-theme port to the pinned design tokens (design 59c9664) ADM-002 account-owned v2 management and approved design adoption; original extraction checksum retained. ADM-002 account-owned v2 management and approved design adoption; original extraction checksum retained. ADM-002 account-owned v2 management and approved design adoption; original extraction checksum retained. ADM-002-VOD-WINDOW (design 1dc92f7): fixed 60vh VOD match list with a 320px minimum so spacer geometry is stable during bounded window refills."
     },
     {
       "source": "dashboard/src/lib/accountApi.test.ts",
@@ -363,8 +376,8 @@
       "source": "dashboard/src/lib/accountApi.ts",
       "destination": "src/lib/accountApi.ts",
       "sha256": "82a7e19e0b6b93bb71b58e4c66bd1d542d53ff951f91f107c9a93239c275c20c",
-      "extracted_sha256": "b9f30812221efe2aca3269465cc7daa04a59b868168ddae3630ccdd91f060794",
-      "reason": "ADM-002 account-owned v2 management and approved design adoption; original extraction checksum retained."
+      "extracted_sha256": "0b9dad1476d9f86287b3dd67afeea63ecbb6576c30a24c10b42fc631d586b7f0",
+      "reason": "ADM-002 account-owned v2 management and approved design adoption; original extraction checksum retained. Remove request timeouts for the retired /sync and /playback endpoints."
     },
     {
       "source": "dashboard/src/lib/api.ts",
@@ -400,7 +413,9 @@
     {
       "source": "dashboard/vite.config.ts",
       "destination": "vite.config.ts",
-      "sha256": "04bf7d4b796efe3e7b6ff49c4fa5379cd69fdec1387367ce73bf10b06de0cdb3"
+      "sha256": "04bf7d4b796efe3e7b6ff49c4fa5379cd69fdec1387367ce73bf10b06de0cdb3",
+      "extracted_sha256": "afd37fac67cd4ebe0a080f9a2a119f81830bf119ff8e37eb83e220a63c601bd0",
+      "reason": "Register Testing Library DOM cleanup after every Vitest test (no globals)."
     }
   ],
   "packaging_changes": [

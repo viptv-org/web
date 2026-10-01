@@ -2,8 +2,9 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import type { Client } from './lib/api';
 import { cursorPage } from './lib/v2';
 
-/** Transport paging only. Renderers virtualize retained rows and never request a total. */
-export function useCursorResource<T>(api: Client, path: string, keyOf?: (item: T) => string) {
+/** Transport paging only. Each page and its rows (via `row`) are validated once here. */
+export function useCursorResource<T>(api: Client, path: string, keyOf?: (item: T) => string, row?: (value: unknown) => T) {
+  const decodeRow = useRef(row); decodeRow.current = row;
   const [items, setItems] = useState<T[]>([]);
   const [next, setNext] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
@@ -36,7 +37,7 @@ export function useCursorResource<T>(api: Client, path: string, keyOf?: (item: T
     priorPath.current = path;
     void api<unknown>(path, 'GET', undefined, scope.signal).then(value => {
       if (scope.signal.aborted || ticket !== generation.current) return;
-      const page = cursorPage<T>(value);
+      const page = cursorPage<T>(value, 50, decodeRow.current);
       if (!page.items.length && page.next_cursor !== null) throw new Error('The server interrupted a catalog page. Reload to continue.');
       rowKeys.current = validateRows(page.items, new Set());
       consumed.current = new Set();
@@ -53,7 +54,7 @@ export function useCursorResource<T>(api: Client, path: string, keyOf?: (item: T
     pending.current = true; setLoading(true); setError('');
     void api<unknown>(`${path}&cursor=${encodeURIComponent(next)}`, 'GET', undefined, scope.signal).then(value => {
       if (scope.signal.aborted || ticket !== generation.current) return;
-      const page = cursorPage<T>(value);
+      const page = cursorPage<T>(value, 50, decodeRow.current);
       if (!page.items.length && page.next_cursor !== null || page.next_cursor === next || page.next_cursor !== null && consumed.current.has(page.next_cursor)) throw new Error('The server repeated or interrupted a catalog page. Reload to continue.');
       const keys = validateRows(page.items, rowKeys.current);
       consumed.current.add(next); for (const key of keys) rowKeys.current.add(key);
