@@ -1,8 +1,8 @@
 {
   "repository": "viptv-org/design",
-  "revision": "1dc92f7b4a571df00f89cc3915aaf1165a42bf94",
+  "revision": "43761ee552f04e3a97543086c3cd5d13533bdb49",
   "files": {
-    "design-contract/ADMIN_V2.md": "dc3ce44dd83da52f1d7a7619a7886dd7c5fcfec796842b01481e62b7195f2cd8",
+    "design-contract/ADMIN_V2.md": "8995f710c153eeb63b207ccaec7e547b6532f2018dafacf9be8d12431eb9a277",
     "design-contract/BACKEND_V2.md": "8794930eeac6c0ef65f0ba2d9a3554848344c8ac922216697aadb2cf6fd625f8",
     "design-contract/viptv-design-system/tokens/tokens.json": "3c502ddf30eb838d0de2955a319716bf309f062c0ee420771b5d4a36688ffd10",
     "design-contract/viptv-design-system/tokens/tokens.css": "32794f535fcef19114ce1aa5f1957341760413580c60865f28ee4f864dbba1b8"

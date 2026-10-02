@@ -45,3 +45,13 @@ export function ParentalControls({api,profiles,onChanged}:{api:Client;profiles:P
  const r=useResource<ParentStatus>(api,'/parent/status');const[profile,setProfile]=useState(profiles[0]?.id??'');
  return <Card className="space-y-6 p-4 sm:p-6"><h2 className="text-lg font-semibold">Parental controls</h2><Resource {...r}>{r.data&&<><PinSettings api={api} configured={r.data.pin_configured} onSaved={r.reload}/><label className="grid gap-2">Manage kids profile<select className={fieldClass} value={profile} onChange={e=>setProfile(e.target.value)}>{profiles.map(item=><option key={item.id} value={item.id}>{item.name}</option>)}</select></label>{profile&&<ProfileKids key={profile} api={api} profile={profile} configured={r.data.pin_configured} onChanged={onChanged}/>}</>}</Resource></Card>
 }
+
+export function AccountParentPin({api}:{api:Client}){
+ const r=useResource<ParentStatus>(api,'/parent/status');
+ return <Card className="space-y-6 p-4 sm:p-6"><h2 className="text-lg font-semibold">Household PIN</h2><p className="text-sm text-muted-foreground">Shared across your account's profiles. Content restrictions are managed in each profile's settings.</p><Resource {...r}>{r.data&&<PinSettings api={api} configured={r.data.pin_configured} onSaved={r.reload}/>}</Resource></Card>
+}
+
+export function ProfileParentalControls({api,profile,onChanged,onAccountSettings}:{api:Client;profile:string;onChanged?:()=>Promise<void>;onAccountSettings:()=>void}){
+ const r=useResource<ParentStatus>(api,'/parent/status');
+ return <Card className="space-y-6 p-4 sm:p-6"><h2 className="text-lg font-semibold">Profile content restrictions</h2><Resource {...r}>{r.data&&<>{!r.data.pin_configured&&<div className="space-y-3"><p>Set a household PIN in Account settings to enable kids mode.</p><Button type="button" variant="outline" onClick={onAccountSettings}>Open account settings</Button></div>}<ProfileKids key={profile} api={api} profile={profile} configured={r.data.pin_configured} onChanged={onChanged}/></>}</Resource></Card>
+}

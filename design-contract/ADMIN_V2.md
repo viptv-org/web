@@ -31,6 +31,52 @@ activation while preserving their tested authentication state machines, URL code
 handoff, cookie/CSRF rules and session revocation. No new application login mode.
 Configuration forms never pre-fill stored secrets; replacement is explicit.
 
+## ADM-003 — Profile and account navigation
+
+Status: owner-requested dashboard refinement, specified before implementation
+on 2026-10-01. This applies to the account dashboard, not viewing-client Settings.
+
+The first navigation group is **Your profile**: **Profile settings**, **Continue
+Watching**, **My List**, **History**. The next group is **Your account**:
+**Account settings**, **Import from Stremio**, **Devices**, **Add-ons**, **Xtream
+connections**, **VOD matches**, **Gateways**. Keep the separate owner-only
+**Operator** group below both. Use the same order in the mobile drawer.
+
+After selecting/restoring a profile, open Profile settings. Show its avatar,
+name and **Manage profiles**, playback preferences and that selected profile's
+content restrictions/approved titles. Profile subtitles say **For [profile]**;
+playback copy says **Applies to this profile on every device. Manual track
+choices keep priority. A preferred language is used when available.** Switching
+profile replaces all profile forms and data; never reuse another profile's draft.
+
+Account settings shows account identity and household PIN settings. Account
+pages say **Shared across your account's profiles**; operator pages say
+**Operator settings**. Replace the ambiguous universal **Managing [profile]**.
+Content restrictions and approved titles are profile scoped; the household PIN
+is account scoped. Do not put both into an unlabeled form or silently edit the
+first profile. The Profile settings restriction form always addresses the
+selected profile. With no household PIN, retain the existing disabled kids-mode
+state and direct the user to Account settings to configure the PIN.
+
+Import from Stremio has its own account navigation entry. Its intro says
+**Viewing data goes to [profile]. Selected add-ons are shared across your
+account's profiles.** Keep the existing destination confirmation and optional
+add-on stage; navigation grouping does not grant permissions or apply an import.
+
+Use existing ADM-002 dimensions, controls and palette. No new assets or hold
+behavior. Tab order follows Profile, Account, Operator; ordinary click/Enter
+navigates. Close the mobile drawer after selection. Back/Escape closes its
+existing modal and restores the opener. Restricted-profile parent authorization,
+session expiry and destructive-action confirmation remain unchanged.
+
+Acceptance: ADM-SCOPE-01 verifies group/order/default page and distinct subtitles
+at 390x844 and 1440x900; ADM-SCOPE-02 verifies profile preference/restriction
+writes use the selected profile and replacement discards prior forms;
+ADM-SCOPE-03 verifies account configuration and household PIN remain shared,
+imports clearly describe their mixed destinations, and member users never see
+operator entries; ADM-SCOPE-04 covers drawer selection/return focus, parent
+unlock, expiry and slow/error states. Browser evidence does not qualify hardware.
+
 ## VOD matches
 
 Keep the feature. Present Provider, Type, Title, Year, Match status and an action.

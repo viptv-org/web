@@ -51,15 +51,15 @@
       "source": "dashboard/src/AccountApp.test.tsx",
       "destination": "src/AccountApp.test.tsx",
       "sha256": "d823ea805b37d020916231da4c64bebe4d822d5648c7955efa6c4b0dc3ea7596",
-      "extracted_sha256": "7b6101dd2d75aee0f8afbd159c57f6e426b195d68f6dfa86a5abe361c838086c",
-      "reason": "Cover code entry and the existing sign-in handoff. ADM-002 account-owned v2 management and approved design adoption; original extraction checksum retained."
+      "extracted_sha256": "0dd866948bf5ac0c7d4a40e67800c029a98454b1d9c2caf914021e16065c3c29",
+      "reason": "Cover code entry and the existing sign-in handoff. ADM-002 account-owned v2 management and approved design adoption; original extraction checksum retained. ADM-003 selected-profile forms and explicit account scope; original extraction hash retained."
     },
     {
       "source": "dashboard/src/AccountApp.tsx",
       "destination": "src/AccountApp.tsx",
       "sha256": "081aad698b244cd0564b34ff45387fe84188255c58c7cb3f5a2f25901ee13979",
-      "extracted_sha256": "f144854c66dea0d64b414fc5bfa6f3950499519e947ce2f2d3a61085f80d2f49",
-      "reason": "Route code-free device links through the designed code-entry page. ADM-002 account-owned v2 management and approved design adoption; original extraction checksum retained. Preserve same-profile drafts during parent authorization while masking protected presentation and requests. Remove dead and duplicated code: shared v2 cursor/ID validators, one row validation pass in the paging hooks, useAction as the single pending-action guard. IMP-001 adds profile-scoped Stremio preview and explicit confirmation; IMP-002 scopes addon-assisted named review and item exclusions to the selected profile."
+      "extracted_sha256": "0fc054c83ab77b9feaad790742827a67b59f3d5a558a15f5e51fdb249fea11ee",
+      "reason": "Route code-free device links through the designed code-entry page. ADM-002 account-owned v2 management and approved design adoption; original extraction checksum retained. Preserve same-profile drafts during parent authorization while masking protected presentation and requests. Remove dead and duplicated code: shared v2 cursor/ID validators, one row validation pass in the paging hooks, useAction as the single pending-action guard. IMP-001 adds profile-scoped Stremio preview and explicit confirmation; IMP-002 scopes addon-assisted named review and item exclusions to the selected profile. ADM-003 selected-profile forms and explicit account scope; original extraction hash retained."
     },
     {
       "source": "dashboard/src/AccountPools.test.tsx",
@@ -221,8 +221,8 @@
       "source": "dashboard/src/ParentalControls.tsx",
       "destination": "src/ParentalControls.tsx",
       "sha256": "56bab4363961f5303f3382759215f7f926506b17937ddb9c3b860ae73e4f442d",
-      "extracted_sha256": "96943eaf3ffbe33419ee0a9a5f64cc38b79d2af44e15fdeed8c16d200aeb6014",
-      "reason": "ADM-002 account-owned v2 management and approved design adoption; original extraction checksum retained. Bound duplicate PIN submissions and restore PIN focus after rejected authorization. Replace manual Previous/Next pagers with auto-loading offset windows (at most 100 retained rows; approvals 1,000) per the design system loading rules."
+      "extracted_sha256": "57944ccc92ef107b77ea05484d9233d7bdecf2dbf2d98752219c9d5f509c9242",
+      "reason": "ADM-002 account-owned v2 management and approved design adoption; original extraction checksum retained. Bound duplicate PIN submissions and restore PIN focus after rejected authorization. Replace manual Previous/Next pagers with auto-loading offset windows (at most 100 retained rows; approvals 1,000) per the design system loading rules. ADM-003 selected-profile forms and explicit account scope; original extraction hash retained."
     },
     {
       "source": "dashboard/src/PlaybackPreferences.test.tsx",
@@ -235,8 +235,8 @@
       "source": "dashboard/src/PlaybackPreferences.tsx",
       "destination": "src/PlaybackPreferences.tsx",
       "sha256": "6212b4e7a4188e3b0e954b11a526f93efba7312cc5dcec928dfdaae4437db480",
-      "extracted_sha256": "46f19538b4737512c488376d49c156b93f3628b2f94cd206ee0d574e8140e1d0",
-      "reason": "ADM-002 account-owned v2 management and approved design adoption; original extraction checksum retained."
+      "extracted_sha256": "02c6e008c78ad365596a3c8161ad3f40c2ae8a9ca6c5995038c86617dfb461f5",
+      "reason": "ADM-002 account-owned v2 management and approved design adoption; original extraction checksum retained. ADM-003 selected-profile forms and explicit account scope; original extraction hash retained."
     },
     {
       "source": "dashboard/src/ProfileManagement.test.tsx",

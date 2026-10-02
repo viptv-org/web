@@ -7,6 +7,39 @@ const json=(data:unknown,status=200)=>new Response(JSON.stringify(data),{status}
 afterEach(()=>{cleanup();vi.restoreAllMocks();vi.unstubAllGlobals();history.replaceState({},'','/');localStorage.clear();sessionStorage.clear()});
 function baseFetch({authenticated=false,profiles=[{id:'p1',name:'Viewer',avatar_style:'critters',avatar_seed:'v'}]}:{authenticated?:boolean;profiles?:any[]}={}){return vi.fn(async(url:string,init?:RequestInit)=>{if(url==='/api/auth/status')return json({authenticated,csrf_token:'anon'});if(url==='/api/auth/login'||url==='/api/auth/register')return json({csrf_token:'session'});if(url==='/api/auth/me')return json({account:{id:'a1',name:'Alex',username:'alex',role:'member'},can_create_profile:true});if(url==='/api/profiles'&&init?.method==='POST'){const created={id:'new',name:'Kid',avatar_style:'pixel-art',avatar_seed:'kid'};profiles.push(created);return json(created)}if(url==='/api/profiles')return json(profiles);if(url==='/api/catalogs')return json([]);if(url.startsWith('/api/discover'))return json({metas:[]});if(url==='/api/devices')return json([]);return json({})})}
 async function login(){fireEvent.change(await screen.findByLabelText('Username'),{target:{value:'alex'}});fireEvent.change(screen.getByLabelText('Password'),{target:{value:'long-password'}});fireEvent.click(screen.getByRole('button',{name:'Sign in'}))}
+it('separates selected-profile forms from shared account settings and import destinations',async()=>{
+ const profiles=[{id:'p1',name:'First'},{id:'p2',name:'Selected'}];
+ const base=baseFetch({authenticated:true,profiles});
+ const f=vi.fn(async(url:string,init?:RequestInit)=>{
+  if(url==='/api/auth/me')return json({account:{id:'a1',name:'Alex',username:'alex',role:'member'},profile_id:'p2'});
+  if(url==='/api/parent/status')return json({pin_configured:true,unlocked:true,restricted:false});
+  if(url==='/api/profiles/p2/preferences')return json({audio_language:'en',subtitle_language:'en',subtitles_enabled:true,subtitle_size:'normal',subtitle_style:'system',autoplay:false});
+  if(url==='/api/profiles/p2/kids')return json({enabled:false,max_age:12});
+  if(url.startsWith('/api/profiles/p2/kids/approved'))return json([]);
+  return base(url,init);
+ });
+ vi.stubGlobal('fetch',f);render(<AccountApp/>);
+ expect(await screen.findByRole('heading',{name:'Profile settings'})).toBeInTheDocument();
+ const nav=screen.getByRole('navigation',{name:'Main navigation'});
+ expect(within(nav).getAllByRole('heading').map(h=>h.textContent)).toEqual(['Your profile','Your account']);
+ expect(screen.getByText('For Selected')).toBeInTheDocument();
+ expect(screen.queryByLabelText('New PIN')).not.toBeInTheDocument();
+ fireEvent.change(await screen.findByLabelText('Preferred audio'),{target:{value:'es'}});
+ fireEvent.click(screen.getByRole('button',{name:'Save preferences'}));
+ await waitFor(()=>expect(f).toHaveBeenCalledWith('/api/profiles/p2/preferences',expect.objectContaining({method:'PUT',body:expect.stringContaining('"audio_language":"es"')})));
+ fireEvent.change(await screen.findByLabelText('Maximum age'),{target:{value:'10'}});
+ fireEvent.click(screen.getByRole('button',{name:'Save kids settings'}));
+ await waitFor(()=>expect(f).toHaveBeenCalledWith('/api/profiles/p2/kids',expect.objectContaining({method:'PUT',body:'{"enabled":false,"max_age":10}'})));
+ expect(f.mock.calls.some(([url])=>url.startsWith('/api/profiles/p1/'))).toBe(false);
+ fireEvent.click(within(nav).getByRole('button',{name:'Account settings'}));
+ expect(await screen.findByLabelText('New PIN')).toBeInTheDocument();
+ expect(screen.queryByLabelText('Preferred audio')).not.toBeInTheDocument();
+ expect(screen.queryByLabelText('Maximum age')).not.toBeInTheDocument();
+ expect(screen.getByText("Shared across your account's profiles",{selector:'header p'})).toBeInTheDocument();
+ fireEvent.click(within(nav).getByRole('button',{name:'Import from Stremio'}));
+ expect(await screen.findByLabelText('Stremio email')).toBeInTheDocument();
+ expect(screen.getByText(/Viewing data goes to/)).toHaveTextContent("Viewing data goes to Selected. Selected add-ons are shared across your account's profiles.");
+});
 describe('public account-only dashboard',()=>{
  it('starts an unlinked TV at code entry, then carries the code through sign-in',async()=>{history.replaceState({},'','/device');const f=baseFetch();f.mockImplementation(async(url:string,init?:RequestInit)=>url==='/api/device/lookup'?json({device_name:'Living room TV'}):baseFetch()(url,init));vi.stubGlobal('fetch',f);render(<AccountApp/>);expect(screen.getByRole('heading',{name:'Link your TV'})).toBeInTheDocument();expect(f).not.toHaveBeenCalled();fireEvent.click(screen.getByRole('button',{name:'Link TV'}));expect(screen.getByRole('alert')).toHaveTextContent('Enter the 6–12 character code');fireEvent.change(screen.getByLabelText('Code'),{target:{value:'ab12cd34'}});fireEvent.click(screen.getByRole('button',{name:'Link TV'}));expect(location.pathname+location.search).toBe('/device?code=AB12CD34');await screen.findByRole('heading',{name:'Sign in'});await login();expect(await screen.findByText('Living room TV')).toBeInTheDocument()});
  it('offers sign in and public registration with no legacy token path',async()=>{const f=baseFetch();vi.stubGlobal('fetch',f);render(<AccountApp/>);expect(await screen.findByRole('heading',{name:'Sign in'})).toBeInTheDocument();fireEvent.click(screen.getByRole('button',{name:'Create account'}));expect(screen.getByRole('heading',{name:'Create your account'})).toBeInTheDocument();expect(screen.queryByText(/legacy/i)).not.toBeInTheDocument();expect(screen.queryByLabelText(/token/i)).not.toBeInTheDocument()});
