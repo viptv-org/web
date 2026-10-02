@@ -58,8 +58,8 @@
       "source": "dashboard/src/AccountApp.tsx",
       "destination": "src/AccountApp.tsx",
       "sha256": "081aad698b244cd0564b34ff45387fe84188255c58c7cb3f5a2f25901ee13979",
-      "extracted_sha256": "cb195c3eeb71c5bcb91e60e4419fcb7cc7478fe366ba468404eb3035adbfcfc3",
-      "reason": "Route code-free device links through the designed code-entry page. ADM-002 account-owned v2 management and approved design adoption; original extraction checksum retained. Preserve same-profile drafts during parent authorization while masking protected presentation and requests. Remove dead and duplicated code: shared v2 cursor/ID validators, one row validation pass in the paging hooks, useAction as the single pending-action guard."
+      "extracted_sha256": "f144854c66dea0d64b414fc5bfa6f3950499519e947ce2f2d3a61085f80d2f49",
+      "reason": "Route code-free device links through the designed code-entry page. ADM-002 account-owned v2 management and approved design adoption; original extraction checksum retained. Preserve same-profile drafts during parent authorization while masking protected presentation and requests. Remove dead and duplicated code: shared v2 cursor/ID validators, one row validation pass in the paging hooks, useAction as the single pending-action guard. IMP-001 adds profile-scoped Stremio preview and explicit confirmation; IMP-002 scopes addon-assisted named review and item exclusions to the selected profile."
     },
     {
       "source": "dashboard/src/AccountPools.test.tsx",
@@ -370,21 +370,23 @@
     {
       "source": "dashboard/src/lib/accountApi.test.ts",
       "destination": "src/lib/accountApi.test.ts",
-      "sha256": "9b3fd9ddf7627b539163e3b48534826c6b7400a2a0961dfbd48b2739715e3f92"
+      "sha256": "9b3fd9ddf7627b539163e3b48534826c6b7400a2a0961dfbd48b2739715e3f92",
+      "extracted_sha256": "3759fe4f54e571a3d633cb75a1dd404445b8874c3f9b2f499f0038e559fb9b91",
+      "reason": "Test the account client's safe Stremio add-on verification failure handles through an HTTP error response; original extraction checksum retained."
     },
     {
       "source": "dashboard/src/lib/accountApi.ts",
       "destination": "src/lib/accountApi.ts",
       "sha256": "82a7e19e0b6b93bb71b58e4c66bd1d542d53ff951f91f107c9a93239c275c20c",
-      "extracted_sha256": "0b9dad1476d9f86287b3dd67afeea63ecbb6576c30a24c10b42fc631d586b7f0",
-      "reason": "ADM-002 account-owned v2 management and approved design adoption; original extraction checksum retained. Remove request timeouts for the retired /sync and /playback endpoints."
+      "extracted_sha256": "a23c8b3f891461884f5140bd0a67a0167bdb2e708cc88904be4009fc0b78d97e",
+      "reason": "ADM-002 account-owned v2 management and approved design adoption; original extraction checksum retained. Remove request timeouts for the retired /sync and /playback endpoints. Preserve validated safe Stremio add-on verification error handles."
     },
     {
       "source": "dashboard/src/lib/api.ts",
       "destination": "src/lib/api.ts",
       "sha256": "438b3880fef796f0dd18c9d8deb78e22c4624cf0d96c74748bd92892f8dcdca8",
-      "extracted_sha256": "e9df84f4946b93fbca8f6e102c35b9f6b021c67d95aef4172daa2eeaa818e140",
-      "reason": "Re-pinned: cleanup commit 534b3cb deleted the unimported Media, Catalog, Channel and Status types. ADM-002 account-owned v2 management and approved design adoption; original extraction checksum retained."
+      "extracted_sha256": "f2021519fbdb67294c7f66e745cb662c2eb6bdb035238d9a2efd6bb72709e0e3",
+      "reason": "Re-pinned: cleanup commit 534b3cb deleted the unimported Media, Catalog, Channel and Status types. ADM-002 account-owned v2 management and approved design adoption; original extraction checksum retained. Carry validated safe Stremio add-on verification error handles."
     },
     {
       "source": "dashboard/src/lib/utils.ts",

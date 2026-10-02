@@ -37,4 +37,15 @@ describe('cookie account client', () => {
  it('rejects stale successful replies after credentials are cleared', async () => {
   let resolve!:(value:Response)=>void;vi.stubGlobal('fetch',vi.fn(()=>new Promise<Response>(done=>{resolve=done;})));const c=createAccountClient(vi.fn());const pending=c.api('/profiles');c.clear();resolve(json([{id:1,name:'old'}]));await expect(pending).rejects.toMatchObject({name:'AbortError'});
  });
+ it('retains only safe failed add-on handles from a Stremio review HTTP error', async () => {
+  const handle='synthetic_addon_123456789';
+  const response={error_code:'stremio_addon_unavailable',error:'private https://source.invalid/token=secret',failed_addon_items:[handle,handle,'https://private.invalid',42,'x'.repeat(129)]};
+  const f=vi.fn(async()=>json(response,502));vi.stubGlobal('fetch',f);
+  const client=createAccountClient(vi.fn());
+  await expect(client.api('/profiles/2/imports/stremio/synthetic_preview_123456789/review','POST',{selected_addons:[handle]})).rejects.toMatchObject({
+   errorCode:'stremio_addon_unavailable',failedAddonItems:[handle],message:'An add-on could not be verified. Change your add-on choices and try again.'
+  });
+  await expect(client.api('/profiles/2/imports/stremio/preview','POST',{})).rejects.toMatchObject({failedAddonItems:[]});
+  expect(f).toHaveBeenCalledTimes(2);
+ });
 });

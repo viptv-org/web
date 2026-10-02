@@ -1,5 +1,6 @@
 import {ParentalControls,ParentUnlock} from './ParentalControls';
 import {PlaybackPreferences} from "./PlaybackPreferences";
+import {StremioImport} from './StremioImport';
 import {useCallback,useEffect,useMemo,useRef,useState} from 'react';
 import {Card,CardContent,CardHeader,CardTitle} from '@/components/ui/card';
 import {Button} from '@/components/ui/button';
@@ -85,7 +86,7 @@ export default function AccountApp(){
  const selected=profiles.find(item=>item.id===profile);
  return <><ProtectedPresentation.Provider value={needsParent}><div hidden={needsParent} inert={needsParent} aria-hidden={needsParent||undefined}><AdminShell page={page} owner={owner} profile={selected?.name} navigate={setPage} signOut={logout}>
   <Feedback error={error}/><section key={`${identity?.id}:${profile}:${page}`}>
-   {page==='Account'&&<div className="space-y-6"><Card><CardHeader><CardTitle>{identity?.name??identity?.username}</CardTitle></CardHeader><CardContent className="space-y-4"><p>@{identity?.username} · {owner?'Owner':'Member'}</p><div className="flex min-w-0 flex-wrap items-center gap-4"><ProfileAvatar profile={selected??{name:'Profile'}} size="small"/><span className="min-w-0 flex-1 break-words [overflow-wrap:anywhere]">{selected?.name}</span><Button className="w-full sm:w-auto" variant="outline" onClick={()=>{setProfile('');void action(loadProfiles)}}>Manage profiles</Button></div></CardContent></Card><PlaybackPreferences key={profile} api={scopedApi} profile={profile}/><ParentalControls api={scopedApi} profiles={profiles} onChanged={async()=>{const data=normalizeMe(await api<Me>('/auth/me'));setMe(data);setProfiles(await api<Profile[]>('/profiles'))}}/></div>}
+   {page==='Account'&&<div className="space-y-6"><Card><CardHeader><CardTitle>{identity?.name??identity?.username}</CardTitle></CardHeader><CardContent className="space-y-4"><p>@{identity?.username} · {owner?'Owner':'Member'}</p><div className="flex min-w-0 flex-wrap items-center gap-4"><ProfileAvatar profile={selected??{name:'Profile'}} size="small"/><span className="min-w-0 flex-1 break-words [overflow-wrap:anywhere]">{selected?.name}</span><Button className="w-full sm:w-auto" variant="outline" onClick={()=>{setProfile('');void action(loadProfiles)}}>Manage profiles</Button></div></CardContent></Card><PlaybackPreferences key={profile} api={scopedApi} profile={profile}/><StremioImport key={`import:${profile}`} api={scopedApi} profile={profile} profileName={selected?.name??'Selected profile'} restricted={me?.restricted===true} onManageAddons={()=>setPage('Add-ons')}/><ParentalControls api={scopedApi} profiles={profiles} onChanged={async()=>{const data=normalizeMe(await api<Me>('/auth/me'));setMe(data);setProfiles(await api<Profile[]>('/profiles'))}}/></div>}
    {page==='Devices'&&<DeviceManagement api={scopedApi}/>}
    {page==='History'&&<ViewingHistory key={profile} api={scopedApi} profile={profile}/>}
    {page==='My List'&&<MyList key={profile} api={scopedApi} profile={profile}/>}

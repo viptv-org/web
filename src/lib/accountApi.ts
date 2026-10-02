@@ -9,6 +9,8 @@ export function createAccountClient(onExpired: () => void) {
   let refresh: Promise<void> | undefined;
   const controllers = new Set<AbortController>();
   const publicPaths = new Set(['/auth/status', '/auth/login', '/auth/register', '/auth/recover', '/auth/refresh', '/auth/logout']);
+  const safeAddonHandles = (value: unknown): string[] => Array.isArray(value) && value.length <= 100
+    ? [...new Set(value.filter((item): item is string => typeof item === 'string' && /^[A-Za-z0-9_-]{16,128}$/.test(item)))] : [];
   const acceptCsrf = (data: unknown, response?: Response) => {
     const value = data && typeof data === 'object' ? (data as Record<string, unknown>).csrf_token : undefined;
     const header = response?.headers.get('X-CSRF-Token');
@@ -33,10 +35,14 @@ export function createAccountClient(onExpired: () => void) {
         catch { throw new Error('The server returned an unexpected response.'); }
         if (owner !== epoch || signal?.aborted) throw new DOMException('Cancelled', 'AbortError');
         const record = data && typeof data === 'object' ? data as Record<string, unknown> : undefined;
-        if (!response.ok) throw new ApiError(
-          ['/auth/login', '/auth/recover'].includes(path) ? 'Sign-in or recovery failed. Check your details and try again.' : path === '/auth/register' ? 'Account creation failed. Check your details and try again.' : displayError(record?.error, response.status),
-          response.status, typeof record?.error_code === 'string' ? record.error_code : undefined,
-        );
+        if (!response.ok) {
+          const errorCode = typeof record?.error_code === 'string' ? record.error_code : undefined;
+          const addonFailure = /^\/profiles\/[^/]+\/imports\/stremio\/[^/]+\/review$/.test(path) && errorCode === 'stremio_addon_unavailable';
+          throw new ApiError(
+            addonFailure ? 'An add-on could not be verified. Change your add-on choices and try again.' : ['/auth/login', '/auth/recover'].includes(path) ? 'Sign-in or recovery failed. Check your details and try again.' : path === '/auth/register' ? 'Account creation failed. Check your details and try again.' : displayError(record?.error, response.status),
+            response.status, errorCode, addonFailure ? safeAddonHandles(record?.failed_addon_items) : [],
+          );
+        }
         if (method === 'GET' && (/^\/(profiles|devices|accounts)(?:\?|$)/.test(path) || /^\/profiles\/[^/]+\/approvals(?:\?|$)/.test(path)) && !Array.isArray(data))
           throw new Error('The server returned an invalid account list. Try again or update the server.');
         acceptCsrf(data, response);
