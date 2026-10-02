@@ -1,5 +1,21 @@
 # Extraction validation
 
+## DEV account settings and Stremio import browser check — 2026-10-01
+
+The DEV dashboard activation succeeded and its public served assets matched the
+reviewed bundle. Browser checks against those assets, with synthetic API
+responses intercepted, passed twelve account-settings states at 1440×900 and
+390×844. They covered the selected-profile default, profile/account group order
+and scoped forms, import-scope wording, and mobile drawer/Escape focus return.
+The public guided Stremio wizard passed fourteen states covering Back/Next,
+optional add-ons, and retry. The dashboard's 126 unit tests and production build
+passed before activation.
+
+DEV activation preserved 90 existing tables, profile and account IDs, sessions,
+encrypted add-ons, and history. These browser checks used fixtures; they do not
+establish a personal Stremio import or hardware behavior. No private data or
+screenshots are included here.
+
 ## Bounded VOD window and auto-loading lists — 2026-09-30
 
 VOD matching follows every owned connection page for the Provider filter (208
