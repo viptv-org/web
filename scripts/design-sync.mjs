@@ -1,7 +1,7 @@
 import { execFileSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
 import { existsSync, mkdirSync, readFileSync, writeFileSync, readdirSync, rmSync } from 'node:fs';
-import { resolve, relative, join } from 'node:path';
+import { resolve, relative, join, sep } from 'node:path';
 const root = resolve(import.meta.dirname, '..');
 const destination = join(root, 'design-contract');
 const hash = (b) => createHash('sha256').update(b).digest('hex');
@@ -26,7 +26,7 @@ if (mode === 'sync') {
     ? JSON.parse(readFileSync(join(destination, 'lock.json'), 'utf8')).files : {};
   for (const path of Object.keys(previous)) {
     const file = resolve(root, path);
-    if (!file.startsWith(destination + '/')) throw new Error('Invalid previous artifact path');
+    if (!file.startsWith(destination + sep)) throw new Error('Invalid previous artifact path');
     if (!entries[path]) rmSync(file, { force: true });
   }
   writeFileSync(join(destination, 'lock.json'), JSON.stringify({ repository: 'viptv-org/design', revision, files: entries }, null, 2) + '\n');
@@ -37,9 +37,9 @@ if (mode === 'sync') {
   if (lock.repository !== 'viptv-org/design' || !/^[a-f0-9]{40}$/.test(lock.revision) || readFileSync(join(root, 'DESIGN_REF'), 'utf8').trim() !== lock.revision) throw new Error('Design pin mismatch');
   for (const [path, expected] of Object.entries(lock.files)) {
     const file = resolve(root, path);
-    if (!file.startsWith(destination + '/') || !existsSync(file) || hash(readFileSync(file)) !== expected) throw new Error(`Design artifact mismatch: ${path}`);
+    if (!file.startsWith(destination + sep) || !existsSync(file) || hash(readFileSync(file)) !== expected) throw new Error(`Design artifact mismatch: ${path}`);
   }
-  const inspect = (dir) => { for (const entry of readdirSync(dir, { withFileTypes: true })) { const file = join(dir, entry.name); if (entry.isDirectory()) { if (relative(root, file) !== 'design-contract/link-tv') inspect(file); } else if (entry.name !== 'lock.json' && !lock.files[relative(root, file)]) throw new Error(`Unpinned design artifact: ${relative(root, file)}`); } };
+  const inspect = (dir) => { for (const entry of readdirSync(dir, { withFileTypes: true })) { const file = join(dir, entry.name); const path = relative(root, file).split(sep).join('/'); if (entry.isDirectory()) { if (path !== 'design-contract/link-tv') inspect(file); } else if (entry.name !== 'lock.json' && !lock.files[path]) throw new Error(`Unpinned design artifact: ${path}`); } };
   if (existsSync(destination)) inspect(destination);
   console.log(`Design token integrity passed: ${lock.revision}`);
 } else throw new Error('Use sync <design-checkout> [revision] or check');
