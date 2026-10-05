@@ -39,7 +39,7 @@ function validReview(value: Preview, profile: string): boolean {
     ids.add(item.item_id);
     if (![item.favorite_action, item.progress_action].every(action => ['add', 'update', 'preserve', 'already_imported', 'none'].includes(action)) || !validCounts(item.counts, rowCountKeys.map(key => [key, key]))) return false;
     if (![item.season, item.episode].every(value => value == null || count(value)) || ![item.position, item.duration].every(value => value == null || (typeof value === 'number' && Number.isFinite(value) && value >= 0 && value <= 1_000_000))) return false;
-    return [item.watched, item.watch_date_known].every(value => value == null || typeof value === 'boolean');
+    return [item.watched, item.watch_date_known, item.completion_only, item.resume_active].every(value => value == null || typeof value === 'boolean');
   });
   return valid && rowCountKeys.every(key => value.review_items.reduce((total, item) => total + item.counts[key], 0) === value.summary[key]);
 }
@@ -203,7 +203,7 @@ export function StremioImport({ api, profile, profileName, restricted = false, o
       <Summary counts={selectedCounts(preview.summary, preview.review_items, excluded)} labels={previewLabels}/>
       <p className="text-sm">New add-ons to register for your account: <strong>{preview.addons_to_add}</strong></p>
       <ItemReview items={preview.review_items} excluded={excluded} onChange={value => { setExcluded(value); setConfirmed(false); }} disabled={!!busy || expired || selectionLocked}/>
-      <p className="text-sm text-muted-foreground">Newer or equal VIPTV history and manual corrections are preserved. Unknown episode watch dates are not invented. Likes/loves are not imported.</p>
+      <p className="text-sm text-muted-foreground">Newer or equal VIPTV activity and manual corrections are preserved. Verified watched marks are added without inventing episode watch dates or changing active resumes. Completion-only entries do not populate Continue Watching. Likes/loves are not imported.</p>
       <div className="flex flex-wrap gap-3"><Button variant="outline" disabled={!!busy || selectionLocked} onClick={() => { setConfirmed(false); setStage(addons ? 'addons' : 'connect'); }}>Back</Button><Button variant="outline" disabled={!!busy} onClick={reset}>{expired ? 'Preview again' : 'Cancel'}</Button><Button disabled={!!busy || expired || !hasScope} onClick={() => { setConfirmed(false); setStage('confirm'); }}>Next: Confirm import</Button></div>
     </section> : stage === 'confirm' && preview ? <section className="space-y-4" aria-busy={busy === 'apply'}>
       <h3 ref={heading} tabIndex={-1} className="font-semibold">Confirm import</h3>
@@ -232,7 +232,7 @@ export function StremioImport({ api, profile, profileName, restricted = false, o
       </fieldset>
       {busy && <p role="status">Reading Stremio for a read-only preview…</p>}
       <div className="flex flex-wrap gap-3"><Button type="submit" disabled={!!busy || blocked}>Next: Choose add-ons</Button>{busy && <Button type="button" variant="outline" onClick={reset}>Cancel</Button>}{onManageAddons && !busy && <Button type="button" variant="outline" onClick={onManageAddons}>Manage existing add-ons</Button>}</div>
-      <p className="text-sm text-muted-foreground">Compatible metadata add-ons help verify titles and episodes; they cannot recover watch dates Stremio did not record. Your password is used for this request only and is not saved by VIPTV.</p>
+      <p className="text-sm text-muted-foreground">Compatible metadata add-ons help verify titles, episodes and watched flags. Watched entries without dates are labelled as imported and do not change Continue Watching. Unverified entries stay for review. Your password is used for this request only and is not saved by VIPTV.</p>
     </form>}</>}
   </CardContent></Card>;
 }

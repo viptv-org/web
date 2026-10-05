@@ -6,7 +6,7 @@ import {Feedback} from './shared';
 import {useAction} from './hooks';
 import {OffsetWindowList,libraryPage,useOffsetWindow} from './OffsetWindow';
 import {safeImage,type Client} from './lib/api';
-export type LibraryItem={id:string;type:string;name:string;poster?:string;position?:number;duration?:number;watched?:boolean;series_id?:string;season?:number;episode?:number};
+export type LibraryItem={id:string;type:string;name:string;poster?:string;position?:number;duration?:number;watched?:boolean;resume_active?:boolean;completion_only?:boolean;watch_date_known?:boolean;series_id?:string;season?:number;episode?:number};
 export const libraryKey=(item:{type:string;id:string})=>`${item.type}:${item.id}`;
 export function LibraryPoster({url}:{url?:string}){const[failed,setFailed]=useState(false);const src=safeImage(url);return <div className="flex h-24 w-16 shrink-0 items-center justify-center overflow-hidden rounded bg-muted text-muted-foreground">{src&&!failed?<img src={src} alt="" loading="lazy" className="h-full w-full object-contain" onError={()=>setFailed(true)}/>:<Film aria-hidden="true"/>}</div>}
 export function MyList({api,profile}:{api:Client;profile:string}){

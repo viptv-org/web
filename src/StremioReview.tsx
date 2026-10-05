@@ -9,7 +9,7 @@ export type ReviewItem = {
   item_id: string; name: string; type: 'movie' | 'series';
   favorite_action: Action; progress_action: Action; status: 'ready' | 'preserved' | 'needs_review';
   reason?: string; season?: number; episode?: number; position?: number; duration?: number;
-  watched?: boolean; watch_date_known?: boolean; counts: Counts; selectable: boolean;
+  watched?: boolean; watch_date_known?: boolean; completion_only?: boolean; resume_active?: boolean; counts: Counts; selectable: boolean;
 };
 export type AddonItem = { item_id: string; name: string; resources: string[]; status: 'add' | 'existing' | 'unavailable'; reason?: string };
 export const rowCountKeys = ['favorites_to_add', 'progress_to_add', 'progress_to_update', 'existing_preserved', 'already_imported'] as const;
@@ -73,7 +73,7 @@ export function ItemReview({ items, excluded, onChange, disabled }: { items: Rev
         <span className="grid min-w-0 gap-2 text-sm"><strong className="break-words [overflow-wrap:anywhere]">{item.name}</strong><span className="text-muted-foreground">{item.type === 'series' ? 'Series' : 'Movie'}{item.season != null && item.episode != null ? ` · Season ${item.season}, episode ${item.episode}` : ''}</span><span className={item.status === 'needs_review' ? 'text-muted-foreground' : ''}>{checked ? states[item.status] : item.selectable ? 'Excluded — will not be imported' : states[item.status]}</span>
           {item.favorite_action !== 'none' && <span>My List: {actions[item.favorite_action]}</span>}{item.progress_action !== 'none' && <span>History/resume: {actions[item.progress_action]}</span>}
           {item.position != null && item.duration != null && item.duration > 0 && <span className="text-muted-foreground">Resume {time(item.position)} of {time(item.duration)}</span>}
-          {item.watched && <span className="text-muted-foreground">Watched{item.watch_date_known === false ? ' · watch date unavailable' : ''}</span>}{item.status === 'needs_review' && <span className="text-muted-foreground">{reasonText(item.reason)}</span>}
+          {item.watched && <span className="text-muted-foreground">Watched{item.resume_active === true ? ' · Rewatch in progress' : ''}{item.watch_date_known === false ? ' · watch date unavailable' : ''}</span>}{item.completion_only === true && <span className="text-muted-foreground">Completion only — does not change Continue Watching</span>}{item.status === 'needs_review' && <span className="text-muted-foreground">{reasonText(item.reason)}</span>}
         </span>
       </label>;
     })}</div>
