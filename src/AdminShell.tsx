@@ -4,7 +4,7 @@ import { Button } from './components/ui/button';
 import { Modal } from './shared';
 
 export const PROFILE_PAGES = ['Profile', 'Continue Watching', 'My List', 'History'] as const;
-export const ACCOUNT_PAGES = ['Account', 'Import from Stremio', 'Devices', 'Add-ons', 'Xtream connections', 'VOD matches', 'Gateways'] as const;
+export const ACCOUNT_PAGES = ['Account', 'Devices', 'Add-ons', 'Xtream connections', 'VOD matches', 'Gateways'] as const;
 export const OPERATOR_PAGES = ['Overview', 'Accounts', 'Gateway grants'] as const;
 export type AdminPage = typeof PROFILE_PAGES[number] | typeof ACCOUNT_PAGES[number] | typeof OPERATOR_PAGES[number];
 const pageLabel = (page: AdminPage) => page === 'Profile' ? 'Profile settings' : page === 'Account' ? 'Account settings' : page;
