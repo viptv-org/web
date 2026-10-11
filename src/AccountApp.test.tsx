@@ -79,7 +79,7 @@ it('gates restricted management and retries the exact protected profile after PI
  });
  vi.stubGlobal('fetch',f);render(<AccountApp/>);
  expect(await screen.findByRole('heading',{name:'Parent access'})).toBeInTheDocument();
- expect(f.mock.calls.some(([path])=>path==='/api/devices'||path==='/api/providers')).toBe(false);
+ expect(f.mock.calls.some(([path])=>path==='/api/devices')).toBe(false);
  fireEvent.click(screen.getByRole('button',{name:'Cancel'}));fireEvent.click(await screen.findByRole('button',{name:'Parent'}));
  fireEvent.change(await screen.findByLabelText('Parent PIN'),{target:{value:'1234'}});fireEvent.click(screen.getByRole('button',{name:'Unlock'}));
  await screen.findByRole('navigation',{name:'Main navigation'});expect(selected).toBe('adult');

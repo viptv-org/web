@@ -9,7 +9,7 @@ const match = (vod_id: string) => ({ vod_id, provider_id: '1', type: 'movie', na
 it('freezes rows when a dialog opens during an adjacent request', async () => {
   let finish!: (value: unknown) => void;
   const api = vi.fn((path: string) => path.includes('cursor') ? new Promise(done => {finish=done;}) : Promise.resolve({items:[match('opener')],next_cursor:'next',previous_cursor:null})) as Client;
-  const {result,rerender}=renderHook(({paused})=>useVodWindow(api,'/matches?limit=50',paused),{initialProps:{paused:false}});
+  const {result,rerender}=renderHook(({paused})=>useVodWindow(api,'/v2/iptv/matches?limit=50',paused),{initialProps:{paused:false}});
   await waitFor(()=>expect(result.current.loading).toBe(false));
   act(()=>result.current.more()); rerender({paused:true});
   await act(async()=>finish({items:[match('later')],next_cursor:null,previous_cursor:null}));
@@ -22,7 +22,7 @@ it('reloads evicted adjacent pages in both directions while retaining only 150 r
     const offset = Number(new URLSearchParams(path.split('?')[1]).get('cursor')?.slice(1) ?? 0);
     return { items: Array.from({length: 50}, (_, i) => (match(String(offset+i)))), next_cursor: `p${offset+50}`, previous_cursor: offset ? `p${offset-50}` : null };
   }) as Client;
-  const {result} = renderHook(() => useVodWindow(api, '/matches?limit=50'));
+  const {result} = renderHook(() => useVodWindow(api, '/v2/iptv/matches?limit=50'));
   await waitFor(() => expect(result.current.loading).toBe(false));
   for (let offset=50; offset<=500; offset+=50) {
     act(() => result.current.more());
@@ -49,7 +49,7 @@ it('preserves the failed direction and rows, and distinguishes a changed catalog
     if(path.includes('cursor') && fail) throw new Error('Temporarily unavailable');
     return {items:[match(path.includes('cursor')?'second':'first')], next_cursor:path.includes('cursor')?null:'next', previous_cursor:null};
   }) as Client;
-  const {result} = renderHook(() => useVodWindow(api, '/matches?limit=50'));
+  const {result} = renderHook(() => useVodWindow(api, '/v2/iptv/matches?limit=50'));
   await waitFor(() => expect(result.current.loading).toBe(false));
   act(() => result.current.more());
   await waitFor(() => expect(result.current.error).toBe('Temporarily unavailable'));
@@ -60,7 +60,7 @@ it('preserves the failed direction and rows, and distinguishes a changed catalog
     if(path.includes('cursor')) throw new ApiError('Catalog changed. Refresh titles.',409,'catalog_changed');
     return {items:[match('fresh')],next_cursor:'next',previous_cursor:null};
   }) as Client;
-  const other = renderHook(() => useVodWindow(changed, '/matches?limit=50'));
+  const other = renderHook(() => useVodWindow(changed, '/v2/iptv/matches?limit=50'));
   await waitFor(() => expect(other.result.current.loading).toBe(false));
   act(() => other.result.current.more());
   await waitFor(() => expect(other.result.current.refreshRequired).toBe(true));
