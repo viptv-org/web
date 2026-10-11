@@ -77,6 +77,42 @@ imports clearly describe their mixed destinations, and member users never see
 operator entries; ADM-SCOPE-04 covers drawer selection/return focus, parent
 unlock, expiry and slow/error states. Browser evidence does not qualify hardware.
 
+## ADM-004 — Profile avatar catalog
+
+Status: owner-requested parity with the viewing clients, specified before
+implementation on 2026-10-11. The account dashboard's Create/Edit profile form
+offers the same avatar catalog as Android, Roku and the TV web client, replacing
+its seven generated style previews.
+
+The catalog is `assets/roku/roku/data/avatar-catalog.json` with its artwork in
+`assets/roku/roku/images/avatar-catalog/` and `avatar-characters/`; the dashboard
+imports these through its design pin and serves them from its own origin. It
+adds no new assets and keeps no copy of the world list, names or counts. A
+selection is the world `avatar_style` plus its 1-based `avatar_choice`.
+
+The form's **Choose an avatar** group shows the copy **[N] avatars. Pick a
+world, then pick your character.**, where N sums every world shown. World chips
+follow catalog order and wrap at 1440px; below 768px they scroll sideways and
+keep the pressed world in view. One grid page shows 15 avatars below 768px and
+18 at 1440px, with **Previous** and **Next** that wrap within the world and a
+**[World] · [page] / [pages]** label. Avatars are radio choices labelled
+**[World] [n]**; the chosen one shows the check badge. Choosing a world shows
+its first page; reopening the form shows the page holding the saved choice.
+
+Saving sends `avatar_choice` only when the user picked an avatar, so profiles
+with an earlier random-seed avatar keep it until changed. A profile shows its
+packaged catalog image when its style and choice resolve; otherwise the existing
+allow-listed `avatar_url`, then initials. Use ADM-002 controls, 44px minimum
+targets and keyboard focus; arrow keys move within the radio grid, and paging
+moves focus to the first avatar. Create/edit errors, parent PIN and busy states
+are unchanged.
+
+Acceptance: ADM-AVATAR-01 verifies every world and the summed count at 390x844
+and 1440x900 with no horizontal page overflow; ADM-AVATAR-02 verifies a
+character and a generated choice save `avatar_style`/`avatar_choice` and render
+on the profile list; ADM-AVATAR-03 verifies editing without choosing preserves
+a legacy avatar and that every catalog choice resolves to served artwork.
+
 ## VOD matches
 
 Keep the feature. Present Provider, Type, Title, Year, Match status and an action.

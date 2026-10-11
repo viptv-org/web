@@ -9,6 +9,9 @@ runtime remains baseline until the acceptance ledger records its replacement.
 - VIPTV owns accounts, profiles, grants, catalogs, source discovery and history.
 - Add-ons and Xtream connections are account-owned. Profile ownership continues
   to protect viewing history, favorites, restrictions and playback preferences.
+- Add-on management uses only `/api/v2/addons`. Paired viewing devices with a
+  selected profile may list, install, enable/disable and remove the account's
+  shared add-ons, as TV settings require; parent restrictions still apply.
 - The independent `playback-gateway` owns authenticated generic media jobs,
   input/output sharing, probing, proxying/remux/transcode and viewer leases.
 - Xtream supplies live, movie and series data. No generic M3U or external XMLTV
@@ -18,7 +21,7 @@ runtime remains baseline until the acceptance ledger records its replacement.
 - Owner scope update, 2026-09-30: UI changes are allowed across affected clients,
   including Android; the earlier backend/logic-only layout restriction is lifted.
   Update affected screens/states and acceptance in design first, then adopt an
-  immutable revision following DESIGN_SYNC.md. Existing product semantics remain
+  immutable revision following ../../docs/process/DESIGN_SYNC.md. Existing product semantics remain
   the baseline; this permission does not itself add deferred features.
 
 ## Playback contract
@@ -27,6 +30,19 @@ The gateway's public contract is independent of VIPTV identifiers. It receives
 an HTTP(S) input, required headers, live/VOD semantics, position and capabilities.
 Input URLs and headers are secrets: no Debug/exception/log representation may
 contain them. Arbitrary command arguments and local file inputs are prohibited.
+
+Proposed additive source contract:
+[SRC-TORRENT-GATEWAY-001](../../specs/behavior/torrent-gateway-sources.md) specifies
+account-owned add-on torrent/archive inputs delivered through existing gateway
+HLS leases on web, desktop and Android. Its proposed input, selection, privacy,
+copy and qualification rules extend this HTTP(S) baseline only after review and
+explicit immutable adoption. The owner-approved
+[SRC-TORRENT-NATIVE-001](../../specs/behavior/torrent-native-android.md) is the narrow
+Android/Android TV native exception: exact-index BitTorrent v1 VOD, separately
+negotiated private grants, public peer/DHT disclosure, bounded cancellation and
+app-private cache authority. It is approved for implementation on 2026-10-06,
+not implemented/qualified or baseline. Other native torrent paths and manual
+input remain deferred; capability stays off until its acceptance gates pass.
 
 `API_KEY` is a bootstrap administration credential. It provisions revocable
 integration keys with authorized namespaces, operation scopes and quotas.
@@ -77,9 +93,16 @@ loopback fixtures are explicit test exceptions. Media authorization
 must cover child playlists, segments, initialization data, subtitles and keys.
 
 VIPTV playback v2 retains a backend playback ID for progress and renewal. Its
-delivery discriminant is `direct` or `gateway`; clients never receive a gateway
-administrative key. The coordinated cutover rejects old media/catalog protocol
-clients with `client_update_required`; authentication need not be rewritten.
+baseline delivery discriminant is `direct` or `gateway`; clients never receive a
+gateway administrative key. SRC-TORRENT-NATIVE-001 adds `native_torrent` only for
+separately negotiated qualified Android requests, with no remote media URL. Its
+closed `GET /api/v2/playback-protocol` negotiation precedes optional native
+capability fields because existing request DTOs are closed. Unsupported servers/
+clients retain the existing HTTP/gateway wire shape. The coordinated cutover
+rejected old media/catalog protocol clients with `client_update_required`;
+after the 2026-10-09 production cutover those retired namespaces and the
+unversioned `/api/addons` routes are removed and answer as unknown routes.
+Authentication need not be rewritten.
 
 ## Xtream, defaults and bounded discovery
 
@@ -112,7 +135,7 @@ default raw playlist. `All channels`, `My channels`, `Recent` and provider
 categories are the existing filters; remove US classification and exact counts.
 Search matches channel names only: placeholder `Search channels`, empty copy
 `No channels match your search.` Playlist swap remains deferred; UI permission
-alone does not introduce that feature. Other screen changes follow DESIGN_SYNC.md.
+alone does not introduce that feature. Other screen changes follow ../../docs/process/DESIGN_SYNC.md.
 
 Opaque next/previous cursors carry the same catalog/filter/profile/generation
 binding. Remote page transitions keep the selected time slot and return to the

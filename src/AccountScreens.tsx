@@ -1,24 +1,25 @@
 import viptvMark from "./assets/viptv-mark.png";
-import {useEffect, useState} from 'react';
+import {useEffect, useRef, useState} from 'react';
 import {Card} from '@/components/ui/card';
 import {Button} from '@/components/ui/button';
 import {Field, Feedback, Resource, Submit, Empty} from './shared';
 import {useAction, useResource} from './hooks';
 import {encode, type Client, type Profile} from './lib/api';
+import {AVATAR_COUNT, AVATAR_WORLDS, avatarWorld, catalogAvatarUrl} from './avatarCatalog';
 
-export const AVATAR_STYLES = ['critters', 'pixel-art', 'pixel-art-neutral', 'moods', 'thumbs', 'lorelei', 'notionists'] as const;
-export type AvatarStyle = typeof AVATAR_STYLES[number];
-const STYLE_NAMES: Record<AvatarStyle, string> = {critters:'Critter', 'pixel-art':'Pixel hero', 'pixel-art-neutral':'Pixel pal', moods:'Mood', thumbs:'Character', lorelei:'Friend', notionists:'Explorer'};
+const AVATAR_STYLES = ['critters', 'pixel-art', 'pixel-art-neutral', 'moods', 'thumbs', 'lorelei', 'notionists'];
+/** A catalog world plus, once the user picks one, its 1-based choice (ADM-004). */
+export type AvatarSelection = {style: string; choice?: number};
 export function avatarUrl(style?: string, seed?: string) {
-  if (!AVATAR_STYLES.includes(style as AvatarStyle) || !seed || !/^[A-Za-z0-9_-]{1,80}$/.test(seed)) return undefined;
+  if (!AVATAR_STYLES.includes(style ?? '') || !seed || !/^[A-Za-z0-9_-]{1,80}$/.test(seed)) return undefined;
   return `https://api.dicebear.com/10.x/${style}/png?seed=${encodeURIComponent(seed)}&size=256`;
 }
-export function ProfileAvatar({profile, size='large'}: {profile: Pick<Profile,'name'|'avatar_style'|'avatar_seed'|'avatar_url'>; size?: 'small'|'large'}) {
+export function ProfileAvatar({profile, size='large'}: {profile: Pick<Profile,'name'|'avatar_style'|'avatar_choice'|'avatar_seed'|'avatar_url'>; size?: 'small'|'large'}) {
   const [failed, setFailed] = useState(false);
   const generated = avatarUrl(profile.avatar_style, profile.avatar_seed);
   const supplied = profile.avatar_url;
   const safeSupplied = supplied && (/^https:\/\/api\.dicebear\.com\/10\.x\/(critters|pixel-art|pixel-art-neutral|moods|thumbs|lorelei|notionists|pixelbot|voxel-bot|sprouts|planets|clay)\/png\?/.test(supplied) || /^https:\/\/static\.wikia\.nocookie\.net\/disney\/images\/[^\s#\\]+$/.test(supplied)) ? supplied : undefined;
-  const src = safeSupplied ?? generated;
+  const src = catalogAvatarUrl(profile.avatar_style, profile.avatar_choice) ?? safeSupplied ?? generated;
   const initials = profile.name.trim().split(/\s+/).slice(0,2).map(part => part[0]?.toUpperCase()).join('') || '?';
   return <span className={`inline-flex shrink-0 items-center justify-center overflow-hidden rounded-md border bg-muted [&_img]:size-full [&_img]:object-cover ${size==='small'?'size-10':'size-16'}`} aria-hidden="true">{src && !failed ? <img src={src} alt="" referrerPolicy="no-referrer" onError={() => setFailed(true)}/> : <span>{initials}</span>}</span>;
 }
@@ -47,17 +48,33 @@ export function AuthScreen({mode,onSubmit,onMode,busy,error,deviceCode}: {mode:A
   </Card>;
 }
 
-function AvatarPicker({value,onChange,disabled=false}: {value:AvatarStyle;onChange:(style:AvatarStyle)=>void;disabled?:boolean}) {
-  return <fieldset className="space-y-3" disabled={disabled}><legend>Choose an avatar</legend><div className="grid grid-cols-2 min-[360px]:grid-cols-3 gap-3 [&_label]:grid [&_label]:justify-items-center [&_label]:gap-2 [&_label]:rounded-md [&_label]:border [&_label]:p-2 [&_label]:text-center [&_label]:text-xs [&_label:has(:checked)]:ring-2 [&_label:has(:focus-visible)]:ring-2">{AVATAR_STYLES.map((style,index)=><label key={style} className={value===style?'ring-2':''}><input className="sr-only" type="radio" name="avatar_style" value={style} checked={value===style} onChange={()=>onChange(style)}/><ProfileAvatar profile={{name:STYLE_NAMES[style],avatar_style:style,avatar_seed:`preview-${index+1}`}}/><span>{STYLE_NAMES[style]}</span></label>)}</div></fieldset>;
+function useWideLayout() {
+  const query='(min-width: 768px)';const [wide,setWide]=useState(()=>window.matchMedia?.(query).matches ?? true);
+  useEffect(()=>{const media=window.matchMedia?.(query);if(!media)return;const change=()=>setWide(media.matches);media.addEventListener('change',change);return()=>media.removeEventListener('change',change)},[]);
+  return wide;
 }
-function ProfileForm({profile,onSave,busy}: {profile?:Profile;onSave:(name:string,style:AvatarStyle)=>void|Promise<void>;busy:boolean}) {
-  const action=useAction();const [style,setStyle]=useState<AvatarStyle>(AVATAR_STYLES.includes(profile?.avatar_style as AvatarStyle)?profile!.avatar_style as AvatarStyle:'critters');
-  return <form className="space-y-4" onSubmit={event=>{event.preventDefault();const name=String(new FormData(event.currentTarget).get('name')).trim();if(name&&!busy)void action.run(async()=>onSave(name,style),'');}}><fieldset disabled={busy||action.busy} className="space-y-4"><legend>{profile?'Edit profile':'Create a profile'}</legend><p>{profile?'Update this profile without losing its history.':'Give everyone their own favorites and watch history.'}</p><Field label="Profile name" name="name" required maxLength={80} defaultValue={profile?.name==='Default'?'':profile?.name}/><AvatarPicker value={style} onChange={setStyle} disabled={busy||action.busy}/><Feedback error={action.error}/><Submit busy={busy||action.busy}>{profile?'Save profile':'Create profile'}</Submit></fieldset></form>;
+function AvatarPicker({value,onChange,disabled=false}: {value:AvatarSelection;onChange:(value:AvatarSelection)=>void;disabled?:boolean}) {
+  const size=useWideLayout()?18:15;const grid=useRef<HTMLDivElement>(null);const worlds=useRef<HTMLDivElement>(null);
+  const [preview,setPreview]=useState(avatarWorld(value.style)?.style??AVATAR_WORLDS[0].style);const world=avatarWorld(preview)!;
+  const pages=Math.max(1,Math.ceil(world.count/size));const [page,setPage]=useState(()=>value.choice&&preview===value.style?Math.min(pages-1,Math.floor((value.choice-1)/size)):0);const current=Math.min(page,pages-1);
+  useEffect(()=>{worlds.current?.querySelector('[aria-pressed="true"]')?.scrollIntoView?.({block:'nearest',inline:'center'})},[preview]);
+  const turn=(step:number)=>{setPage((current+step+pages)%pages);setTimeout(()=>grid.current?.querySelector('input')?.focus(),0)};
+  const choices=Array.from({length:Math.min(size,world.count-current*size)},(_,i)=>current*size+i+1);
+  return <fieldset className="min-w-0 space-y-3" disabled={disabled}><legend>Choose an avatar</legend><p className="text-sm text-muted-foreground">{AVATAR_COUNT} avatars. Pick a world, then pick your character.</p>
+    <div ref={worlds} role="group" aria-label="Avatar worlds" className="flex gap-2 overflow-x-auto pb-1 md:flex-wrap md:overflow-visible">{AVATAR_WORLDS.map(item=><Button key={item.style} type="button" size="sm" className="min-h-11 shrink-0" variant={item.style===preview?'default':'outline'} aria-pressed={item.style===preview} onClick={()=>{setPreview(item.style);setPage(0)}}>{item.name}</Button>)}</div>
+    <div ref={grid} role="radiogroup" aria-label={`${world.name} avatars`} className="grid grid-cols-3 gap-2 min-[360px]:grid-cols-5 md:grid-cols-6 [&_label]:relative [&_label]:block [&_label]:rounded-md [&_label]:border [&_label]:p-1 [&_label:has(:checked)]:ring-2 [&_label:has(:focus-visible)]:outline-2">{choices.map(choice=>{const selected=value.style===preview&&value.choice===choice;return <label key={`${preview}-${choice}`} className={selected?'ring-2':''}><input className="sr-only" type="radio" name="avatar_choice" aria-label={`${world.name} ${choice}`} checked={selected} onChange={()=>onChange({style:preview,choice})}/><img className="aspect-square w-full rounded-sm object-cover" src={catalogAvatarUrl(preview,choice)} alt="" loading="lazy"/>{selected&&<span className="absolute right-1 top-1 grid size-5 place-items-center rounded-full bg-primary text-xs text-primary-foreground" aria-hidden="true">✓</span>}</label>})}</div>
+    <div className="flex items-center justify-between gap-2"><Button type="button" variant="outline" className="min-h-11" onClick={()=>turn(-1)}>Previous</Button><span className="text-sm text-muted-foreground" aria-live="polite">{world.name} · {current+1} / {pages}</span><Button type="button" variant="outline" className="min-h-11" onClick={()=>turn(1)}>Next</Button></div>
+  </fieldset>;
 }
-export function ProfileScreen({profiles,canCreate,onSelect,onCreate,onUpdate,onDelete,onLogout,busy,error}: {profiles:Profile[];canCreate:boolean;onSelect:(id:string)=>void|Promise<void>;onCreate:(name:string,style:AvatarStyle)=>void|Promise<void>;onUpdate?:(profile:Profile,name:string,style:AvatarStyle)=>void|Promise<void>;onDelete?:(profile:Profile)=>void|Promise<void>;onLogout:()=>void|Promise<void>;busy:boolean;error?:string}) {
+function ProfileForm({profile,onSave,busy}: {profile?:Profile;onSave:(name:string,avatar:AvatarSelection)=>void|Promise<void>;busy:boolean}) {
+  // The saved choice is shown, but only a new pick is sent, so earlier random-seed avatars survive edits.
+  const action=useAction();const [avatar,setAvatar]=useState<AvatarSelection>(()=>avatarWorld(profile?.avatar_style)?{style:profile!.avatar_style!,choice:profile!.avatar_choice??undefined}:{style:'critters'});const [picked,setPicked]=useState(false);
+  return <form className="space-y-4" onSubmit={event=>{event.preventDefault();const name=String(new FormData(event.currentTarget).get('name')).trim();if(name&&!busy)void action.run(async()=>onSave(name,picked?avatar:{style:avatar.style}),'');}}><fieldset disabled={busy||action.busy} className="min-w-0 space-y-4"><legend>{profile?'Edit profile':'Create a profile'}</legend><p>{profile?'Update this profile without losing its history.':'Give everyone their own favorites and watch history.'}</p><Field label="Profile name" name="name" required maxLength={80} defaultValue={profile?.name==='Default'?'':profile?.name}/><AvatarPicker value={avatar} onChange={value=>{setAvatar(value);setPicked(true)}} disabled={busy||action.busy}/><Feedback error={action.error}/><Submit busy={busy||action.busy}>{profile?'Save profile':'Create profile'}</Submit></fieldset></form>;
+}
+export function ProfileScreen({profiles,canCreate,onSelect,onCreate,onUpdate,onDelete,onLogout,busy,error}: {profiles:Profile[];canCreate:boolean;onSelect:(id:string)=>void|Promise<void>;onCreate:(name:string,avatar:AvatarSelection)=>void|Promise<void>;onUpdate?:(profile:Profile,name:string,avatar:AvatarSelection)=>void|Promise<void>;onDelete?:(profile:Profile)=>void|Promise<void>;onLogout:()=>void|Promise<void>;busy:boolean;error?:string}) {
   const action=useAction();const [creating,setCreating]=useState(profiles.length===0);const imported=profiles.find(profile=>profile.setup_complete===false);const[editing,setEditing]=useState<Profile>();const[deleting,setDeleting]=useState<Profile>();
-  if(imported&&onUpdate)return <Card className="p-6 space-y-5"><div className="flex items-center gap-2 text-xl font-semibold"><strong>VIPTV</strong></div><h1>Make this profile yours</h1><ProfileForm profile={imported} busy={busy} onSave={(name,style)=>onUpdate(imported,name,style)}/><Button variant="ghost" onClick={()=>void onLogout()}>Sign out</Button></Card>;
-  if(editing&&onUpdate)return <Card className="p-6 space-y-5"><ProfileForm profile={editing} busy={busy} onSave={async(name,style)=>{await onUpdate(editing,name,style);setEditing(undefined)}}/><Button variant="ghost" disabled={busy} onClick={()=>setEditing(undefined)}>Cancel editing</Button></Card>;
+  if(imported&&onUpdate)return <Card className="p-6 space-y-5"><div className="flex items-center gap-2 text-xl font-semibold"><strong>VIPTV</strong></div><h1>Make this profile yours</h1><ProfileForm profile={imported} busy={busy} onSave={(name,avatar)=>onUpdate(imported,name,avatar)}/><Button variant="ghost" onClick={()=>void onLogout()}>Sign out</Button></Card>;
+  if(editing&&onUpdate)return <Card className="p-6 space-y-5"><ProfileForm profile={editing} busy={busy} onSave={async(name,avatar)=>{await onUpdate(editing,name,avatar);setEditing(undefined)}}/><Button variant="ghost" disabled={busy} onClick={()=>setEditing(undefined)}>Cancel editing</Button></Card>;
   if(deleting&&onDelete)return <Card className="p-6 space-y-5" role="alertdialog" aria-label="Delete profile"><h1 className="break-words [overflow-wrap:anywhere]">Delete {deleting.name}?</h1><p>This permanently removes this profile’s watch history, favorites and preferences. Devices using it will need to choose a profile again.</p><Feedback error={error||action.error}/><Button disabled={busy||action.busy} onClick={()=>void action.run(async()=>{await onDelete(deleting);setDeleting(undefined)},'')}>Delete profile permanently</Button><Button variant="outline" disabled={busy} onClick={()=>setDeleting(undefined)}>Keep profile</Button></Card>;
   return <Card className="p-6 space-y-5" aria-label="Choose a profile"><div className="flex items-center gap-2 text-xl font-semibold"><strong>VIPTV</strong></div><h1>Profiles</h1><p className="text-sm text-muted-foreground">Manage profiles used by your TV app.</p><Feedback error={error||action.error}/>
     {!!profiles.length&&<ul className="grid min-w-0 grid-cols-1 gap-4 sm:grid-cols-2 [&_button]:rounded-md [&_button]:border [&_button]:p-4 [&_button]:space-y-2 [&_button]:focus-visible:outline-2">{profiles.map(item=><li className="min-w-0" key={item.id}><button className="flex w-full min-w-0 flex-wrap items-center gap-3 text-left" disabled={busy||action.busy} onClick={()=>void action.run(async()=>onSelect(item.id),'')}><ProfileAvatar profile={item}/><strong className="min-w-0 flex-1 break-words [overflow-wrap:anywhere]">{item.name}</strong></button>{onUpdate&&<Button className="h-auto w-full whitespace-normal break-words [overflow-wrap:anywhere]" variant="ghost" disabled={busy} onClick={()=>setEditing(item)}>Edit {item.name}</Button>}{onDelete&&!item.is_primary&&<Button className="h-auto w-full whitespace-normal break-words [overflow-wrap:anywhere]" variant="ghost" disabled={busy} onClick={()=>setDeleting(item)}>Delete {item.name}</Button>}{item.is_primary&&<p className="text-xs text-muted-foreground">Primary profile</p>}</li>)}</ul>}

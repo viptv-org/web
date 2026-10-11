@@ -15,7 +15,7 @@ import { OperatorOverview } from './OperatorOverview';
 import {Feedback,Modal} from './shared';
 import {ApiError,type Client,type Profile} from './lib/api';
 import {createAccountClient} from './lib/accountApi';
-import {AuthScreen,ProfileScreen,ProfileAvatar,AccountManagement,DeviceManagement,DeviceActivation,type AuthMode,type AvatarStyle} from './AccountScreens';
+import {AuthScreen,ProfileScreen,ProfileAvatar,AccountManagement,DeviceManagement,DeviceActivation,type AuthMode,type AvatarSelection} from './AccountScreens';
 import {LinkTv} from './LinkTv';
 import {ProtectedPresentation} from './ProtectedPresentation';
 
@@ -23,6 +23,7 @@ type Identity={id:string;name?:string;username?:string;role?:string};
 type Me={account?:Identity;user?:Identity;id?:string;account_id?:string|number;name?:string;username?:string;role?:string;capabilities?:{create_profiles?:boolean;can_create_profile?:boolean};can_create_profile?:boolean;restricted?:boolean;profile_id?:string|null};
 type State='boot'|'device-code'|'auth'|'recovery-codes'|'activate'|'profiles'|'ready'|'unavailable';
 function normalizeMe(data:Me):Me{if(!data.account&&!data.user&&(data.account_id!=null||data.id!=null))return{...data,account:{id:String(data.account_id??data.id),name:data.name,username:data.username,role:data.role}};return data}
+function avatarBody({style,choice}:AvatarSelection){return choice?{avatar_style:style,avatar_choice:choice}:{avatar_style:style}}
 function isDeviceEntryRoute(){return typeof window!=='undefined'&&['/device','/activate'].includes(window.location.pathname)}
 function initialDeviceCode(){if(!isDeviceEntryRoute())return'';const value=new URLSearchParams(window.location.search).get('code')?.trim().toUpperCase()??'';return/^[A-Z0-9]{6,12}$/.test(value)?value:''}
 
@@ -43,9 +44,9 @@ export default function AccountApp(){
  useEffect(()=>{if(isDeviceEntryRoute()&&!deviceCode)return;void startSession();return()=>{generation.current++;connection.clear()}},[startSession,connection,deviceCode]);
  async function submitAuth(body:Record<string,string>){await action(async()=>{const path=mode==='register'?'/auth/register':mode==='recover'?'/auth/recover':'/auth/login';const result=await api<{recovery_codes?:string[];recovery_code?:string}>(path,'POST',body);const received=result?.recovery_codes?.length?result.recovery_codes:result?.recovery_code?[result.recovery_code]:[];if(received.length){setCodes(received);setState('recovery-codes');return}if(mode==='recover'){setMode('login');setState('auth');return}await authenticated()})}
  async function select(id:string){await action(async()=>{const chosen=profiles.find(p=>p.id===id);if(!chosen||chosen.setup_complete===false)throw new Error('Finish setting up this profile first.');try{await api('/auth/profile','POST',{profile_id:id})}catch(e){if(e instanceof ApiError&&e.errorCode==='parent_required'){setPendingProfile(id);setParentRequired(true);return}throw e}setPendingProfile('');setParentUntil(0);setParentRequired(false);setMe(normalizeMe(await api<Me>('/auth/me')));setProfile(id);setPage('Profile');setState('ready')})}
- async function create(name:string,avatar_style:AvatarStyle){await action(async()=>{const created=await api<Profile>('/profiles','POST',{name,avatar_style});if(!created?.id)throw new Error('The server did not return the new profile.');const assigned=await api<Profile[]>('/profiles');setProfiles(assigned);if(!assigned.some(p=>p.id===created.id))throw new Error('The new profile is not available.');await api('/auth/profile','POST',{profile_id:created.id});setProfile(created.id);setState('ready')})}
+ async function create(name:string,avatar:AvatarSelection){await action(async()=>{const created=await api<Profile>('/profiles','POST',{name,...avatarBody(avatar)});if(!created?.id)throw new Error('The server did not return the new profile.');const assigned=await api<Profile[]>('/profiles');setProfiles(assigned);if(!assigned.some(p=>p.id===created.id))throw new Error('The new profile is not available.');await api('/auth/profile','POST',{profile_id:created.id});setProfile(created.id);setState('ready')})}
  async function removeProfile(item:Profile){await action(async()=>{await api(`/profiles/${encodeURIComponent(item.id)}`,'DELETE');generation.current++;await loadProfiles()},true)}
- async function update(imported:Profile,name:string,avatar_style:AvatarStyle){await action(async()=>{await api(`/profiles/${encodeURIComponent(imported.id)}`,'PATCH',{name,avatar_style,setup_complete:true});await loadProfiles()},true)}
+ async function update(imported:Profile,name:string,avatar:AvatarSelection){await action(async()=>{await api(`/profiles/${encodeURIComponent(imported.id)}`,'PATCH',{name,...avatarBody(avatar),setup_complete:true});await loadProfiles()},true)}
  function logout(){setConfirmLogout(true)}
  async function performLogout(){setConfirmLogout(false);await action(async()=>{try{await api('/auth/logout','POST',{})}catch(e){if(e instanceof ApiError&&e.errorCode==='parent_required'){setPendingLogout(true);setParentRequired(true);return}throw e}connection.clear();generation.current++;protectedEpoch.current++;protectedRequests.current.abort();presentedScope.current=undefined;setMe(undefined);setPendingLogout(false);setParentUntil(0);setParentRequired(false);setPendingProfile('');setProfiles([]);setProfile('');setCodes([]);setPage('Profile');setMode('login');setState('auth');await api('/auth/status')})}
  function blockProtected(){protectedBlocked.current=true;protectedRequests.current.abort();setParentUntil(0);setParentRequired(true)}
