@@ -1,3 +1,4 @@
+import {readDeviceCode} from './lib/deviceCode';
 import {SimklConnection} from './SimklConnection';
 import {AccountParentPin,ProfileParentalControls,ParentUnlock} from './ParentalControls';
 import {PlaybackPreferences} from "./PlaybackPreferences";
@@ -26,7 +27,7 @@ type State='boot'|'device-code'|'auth'|'recovery-codes'|'activate'|'profiles'|'r
 function normalizeMe(data:Me):Me{if(!data.account&&!data.user&&(data.account_id!=null||data.id!=null))return{...data,account:{id:String(data.account_id??data.id),name:data.name,username:data.username,role:data.role}};return data}
 function avatarBody({style,choice}:AvatarSelection){return choice?{avatar_style:style,avatar_choice:choice}:{avatar_style:style}}
 function isDeviceEntryRoute(){return typeof window!=='undefined'&&['/device','/activate'].includes(window.location.pathname)}
-function initialDeviceCode(){if(!isDeviceEntryRoute())return'';const value=new URLSearchParams(window.location.search).get('code')?.trim().toUpperCase()??'';return/^[A-Z0-9]{6,12}$/.test(value)?value:''}
+function initialDeviceCode(){if(!isDeviceEntryRoute())return'';return readDeviceCode(new URLSearchParams(window.location.search).get('code')??'')??''}
 
 export default function AccountApp(){
  const[state,setState]=useState<State>(()=>isDeviceEntryRoute()&&!initialDeviceCode()?'device-code':'boot');const[mode,setMode]=useState<AuthMode>('login');const[me,setMe]=useState<Me>();const[profiles,setProfiles]=useState<Profile[]>([]);const[profile,setProfile]=useState('');const[page,setPage]=useState<AdminPage>('Profile');const[error,setError]=useState('');const[busy,setBusy]=useState(false);const[codes,setCodes]=useState<string[]>([]);const[deviceCode,setDeviceCode]=useState(initialDeviceCode);const generation=useRef(0);

@@ -51,15 +51,15 @@
       "source": "dashboard/src/AccountApp.test.tsx",
       "destination": "src/AccountApp.test.tsx",
       "sha256": "d823ea805b37d020916231da4c64bebe4d822d5648c7955efa6c4b0dc3ea7596",
-      "extracted_sha256": "704d7f376fda4a127742c59b71733ba64b852280f193781fbd86bf4446c75ba6",
-      "reason": "Cover code entry and the existing sign-in handoff. ADM-002 account-owned v2 management and approved design adoption; original extraction checksum retained. ADM-003 selected-profile forms and explicit account scope; original extraction hash retained. ADM-002 account-owned v2 management and approved design adoption; original extraction checksum retained."
+      "extracted_sha256": "335d210d870c778973b8295b08fe2d9f592bbf5718973f8f23eda5d791a08fa9",
+      "reason": "Cover code entry and the existing sign-in handoff. ADM-002 account-owned v2 management and approved design adoption; original extraction checksum retained. ADM-003 selected-profile forms and explicit account scope; original extraction hash retained. ADM-002 account-owned v2 management and approved design adoption; original extraction checksum retained. Experimental device entry/deep-link contract matches host eight-digit and ten-hex legacy codes; leading zeroes and original extraction checksum retained."
     },
     {
       "source": "dashboard/src/AccountApp.tsx",
       "destination": "src/AccountApp.tsx",
       "sha256": "081aad698b244cd0564b34ff45387fe84188255c58c7cb3f5a2f25901ee13979",
-      "extracted_sha256": "4754d583f11d632666bd4abfb9de2e20fdb24eb8c538f84193413183e77772b4",
-      "reason": "Route code-free device links through the designed code-entry page. ADM-002 account-owned v2 management and approved design adoption; original extraction checksum retained. Preserve same-profile drafts during parent authorization while masking protected presentation and requests. Remove dead and duplicated code: shared v2 cursor/ID validators, one row validation pass in the paging hooks, useAction as the single pending-action guard. IMP-001 adds profile-scoped Stremio preview and explicit confirmation; IMP-002 scopes addon-assisted named review and item exclusions to the selected profile. ADM-003 selected-profile forms and explicit account scope; original extraction hash retained. ADM-002 account-owned v2 management and approved design adoption; original extraction checksum retained. Experimental selected-profile SIMKL v3 connection card; existing account design and extraction checksum retained."
+      "extracted_sha256": "15cc47c989e3ee93d0d2987ae2a6b39072bdfc04678c1aa605972cf014a63726",
+      "reason": "Route code-free device links through the designed code-entry page. ADM-002 account-owned v2 management and approved design adoption; original extraction checksum retained. Preserve same-profile drafts during parent authorization while masking protected presentation and requests. Remove dead and duplicated code: shared v2 cursor/ID validators, one row validation pass in the paging hooks, useAction as the single pending-action guard. IMP-001 adds profile-scoped Stremio preview and explicit confirmation; IMP-002 scopes addon-assisted named review and item exclusions to the selected profile. ADM-003 selected-profile forms and explicit account scope; original extraction hash retained. ADM-002 account-owned v2 management and approved design adoption; original extraction checksum retained. Experimental selected-profile SIMKL v3 connection card; existing account design and extraction checksum retained. Experimental device entry/deep-link contract matches host eight-digit and ten-hex legacy codes; leading zeroes and original extraction checksum retained."
     },
     {
       "source": "dashboard/src/AccountPools.test.tsx",
