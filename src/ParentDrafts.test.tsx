@@ -24,22 +24,22 @@ function fixture() {
       if(body.pin!=='1234')return json({error:'Incorrect parent PIN',error_code:'invalid_parent_pin'},403);
       state.locked=false;return json({unlocked:true});
     }
-    const save=method!=='GET'&&['/api/v2/iptv/connections','/api/v2/addons','/api/v2/gateways','/api/v2/iptv/matches','/api/v2/gateways/gateway1/grants'].includes(path);
+    const save=method!=='GET'&&['/api/iptv/connections','/api/addons','/api/gateways','/api/iptv/matches','/api/gateways/gateway1/grants'].includes(path);
     if(save){
       saves.push({path,body});
       if(saves.length===1){state.locked=true;return json({error:'Parent PIN required',error_code:'parent_required'},403)}
       if(path.includes('/grants'))return json({ok:true});
       if(path.includes('/connections'))return json({...connection,id:2,name:body.name});
-      if(path==='/api/v2/addons')return json({id:8,name:'Added add-on',enabled:true,credentials_encrypted:true});
-      if(path==='/api/v2/gateways')return json({...gateway,id:'new',name:body.name});
+      if(path==='/api/addons')return json({id:8,name:'Added add-on',enabled:true,credentials_encrypted:true});
+      if(path==='/api/gateways')return json({...gateway,id:'new',name:body.name});
       return json({ok:true});
     }
-    if(path.startsWith('/api/v2/iptv/connections?'))return json({items:[connection],next_cursor:null});
-    if(path==='/api/v2/iptv/live-default')return json({catalog_id:1});
-    if(path.startsWith('/api/v2/addons?'))return json({items:[],next_cursor:null});
-    if(path==='/api/v2/gateways')return json({items:[gateway],secret_storage_configured:true});
+    if(path.startsWith('/api/iptv/connections?'))return json({items:[connection],next_cursor:null});
+    if(path==='/api/iptv/live-default')return json({catalog_id:1});
+    if(path.startsWith('/api/addons?'))return json({items:[],next_cursor:null});
+    if(path==='/api/gateways')return json({items:[gateway],secret_storage_configured:true});
     if(path.includes('/grants?'))return json({items:[],next_cursor:null});
-    if(path.startsWith('/api/v2/iptv/matches?'))return json({items:[{vod_id:'vod:1:1',provider_id:1,name:'Fixture title',type:'movie',year:2020}],next_cursor:null});
+    if(path.startsWith('/api/iptv/matches?'))return json({items:[{vod_id:'vod:1:1',provider_id:1,name:'Fixture title',type:'movie',year:2020}],next_cursor:null});
     if(path.endsWith('/preferences'))return json({audio_language:'en',subtitle_language:'en',subtitles_enabled:false,subtitle_size:'normal',subtitle_style:'system',autoplay:false});
     if(path==='/api/parent/status')return json({pin_configured:false,unlocked:true,restricted:false});
     if(path.endsWith('/kids'))return json({enabled:false,max_age:12});
@@ -116,9 +116,9 @@ describe('same-profile drafts through parent authorization',()=>{
     const input=screen.getByLabelText('Parent PIN');fireEvent.change(input,{target:{value:'1234'}});fireEvent.submit(input.closest('form')!);fireEvent.submit(input.closest('form')!);
     expect(f.fetch.mock.calls.filter(([path])=>path==='/api/parent/unlock')).toHaveLength(1);expect(screen.getByRole('button',{name:'Unlocking…'})).toBeDisabled();
     await act(async()=>unlock(json({unlocked:true})));await screen.findByLabelText('Password');
-    let save!:(value:Response)=>void;f.fetch.mockImplementation((path,request)=>path==='/api/v2/iptv/connections'&&request?.method==='POST'?new Promise(resolve=>{save=resolve}):ordinary(path,request));
+    let save!:(value:Response)=>void;f.fetch.mockImplementation((path,request)=>path==='/api/iptv/connections'&&request?.method==='POST'?new Promise(resolve=>{save=resolve}):ordinary(path,request));
     const form=screen.getByLabelText('Password').closest('form')!;fireEvent.submit(form);fireEvent.submit(form);
-    expect(f.fetch.mock.calls.filter(([path,request])=>path==='/api/v2/iptv/connections'&&request?.method==='POST')).toHaveLength(2);
+    expect(f.fetch.mock.calls.filter(([path,request])=>path==='/api/iptv/connections'&&request?.method==='POST')).toHaveLength(2);
     expect(screen.getByLabelText('Password')).toBeDisabled();await act(async()=>save(json({...connection,id:2,name:'Draft TV'})));
   });
 });
